@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design-system tokens (from the PRD). Light values are authoritative. */
+:root {
+  --bg: #f7f5f0;
+  --surface: #ffffff;
+  --ink: #12192b;
+  --ink-muted: #5b6475;
+  --water: #12a4d9;
+  --attention: #f2a93b;
+  --urgent: #e5484d; /* unresolved flags only */
+  --unseen: #c9ced8; /* outline */
+  --success: #2fa36b;
+}
+
+/*
+ * Dark theme.
+ * TODO(PRD): replace with the exact dark-mode token table from the PRD design
+ * system. These are reasonable interim values so dark mode is not broken.
+ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1220;
+    --surface: #161d2e;
+    --ink: #eef1f6;
+    --ink-muted: #9aa3b5;
+    --water: #3fc0ef;
+    --attention: #f2a93b;
+    --urgent: #ff6166;
+    --unseen: #313a4f;
+    --success: #4cc48a;
+  }
+}
+
+/* Explicit class override (lets a theme toggle force dark regardless of OS). */
+.dark {
+  --bg: #0d1220;
+  --surface: #161d2e;
+  --ink: #eef1f6;
+  --ink-muted: #9aa3b5;
+  --water: #3fc0ef;
+  --attention: #f2a93b;
+  --urgent: #ff6166;
+  --unseen: #313a4f;
+  --success: #4cc48a;
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  /* Tabular numbers so hero stats line up. */
+  font-feature-settings: 'tnum' 1, 'cv11' 1;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Respect reduced-motion globally (Framer Motion also reads this). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Visible keyboard focus everywhere. */
+:focus-visible {
+  outline: 2px solid var(--water);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
