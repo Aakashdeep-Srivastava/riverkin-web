@@ -1,6 +1,7 @@
 /**
  * Credits footer. The hard rules require crediting OneAquaHealth (sites),
- * Open-Meteo (weather) and OpenStreetMap (tiles) in the UI.
+ * Open-Meteo (weather) and the map-tile provider in the UI. Tiles now come from
+ * Azure Maps (data © TomTom), so OpenStreetMap is no longer credited here.
  */
 export function SiteFooter() {
   return (
@@ -24,16 +25,25 @@ export function SiteFooter() {
         >
           Open-Meteo
         </a>
-        , map tiles &copy;{' '}
+        , map tiles from{' '}
         <a
           className="underline underline-offset-2 hover:text-ink"
-          href="https://www.openstreetmap.org/copyright"
+          href="https://azure.microsoft.com/products/azure-maps"
           target="_blank"
           rel="noreferrer noopener"
         >
-          OpenStreetMap
+          Azure Maps
         </a>{' '}
-        contributors.
+        (data &copy;{' '}
+        <a
+          className="underline underline-offset-2 hover:text-ink"
+          href="https://www.tomtom.com/"
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          TomTom
+        </a>
+        ).
       </p>
     </footer>
   );

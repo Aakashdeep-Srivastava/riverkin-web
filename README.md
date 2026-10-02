@@ -12,7 +12,7 @@ backend lives in a separate repo: https://github.com/Aakashdeep-Srivastava/river
 ## Stack
 
 Next.js 14 (App Router) · TypeScript (strict) · Tailwind with CSS-variable tokens · Radix
-primitives · Lucide icons · Framer Motion · MapLibre GL + OpenStreetMap tiles · TanStack Query ·
+primitives · Lucide icons · Framer Motion · MapLibre GL (globe) + Azure Maps tiles · TanStack Query ·
 `idb` for the offline check queue.
 
 ## Local development
@@ -71,4 +71,4 @@ output on port 3000.
 
 - River sites — [OneAquaHealth](https://oneaquahealth.eu/)
 - Weather — [Open-Meteo](https://open-meteo.com/)
-- Map tiles — © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors
+- Map tiles — [Azure Maps](https://azure.microsoft.com/products/azure-maps), data © [TomTom](https://www.tomtom.com/)

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { ScreenHeader } from '@/components/screen-header';
-import { MapPlaceholder } from '@/components/map-placeholder';
+import { AttentionMap } from '@/components/attention-map';
 import { AttentionStatus } from '@/components/attention-status';
 import { SiteFooter } from '@/components/site-footer';
 import { mockSites } from '@/lib/mock-data';
@@ -23,7 +23,7 @@ export default function HomePage() {
       />
 
       <div className="px-4 pt-4">
-        <MapPlaceholder />
+        <AttentionMap />
       </div>
 
       <section aria-labelledby="site-list-heading" className="px-4 pt-6">

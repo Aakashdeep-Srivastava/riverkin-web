@@ -78,3 +78,40 @@ body {
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/*
+ * Globe map site markers (see GlobeMap). They read as "attention" points:
+ * an amber dot with a water-coloured pulsing ring. The global reduced-motion
+ * rule above neutralises the pulse animation automatically.
+ */
+.rk-marker {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: var(--attention);
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--unseen);
+  cursor: pointer;
+}
+
+.rk-marker::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 9999px;
+  border: 2px solid var(--water);
+  opacity: 0.6;
+  animation: rk-marker-pulse 2.4s ease-out infinite;
+}
+
+@keyframes rk-marker-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
