@@ -2,15 +2,34 @@ import Link from 'next/link';
 import { X, Check, CalendarCheck, Database, Sprout, ShieldCheck } from 'lucide-react';
 import { buttonClasses } from '@/components/ui/button';
 import { SimulatedBadge } from '@/components/simulated-badge';
-import { getMockReceipt } from '@/lib/mock-data';
+import { getMockReceipt, type Receipt } from '@/lib/mock-data';
+import { fetchSiteView, type SiteView } from '@/lib/sites-api';
+
+function buildReceipt(view: SiteView): Receipt {
+  const { site, detail } = view;
+  return {
+    siteName: site.name,
+    waterbody: site.waterbody,
+    city: detail.city,
+    gapBefore: site.daysUnseen,
+    gapAfter: 0,
+    rainContext: `First verified check after ${detail.rain48h} mm of rain`,
+    verifierCount: 3,
+    fhirId: 'a91f',
+    sentinelLine: 'Sombra: "Plant cover was high on the left bank, so I\'m content."',
+    state: 'In peer verification',
+    dateLabel: '3 Oct 2026 · 14:23',
+  };
+}
 
 /**
  * C6 — Status + impact receipt. The payoff: a concrete statement of what the
  * visit changed, a collectible receipt card with a self-drawing river line, and
  * one Sentinel flavour line. No points or scores (hard rule).
  */
-export default function ReceiptPage({ params }: { params: { id: string } }) {
-  const r = getMockReceipt(params.id);
+export default async function ReceiptPage({ params }: { params: { id: string } }) {
+  const view = await fetchSiteView(params.id);
+  const r = view ? buildReceipt(view) : getMockReceipt(params.id);
 
   const impact = [
     { Icon: CalendarCheck, title: 'Site updated', body: `${r.gapBefore} → ${r.gapAfter} days unseen` },

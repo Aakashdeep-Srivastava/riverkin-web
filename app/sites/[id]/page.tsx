@@ -6,6 +6,7 @@ import { StatTile } from '@/components/ui/stat-tile';
 import { PhotoFrame } from '@/components/ui/photo-frame';
 import { buttonClasses } from '@/components/ui/button';
 import { getMockSite, getMockSiteDetail, type GapLevel } from '@/lib/mock-data';
+import { fetchSiteView } from '@/lib/sites-api';
 
 const GAP_META: Record<GapLevel, { label: string; accent: string }> = {
   high: { label: 'High', accent: 'var(--urgent)' },
@@ -18,9 +19,10 @@ const GAP_META: Record<GapLevel, { label: string; accent: string }> = {
  * Three hero numbers (days since check, rain 48 h, data gap) + a plain-language
  * reason + a photo strip, leading into the mission.
  */
-export default function SitePage({ params }: { params: { id: string } }) {
-  const site = getMockSite(params.id);
-  const detail = getMockSiteDetail(params.id);
+export default async function SitePage({ params }: { params: { id: string } }) {
+  const view = await fetchSiteView(params.id);
+  const site = view?.site ?? getMockSite(params.id);
+  const detail = view?.detail ?? getMockSiteDetail(params.id);
   if (!site || !detail) notFound();
 
   const gap = GAP_META[detail.gapLevel];

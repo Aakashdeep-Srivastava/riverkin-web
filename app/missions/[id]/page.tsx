@@ -4,7 +4,37 @@ import { ArrowLeft, Clock, Eye, Camera, ShieldCheck, ShieldAlert, ArrowRight } f
 import { StepIndicator } from '@/components/ui/step-indicator';
 import { PhotoFrame } from '@/components/ui/photo-frame';
 import { buttonClasses } from '@/components/ui/button';
-import { getMockSite, getMockSiteDetail, getMockMissionBrief } from '@/lib/mock-data';
+import {
+  getMockSite,
+  getMockSiteDetail,
+  getMockMissionBrief,
+  type MissionBrief,
+  type SiteDetail,
+} from '@/lib/mock-data';
+import { fetchSiteView } from '@/lib/sites-api';
+import type { Site } from '@/lib/api-types';
+
+/** Generate a mission brief for any site when there is no bundled one. */
+function buildBrief(site: Site, detail: SiteDetail): MissionBrief {
+  const name =
+    detail.rain48h >= 20
+      ? 'After-the-Rain Check'
+      : site.daysUnseen >= 30
+        ? 'Orphan-Site Check'
+        : site.daysUnseen >= 8
+          ? 'Fortnightly Check'
+          : 'Monitoring Check';
+  return {
+    id: `mission-${site.id}`,
+    siteId: site.id,
+    name,
+    windowLabel: site.daysUnseen >= 30 ? `Unseen ${site.daysUnseen} days` : 'Open for a few days',
+    estMinutes: '3–5 min',
+    distanceKm: 1.5,
+    safetyLine: 'Photo from the bank only. Never wade or touch water near pipes.',
+    steps: ['Observe', 'Photograph', 'Verify'],
+  };
+}
 
 const STEP_ICONS = [Eye, Camera, ShieldCheck];
 const STEP_HINTS = [
@@ -17,11 +47,12 @@ const STEP_HINTS = [
  * C3 — Mission brief. Frames the task: name, window, three steps, and the
  * mandatory safety line (hard rule) before the check begins.
  */
-export default function MissionBriefPage({ params }: { params: { id: string } }) {
-  const site = getMockSite(params.id);
-  const detail = getMockSiteDetail(params.id);
-  const brief = getMockMissionBrief(params.id);
-  if (!site || !detail || !brief) notFound();
+export default async function MissionBriefPage({ params }: { params: { id: string } }) {
+  const view = await fetchSiteView(params.id);
+  const site = view?.site ?? getMockSite(params.id);
+  const detail = view?.detail ?? getMockSiteDetail(params.id);
+  if (!site || !detail) notFound();
+  const brief = getMockMissionBrief(params.id) ?? buildBrief(site, detail);
 
   return (
     <main className="mx-auto min-h-dvh max-w-2xl pb-28">

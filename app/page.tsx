@@ -2,9 +2,11 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { hasEntered } from '@/lib/entry-state';
+import { fetchSites } from '@/lib/sites-api';
 import { AppBar } from '@/components/app-bar';
 import { AttentionMap } from '@/components/attention-map';
 import { AttentionStatus } from '@/components/attention-status';
@@ -42,12 +44,21 @@ export default function HomePage() {
   // Entry gate: first visit opens on the globe/login screen (remembered).
   const [checked, setChecked] = useState(false);
 
+  // Live data from the API; falls back to bundled mock sites if unreachable.
+  const { data: liveSites } = useQuery({
+    queryKey: ['sites'],
+    queryFn: fetchSites,
+    staleTime: 60_000,
+    retry: 1,
+  });
+  const baseSites = useMemo(() => liveSites ?? mockSites, [liveSites]);
+
   const sorted = useMemo(
     () =>
-      [...mockSites].sort(
+      [...baseSites].sort(
         (a, b) => LEVEL_RANK[a.attention] - LEVEL_RANK[b.attention] || b.daysUnseen - a.daysUnseen,
       ),
-    [],
+    [baseSites],
   );
   const visible = useMemo(() => sorted.filter((s) => matchesFilter(s, filter)), [sorted, filter]);
   const maxDays = useMemo(() => sorted.reduce((m, s) => Math.max(m, s.daysUnseen), 0), [sorted]);
