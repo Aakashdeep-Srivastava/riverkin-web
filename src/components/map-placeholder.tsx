@@ -21,7 +21,7 @@ export function MapPlaceholder() {
     <div
       role="img"
       aria-label="Map of river sites (simulated placeholder). A text list of the same sites is shown below."
-      className="relative flex h-56 w-full items-center justify-center overflow-hidden rounded-card border border-unseen bg-[color-mix(in_srgb,var(--water)_10%,var(--surface))] md:h-72"
+      className="relative flex h-full min-h-[14rem] w-full items-center justify-center overflow-hidden bg-[color-mix(in_srgb,var(--water)_10%,var(--surface))]"
     >
       {/* Ambient water orb (decorative). */}
       <div

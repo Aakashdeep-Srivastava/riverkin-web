@@ -27,8 +27,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={inter.variable}>
       <body className="font-sans antialiased">
         <QueryProvider>
-          {/* Extra bottom padding on mobile so content clears the fixed nav. */}
-          <div className="min-h-dvh pb-20 md:pb-0">{children}</div>
+          {/* Screens own their own bottom clearance (pb-24) so the full-screen
+           * map home can use the whole viewport. */}
+          <div className="min-h-dvh">{children}</div>
           <BottomNav />
         </QueryProvider>
       </body>

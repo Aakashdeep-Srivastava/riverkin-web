@@ -88,7 +88,7 @@ export function SiteCard({
   if (featured) {
     return (
       <Link
-        href={`/status/${site.id}`}
+        href={`/sites/${site.id}`}
         style={{ animationDelay: `${delayMs}ms` }}
         className="rk-reveal rk-card rk-card-link group relative block overflow-hidden rounded-card border border-unseen bg-surface"
       >
@@ -127,7 +127,7 @@ export function SiteCard({
 
   return (
     <Link
-      href={`/status/${site.id}`}
+      href={`/sites/${site.id}`}
       style={{ animationDelay: `${delayMs}ms` }}
       className="rk-reveal rk-card rk-card-link group relative flex items-stretch gap-4 overflow-hidden rounded-card border border-unseen bg-surface p-4 pl-5"
     >

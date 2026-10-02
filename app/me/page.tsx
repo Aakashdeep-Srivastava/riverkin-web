@@ -10,7 +10,7 @@ import { SiteFooter } from '@/components/site-footer';
  */
 export default function MePage() {
   return (
-    <main className="mx-auto max-w-2xl">
+    <main className="mx-auto max-w-2xl pb-28">
       <ScreenHeader title="Kari" subtitle="River keeper">
         <SimulatedBadge />
       </ScreenHeader>

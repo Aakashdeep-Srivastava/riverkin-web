@@ -9,7 +9,7 @@ import { SiteFooter } from '@/components/site-footer';
  */
 export default function CrewPage() {
   return (
-    <main className="mx-auto max-w-2xl">
+    <main className="mx-auto max-w-2xl pb-28">
       <ScreenHeader title="Crew" subtitle="People keeping these rivers with you.">
         <SimulatedBadge />
       </ScreenHeader>

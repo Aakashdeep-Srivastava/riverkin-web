@@ -160,8 +160,8 @@ export default function GlobeMap() {
       const map = new MaplibreMap({
         container,
         style,
-        center: [10, 48],
-        zoom: 2.2,
+        center: [11.23, 43.79],
+        zoom: 10.2,
         attributionControl: false,
         // Always read the *current* (possibly refreshed) token from the ref.
         transformRequest: (url: string): RequestParameters | undefined => {
@@ -255,7 +255,7 @@ export default function GlobeMap() {
   }
 
   return (
-    <div className="relative h-56 w-full overflow-hidden rounded-card border border-unseen md:h-72">
+    <div className="relative h-full min-h-[14rem] w-full overflow-hidden">
       <div
         ref={containerRef}
         role="img"

@@ -1,51 +1,72 @@
 import Link from 'next/link';
-import { ChevronRight, MapPin } from 'lucide-react';
-import { ScreenHeader } from '@/components/screen-header';
+import { Eye, ChevronRight, Clock, ArrowRight } from 'lucide-react';
+import { AppBar } from '@/components/app-bar';
 import { AttentionStatus } from '@/components/attention-status';
-import { SimulatedBadge } from '@/components/simulated-badge';
 import { SiteFooter } from '@/components/site-footer';
-import { mockMissions } from '@/lib/mock-data';
+import { mockMissionBriefs, getMockSite } from '@/lib/mock-data';
 
-/** Missions list — entry point into the C2/C3 mission flow. */
+/**
+ * Missions tab — the two ways to help: verify others' checks (at home), and run
+ * a suggested mission (in the field). Entry point into F1 and F2.
+ */
 export default function MissionsPage() {
-  return (
-    <main className="mx-auto max-w-2xl">
-      <ScreenHeader
-        title="Missions"
-        subtitle="Short, concrete checks that close a monitoring gap."
-        aiStatus={`${mockMissions.length} suggested`}
-      >
-        <SimulatedBadge />
-      </ScreenHeader>
+  const briefs = Object.values(mockMissionBriefs);
 
-      <section className="px-4 pt-4">
-        {mockMissions.length === 0 ? (
-          <p className="rounded-card border border-unseen bg-surface p-6 text-center text-sm text-ink-muted">
-            No missions right now. Everything nearby was seen recently.
-          </p>
-        ) : (
-          <ul className="space-y-2">
-            {mockMissions.map((mission) => (
-              <li key={mission.id}>
-                <Link
-                  href={`/missions/${mission.id}`}
-                  className="flex min-h-tap items-center justify-between gap-3 rounded-card border border-unseen bg-surface p-4 hover:border-water"
-                >
-                  <div>
-                    <p className="font-semibold text-ink">{mission.title}</p>
-                    <p className="mt-0.5 flex items-center gap-1 text-sm text-ink-muted">
-                      <MapPin className="h-4 w-4" aria-hidden="true" />
-                      {mission.siteName} · {mission.distanceKm} km away
-                    </p>
-                    <AttentionStatus level={mission.attention} className="mt-1.5" />
-                  </div>
-                  <ChevronRight className="h-5 w-5 shrink-0 text-ink-muted" aria-hidden="true" />
-                </Link>
-              </li>
-            ))}
+  return (
+    <main className="mx-auto min-h-dvh max-w-2xl pb-28">
+      <AppBar />
+
+      <div className="space-y-6 px-4 pt-5">
+        {/* Verify round (F2) */}
+        <Link
+          href="/verify"
+          className="flex items-center gap-4 rounded-card border border-[var(--action)] bg-[var(--action-tint)] p-4"
+        >
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--action)] text-white">
+            <Eye className="h-6 w-6" aria-hidden="true" />
+          </span>
+          <div className="flex-1">
+            <p className="font-bold text-ink">5 checks need your eyes</p>
+            <p className="text-sm text-ink-muted">20-second rounds · verify from anywhere</p>
+          </div>
+          <ArrowRight className="h-5 w-5 text-[var(--action)]" aria-hidden="true" />
+        </Link>
+
+        {/* Suggested field missions (F1) */}
+        <section>
+          <h2 className="mb-3 text-[13px] font-semibold uppercase tracking-wide text-ink-muted">
+            Suggested missions
+          </h2>
+          <ul className="space-y-3">
+            {briefs.map((brief) => {
+              const site = getMockSite(brief.siteId);
+              if (!site) return null;
+              return (
+                <li key={brief.id}>
+                  <Link
+                    href={`/missions/${brief.siteId}`}
+                    className="rk-card rk-card-link flex items-center gap-3 rounded-card border border-unseen bg-surface p-4"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-ink">{brief.name}</p>
+                      <p className="truncate text-sm text-ink-muted">
+                        {site.name} · {site.waterbody}
+                      </p>
+                      <div className="mt-1.5 flex items-center gap-3">
+                        <AttentionStatus level={site.attention} />
+                        <span className="inline-flex items-center gap-1 text-xs text-ink-muted">
+                          <Clock className="h-3.5 w-3.5" aria-hidden="true" /> {brief.estMinutes}
+                        </span>
+                      </div>
+                    </div>
+                    <ChevronRight className="h-5 w-5 shrink-0 text-ink-muted" aria-hidden="true" />
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
-        )}
-      </section>
+        </section>
+      </div>
 
       <SiteFooter />
     </main>

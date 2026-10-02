@@ -1,91 +1,102 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Camera, ShieldAlert } from 'lucide-react';
-import { ScreenHeader } from '@/components/screen-header';
-import { AttentionStatus } from '@/components/attention-status';
-import { SimulatedBadge } from '@/components/simulated-badge';
-import { SiteFooter } from '@/components/site-footer';
-import { getMockMission } from '@/lib/mock-data';
+import { ArrowLeft, Clock, Eye, Camera, ShieldCheck, ShieldAlert, ArrowRight } from 'lucide-react';
+import { StepIndicator } from '@/components/ui/step-indicator';
+import { PhotoFrame } from '@/components/ui/photo-frame';
+import { buttonClasses } from '@/components/ui/button';
+import { getMockSite, getMockSiteDetail, getMockMissionBrief } from '@/lib/mock-data';
+
+const STEP_ICONS = [Eye, Camera, ShieldCheck];
+const STEP_HINTS = [
+  'Answer a few quick questions about the water.',
+  'Two photos: upstream and downstream.',
+  'Peers verify what you found.',
+];
 
 /**
- * C2 Site attention card + C3 Mission brief.
- * Every brief carries the mandatory safety line.
+ * C3 — Mission brief. Frames the task: name, window, three steps, and the
+ * mandatory safety line (hard rule) before the check begins.
  */
 export default function MissionBriefPage({ params }: { params: { id: string } }) {
-  const mission = getMockMission(params.id);
-  if (!mission) notFound();
+  const site = getMockSite(params.id);
+  const detail = getMockSiteDetail(params.id);
+  const brief = getMockMissionBrief(params.id);
+  if (!site || !detail || !brief) notFound();
 
   return (
-    <main className="mx-auto max-w-2xl">
-      <div className="px-4 pt-6">
+    <main className="mx-auto min-h-dvh max-w-2xl pb-28">
+      <header className="flex items-center gap-3 px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)]">
         <Link
-          href="/missions"
-          className="inline-flex min-h-tap items-center gap-1.5 text-sm font-medium text-ink-muted hover:text-ink"
+          href={`/sites/${site.id}`}
+          aria-label="Back"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-unseen text-ink"
         >
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          All missions
+          <ArrowLeft className="h-5 w-5" aria-hidden="true" />
         </Link>
-      </div>
-
-      <ScreenHeader title={mission.title} subtitle={mission.siteName} aiStatus="Mission brief">
-        <SimulatedBadge />
-      </ScreenHeader>
-
-      {/* C2 — site attention card */}
-      <section className="px-4 pt-4">
-        <div className="rounded-card border border-unseen bg-surface p-5">
-          <AttentionStatus level={mission.attention} />
-          <p className="mt-3 text-ink">{mission.summary}</p>
-          <p className="mt-2 text-sm text-ink-muted">{mission.distanceKm} km away</p>
-          {/* TODO(PRD): add the exact site attention card layout — hero "days unseen"
-              number, recent-observation sparkline, and Open-Meteo weather context. */}
+        <div>
+          <p className="text-[13px] font-semibold uppercase tracking-wide text-ink-muted">Mission</p>
+          <p className="inline-flex items-center gap-1 text-sm text-ink-muted">
+            <Clock className="h-3.5 w-3.5" aria-hidden="true" /> {brief.estMinutes}
+          </p>
         </div>
-      </section>
+      </header>
 
-      {/* C3 — mission brief steps */}
-      <section aria-labelledby="brief-heading" className="px-4 pt-6">
-        <h2 id="brief-heading" className="text-[13px] font-semibold uppercase tracking-wide text-ink-muted">
-          What to do
-        </h2>
-        <ol className="mt-2 space-y-2">
-          {[
-            'Find a safe spot on the bank with a clear view of the water.',
-            'Take one photo of the water and bank.',
-            'Answer a few quick questions about what you see.',
-          ].map((step, i) => (
-            <li
-              key={i}
-              className="flex items-start gap-3 rounded-card border border-unseen bg-surface p-4"
-            >
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-water text-sm font-semibold text-white">
-                {i + 1}
-              </span>
-              <span className="text-ink">{step}</span>
-            </li>
-          ))}
-        </ol>
-        {/* TODO(PRD): exact mission brief copy, camera step order, and offline queue behaviour. */}
-      </section>
-
-      {/* Mandatory safety copy — appears on every mission brief. */}
-      <section className="px-4 pt-6">
-        <p className="flex items-center gap-2 rounded-card border border-attention bg-[color-mix(in_srgb,var(--attention)_12%,var(--surface))] p-4 text-sm font-medium text-ink">
-          <ShieldAlert className="h-5 w-5 shrink-0 text-attention" aria-hidden="true" />
-          Photo from the bank only. Never enter the water.
-        </p>
-      </section>
-
-      <div className="px-4 pb-8 pt-6">
-        <Link
-          href="/check"
-          className="flex h-cta w-full items-center justify-center gap-2 rounded-button bg-water text-base font-semibold text-white hover:opacity-90"
-        >
-          <Camera className="h-5 w-5" aria-hidden="true" />
-          Start field check
-        </Link>
+      <div className="px-4 pt-5">
+        <StepIndicator steps={brief.steps} current={0} />
       </div>
 
-      <SiteFooter />
+      <div className="space-y-5 px-4 pt-6">
+        <div>
+          <h1 className="text-[clamp(1.6rem,6vw,2rem)] font-bold leading-tight text-ink">{brief.name}</h1>
+          <p className="mt-1 text-sm text-ink-muted">
+            {site.name} · {site.waterbody} · {site.daysUnseen} days unseen
+          </p>
+        </div>
+
+        <PhotoFrame aspect="wide" label={`${site.name}, ${detail.city}`} />
+
+        <div className="flex items-center gap-2 rounded-card border border-unseen bg-surface px-4 py-3 text-sm">
+          <Clock className="h-4 w-4 text-[var(--action)]" aria-hidden="true" />
+          <span className="font-semibold text-ink">{brief.windowLabel}</span>
+          <span className="text-ink-muted">· est. {brief.estMinutes}</span>
+        </div>
+
+        {/* Steps */}
+        <ol className="space-y-2.5">
+          {brief.steps.map((step, i) => {
+            const Icon = STEP_ICONS[i] ?? Eye;
+            return (
+              <li key={step} className="flex items-center gap-3 rounded-card border border-unseen bg-surface p-4">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--action-tint)] text-[var(--action)]">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <div>
+                  <p className="font-semibold text-ink">
+                    {i + 1}. {step}
+                  </p>
+                  <p className="text-sm text-ink-muted">{STEP_HINTS[i]}</p>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+
+        {/* Mandatory safety line */}
+        <div className="flex gap-3 rounded-card border border-[color-mix(in_srgb,var(--attention)_45%,var(--unseen))] bg-[color-mix(in_srgb,var(--attention)_10%,var(--surface))] p-4">
+          <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-[var(--attention)]" aria-hidden="true" />
+          <div>
+            <p className="text-sm font-semibold text-ink">Stay safe</p>
+            <p className="mt-1 text-sm leading-relaxed text-ink-muted">{brief.safetyLine}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-unseen bg-surface px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3">
+        <Link href={`/check?site=${site.id}`} className={`mx-auto block max-w-2xl ${buttonClasses('primary', 'cta')}`}>
+          Start mission
+          <ArrowRight className="h-5 w-5" aria-hidden="true" />
+        </Link>
+      </div>
     </main>
   );
 }

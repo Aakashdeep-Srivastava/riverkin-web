@@ -23,7 +23,7 @@ export default function StatusPage({ params }: { params: { id: string } }) {
   const after = 0;
 
   return (
-    <main className="mx-auto max-w-2xl">
+    <main className="mx-auto max-w-2xl pb-28">
       <div className="px-4 pt-6">
         <Link
           href="/"

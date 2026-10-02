@@ -1,129 +1,239 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Check, ShieldAlert } from 'lucide-react';
-import { SimulatedBadge } from '@/components/simulated-badge';
+import { ArrowLeft, ArrowRight, Camera, Check, ShieldAlert, Send } from 'lucide-react';
+import { StepIndicator } from '@/components/ui/step-indicator';
+import { OptionButton } from '@/components/ui/option-button';
+import { PhotoFrame } from '@/components/ui/photo-frame';
+import { Button, buttonClasses } from '@/components/ui/button';
+import {
+  fieldQuestions,
+  cameraSteps,
+  feelings,
+  type FieldQuestion,
+  type CameraStep,
+} from '@/lib/mock-data';
+import { enqueueCheck } from '@/lib/offline-queue';
 
-/**
- * C4 — Field check.
- * One question per screen. This is a minimal placeholder for the real flow
- * (camera steps + offline queue persisted via `idb`).
- *
- * TODO(PRD): exact question set, per-question camera/photo steps, input types,
- * and the offline queue (write answers to IndexedDB, sync when back online).
- */
-const QUESTIONS = [
-  'Is there visible foam or an oily sheen on the water?',
-  'Is the water colour unusual (very brown, green, or grey)?',
-  'Is there a strong or unusual smell from the water?',
-] as const;
+type Step =
+  | { kind: 'question'; q: FieldQuestion }
+  | { kind: 'camera'; c: CameraStep }
+  | { kind: 'feeling' };
 
-export default function FieldCheckPage() {
-  const [step, setStep] = useState(0);
-  const [done, setDone] = useState(false);
+const STEP_LABELS = ['Observe', 'Photograph', 'Verify'];
 
-  const total = QUESTIONS.length;
-  const isLast = step === total - 1;
+function phaseOf(step: Step): number {
+  if (step.kind === 'question') return 0;
+  if (step.kind === 'camera') return 1;
+  return 2;
+}
 
-  function answer() {
+function CheckFlow() {
+  const router = useRouter();
+  const params = useSearchParams();
+  const siteId = params.get('site') ?? 'site-arno-01';
+
+  const flow = useMemo<Step[]>(
+    () => [
+      ...fieldQuestions.map((q) => ({ kind: 'question' as const, q })),
+      ...cameraSteps.map((c) => ({ kind: 'camera' as const, c })),
+      { kind: 'feeling' as const },
+    ],
+    [],
+  );
+
+  const [i, setI] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [photos, setPhotos] = useState<Record<string, boolean>>({});
+  const [feeling, setFeeling] = useState<string>('');
+  const [flashing, setFlashing] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const step = flow[i];
+  const isLast = i === flow.length - 1;
+  const questionCount = fieldQuestions.length;
+
+  const canAdvance =
+    step.kind === 'question'
+      ? Boolean(answers[step.q.id])
+      : step.kind === 'camera'
+        ? step.c.optional || Boolean(photos[step.c.id])
+        : Boolean(feeling);
+
+  const pipeAlert =
+    step.kind === 'question' && step.q.fieldCode === 'pipe_outfall' && answers[step.q.id] === 'yes';
+
+  const progressLabel =
+    step.kind === 'question'
+      ? `Question ${i + 1} of ${questionCount}`
+      : step.kind === 'camera'
+        ? `Photo · ${step.c.label}${step.c.optional ? ' (optional)' : ''}`
+        : 'One last thing';
+
+  function capture(id: string) {
+    setFlashing(true);
+    setPhotos((p) => ({ ...p, [id]: true }));
+    window.setTimeout(() => setFlashing(false), 450);
+  }
+
+  async function submit() {
+    setSubmitting(true);
+    await enqueueCheck({
+      siteId,
+      answers,
+      photos: Object.keys(photos).filter((k) => photos[k]),
+      feeling,
+      createdAt: Date.now(),
+    });
+    router.push(`/receipt/${siteId}`);
+  }
+
+  function next() {
     if (isLast) {
-      setDone(true);
-    } else {
-      setStep((s) => s + 1);
+      void submit();
+      return;
     }
+    setI((n) => Math.min(n + 1, flow.length - 1));
+  }
+
+  function back() {
+    if (i === 0) {
+      router.push(`/missions/${siteId}`);
+      return;
+    }
+    setI((n) => Math.max(n - 1, 0));
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-2xl flex-col">
-      <div className="px-4 pt-6">
-        <Link
-          href="/missions"
-          className="inline-flex min-h-tap items-center gap-1.5 text-sm font-medium text-ink-muted hover:text-ink"
+    <main className="mx-auto flex min-h-dvh max-w-2xl flex-col px-4">
+      {flashing ? (
+        <div aria-hidden="true" className="rk-flash pointer-events-none fixed inset-0 z-50 bg-white" />
+      ) : null}
+
+      {/* Header */}
+      <header className="flex items-center gap-3 pt-[calc(env(safe-area-inset-top)+0.75rem)]">
+        <button
+          onClick={back}
+          aria-label="Back"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-unseen text-ink"
         >
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Leave check
-        </Link>
+          <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+        </button>
+        <p className="text-sm font-medium text-ink-muted">{progressLabel}</p>
+      </header>
+
+      <div className="pt-5">
+        <StepIndicator steps={STEP_LABELS} current={phaseOf(step)} />
       </div>
 
-      <div className="flex items-center justify-between px-4 pt-4">
-        <p className="text-[13px] font-semibold uppercase tracking-wide text-ink-muted">
-          Field check
-        </p>
-        <SimulatedBadge />
-      </div>
-
-      {/* Progress */}
-      <div className="px-4 pt-4" aria-hidden="true">
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-unseen">
-          <div
-            className="h-full rounded-full bg-water transition-[width]"
-            style={{ width: `${((done ? total : step) / total) * 100}%` }}
-          />
-        </div>
-      </div>
-
-      {done ? (
-        <section className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-success text-white">
-            <Check className="h-7 w-7" aria-hidden="true" />
-          </span>
-          <h1 className="text-2xl font-bold text-ink">Check sent</h1>
-          <p className="max-w-sm text-sm text-ink-muted">
-            Saved to your device and queued to sync. Others will verify what you found.
-          </p>
-          <Link
-            href="/verify"
-            className="mt-2 flex h-cta w-full max-w-xs items-center justify-center rounded-button bg-water font-semibold text-white hover:opacity-90"
-          >
-            Verify a round
-          </Link>
-        </section>
-      ) : (
-        <section
-          aria-live="polite"
-          className="flex flex-1 flex-col justify-between px-4 pb-8 pt-8"
-        >
-          <div>
-            <p className="text-sm text-ink-muted">
-              Question {step + 1} of {total}
-            </p>
-            <h1 className="mt-2 text-2xl font-bold leading-snug text-ink">
-              {QUESTIONS[step]}
+      {/* Body — re-keyed so each step animates in. */}
+      <div key={i} className="rk-reveal flex flex-1 flex-col pt-7">
+        {step.kind === 'question' ? (
+          <div className="space-y-4">
+            <h1 className="text-[clamp(1.4rem,5.5vw,1.9rem)] font-bold leading-tight text-ink">
+              {step.q.question}
             </h1>
-
-            <p className="mt-4 flex items-center gap-2 rounded-card border border-attention bg-[color-mix(in_srgb,var(--attention)_12%,var(--surface))] p-3 text-sm font-medium text-ink">
-              <ShieldAlert className="h-5 w-5 shrink-0 text-attention" aria-hidden="true" />
-              Photo from the bank only. Never enter the water.
-            </p>
+            <div className="space-y-2.5">
+              {step.q.options.map((opt) => (
+                <OptionButton
+                  key={opt.value}
+                  label={opt.label}
+                  tone={opt.tone}
+                  selected={answers[step.q.id] === opt.value}
+                  onClick={() => setAnswers((a) => ({ ...a, [step.q.id]: opt.value }))}
+                />
+              ))}
+            </div>
+            {pipeAlert ? (
+              <div className="flex gap-3 rounded-card border border-[color-mix(in_srgb,var(--urgent)_45%,var(--unseen))] bg-[color-mix(in_srgb,var(--urgent)_10%,var(--surface))] p-4">
+                <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-[var(--urgent)]" aria-hidden="true" />
+                <p className="text-sm leading-relaxed text-ink">
+                  <span className="font-semibold">Don&apos;t touch the water.</span> Keep well back
+                  from the pipe and photograph only from the bank.
+                </p>
+              </div>
+            ) : null}
           </div>
+        ) : step.kind === 'camera' ? (
+          <div className="space-y-4">
+            <h1 className="text-[clamp(1.4rem,5.5vw,1.9rem)] font-bold leading-tight text-ink">
+              Photo — {step.c.label}
+            </h1>
+            <p className="text-sm text-ink-muted">{step.c.hint}</p>
+            <PhotoFrame aspect="video" simulated={photos[step.c.id]}>
+              {photos[step.c.id] ? (
+                <span className="rk-bloom flex flex-col items-center gap-1 text-white">
+                  <Check className="h-8 w-8" aria-hidden="true" />
+                  <span className="text-sm font-semibold">Captured</span>
+                </span>
+              ) : (
+                <Camera className="h-8 w-8 text-white/80" aria-hidden="true" />
+              )}
+            </PhotoFrame>
+            <Button variant={photos[step.c.id] ? 'secondary' : 'primary'} size="md" onClick={() => capture(step.c.id)}>
+              <Camera className="h-4 w-4" aria-hidden="true" />
+              {photos[step.c.id] ? 'Retake photo' : 'Capture photo'}
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <h1 className="text-[clamp(1.4rem,5.5vw,1.9rem)] font-bold leading-tight text-ink">
+              How did the river feel today?
+            </h1>
+            <p className="text-sm text-ink-muted">Stored with your crew, never tied to a field value.</p>
+            <div className="grid grid-cols-2 gap-2.5">
+              {feelings.map((f) => (
+                <OptionButton
+                  key={f.value}
+                  label={f.label}
+                  selected={feeling === f.value}
+                  onClick={() => setFeeling(f.value)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
-          <div className="space-y-2">
-            <button
-              type="button"
-              onClick={answer}
-              className="flex h-cta w-full items-center justify-center gap-2 rounded-button bg-water font-semibold text-white hover:opacity-90"
-            >
-              Yes
+      {/* Footer CTA */}
+      <div className="sticky bottom-0 flex items-center gap-3 bg-[var(--bg)] py-4">
+        {step.kind === 'camera' && step.c.optional && !photos[step.c.id] ? (
+          <button onClick={next} className={buttonClasses('secondary', 'cta')}>
+            Skip
+          </button>
+        ) : null}
+        <Button onClick={next} disabled={!canAdvance || submitting}>
+          {isLast ? (
+            <>
+              <Send className="h-5 w-5" aria-hidden="true" />
+              {submitting ? 'Submitting…' : 'Submit for verification'}
+            </>
+          ) : (
+            <>
+              Next
               <ArrowRight className="h-5 w-5" aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              onClick={answer}
-              className="flex h-cta w-full items-center justify-center rounded-button border border-unseen bg-surface font-semibold text-ink hover:border-water"
-            >
-              No
-            </button>
-            <button
-              type="button"
-              onClick={answer}
-              className="flex min-h-tap w-full items-center justify-center rounded-button font-medium text-ink-muted hover:text-ink"
-            >
-              Can&apos;t tell
-            </button>
-          </div>
-        </section>
-      )}
+            </>
+          )}
+        </Button>
+      </div>
     </main>
+  );
+}
+
+export default function CheckPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-dvh items-center justify-center">
+          <Link href="/" className="text-sm text-ink-muted">
+            Loading check…
+          </Link>
+        </div>
+      }
+    >
+      <CheckFlow />
+    </Suspense>
   );
 }
