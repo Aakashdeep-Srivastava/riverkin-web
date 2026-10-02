@@ -13,28 +13,18 @@
   --urgent: #e5484d; /* unresolved flags only */
   --unseen: #c9ced8; /* outline */
   --success: #2fa36b;
+  /* Depth tokens for the operations-console surface (not in the PRD table;
+   * derived from --ink so they stay on-palette). */
+  --rk-shadow: 0 1px 2px rgba(18, 25, 43, 0.04), 0 10px 30px -16px rgba(18, 25, 43, 0.18);
+  --rk-shadow-lift: 0 2px 4px rgba(18, 25, 43, 0.06), 0 18px 40px -18px rgba(18, 25, 43, 0.28);
 }
 
 /*
- * Dark theme.
- * TODO(PRD): replace with the exact dark-mode token table from the PRD design
- * system. These are reasonable interim values so dark mode is not broken.
+ * The white (light) theme is the default and is NEVER auto-switched by the
+ * OS colour preference — RiverKin always opens on the paper-white console.
+ * The dark theme is kept only as an *opt-in* override: add `class="dark"`
+ * on <html> to force it. Nothing applies it automatically.
  */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0d1220;
-    --surface: #161d2e;
-    --ink: #eef1f6;
-    --ink-muted: #9aa3b5;
-    --water: #3fc0ef;
-    --attention: #f2a93b;
-    --urgent: #ff6166;
-    --unseen: #313a4f;
-    --success: #4cc48a;
-  }
-}
-
-/* Explicit class override (lets a theme toggle force dark regardless of OS). */
 .dark {
   --bg: #0d1220;
   --surface: #161d2e;
@@ -45,10 +35,17 @@
   --urgent: #ff6166;
   --unseen: #313a4f;
   --success: #4cc48a;
+  --rk-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 14px 34px -16px rgba(0, 0, 0, 0.6);
+  --rk-shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.5), 0 22px 46px -18px rgba(0, 0, 0, 0.7);
 }
 
 html {
-  color-scheme: light dark;
+  /* Lock to light so native controls/scrollbars never render dark by default. */
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
 }
 
 body {
@@ -114,4 +111,170 @@ body {
     transform: scale(1.8);
     opacity: 0;
   }
+}
+
+/* ============================================================
+ * C1 "River Operations Console" — brand atmosphere, depth and
+ * motion. Every colour resolves to a design token. The global
+ * reduced-motion rule above neutralises all animation here, and
+ * every animated element uses `both` fill so it rests in its
+ * final (fully visible) state when motion is reduced.
+ * ============================================================ */
+
+/* Ambient backdrop: a low dawn-water glow at the top and a faint
+ * amber warmth at the foot, over whisper-faint topographic
+ * contour lines on the paper. Fixed, decorative, aria-hidden. */
+.rk-atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      125% 65% at 50% -12%,
+      color-mix(in srgb, var(--water) 15%, transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      90% 55% at 88% 112%,
+      color-mix(in srgb, var(--attention) 7%, transparent) 0%,
+      transparent 55%
+    );
+}
+
+.rk-atmosphere::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+  background: repeating-radial-gradient(
+    circle at 50% 118%,
+    transparent 0,
+    transparent 37px,
+    color-mix(in srgb, var(--water) 16%, transparent) 37px,
+    color-mix(in srgb, var(--water) 16%, transparent) 38px
+  );
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 72%);
+  mask-image: linear-gradient(to bottom, black 0%, transparent 72%);
+}
+
+/* Console panels. */
+.rk-card {
+  box-shadow: var(--rk-shadow);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.rk-card-link:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--rk-shadow-lift);
+  border-color: color-mix(in srgb, var(--water) 55%, var(--unseen));
+}
+
+.rk-card-link:active {
+  transform: translateY(0);
+}
+
+/* Staggered entrance reveal. Pair with an inline animation-delay. */
+@keyframes rk-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rk-reveal {
+  animation: rk-reveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Live "radar ping" dot for the AI status line. The solid dot sits
+ * in the element; the ::after ring expands and fades. */
+.rk-ping {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--water);
+}
+
+.rk-ping::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: var(--water);
+  animation: rk-ping-ring 2.2s ease-out infinite;
+}
+
+@keyframes rk-ping-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  70%,
+  100% {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+
+/* HUD corner brackets for the live-map panel. */
+.rk-bracket {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-color: color-mix(in srgb, var(--water) 70%, transparent);
+  border-style: solid;
+  border-width: 0;
+  pointer-events: none;
+}
+.rk-bracket-tl {
+  top: 10px;
+  left: 10px;
+  border-top-width: 2px;
+  border-left-width: 2px;
+  border-top-left-radius: 6px;
+}
+.rk-bracket-tr {
+  top: 10px;
+  right: 10px;
+  border-top-width: 2px;
+  border-right-width: 2px;
+  border-top-right-radius: 6px;
+}
+.rk-bracket-bl {
+  bottom: 10px;
+  left: 10px;
+  border-bottom-width: 2px;
+  border-left-width: 2px;
+  border-bottom-left-radius: 6px;
+}
+.rk-bracket-br {
+  bottom: 10px;
+  right: 10px;
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+  border-bottom-right-radius: 6px;
+}
+
+/* Attention meter: a token-coloured fill animating to its width. */
+@keyframes rk-meter-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.rk-meter-fill {
+  transform-origin: left center;
+  animation: rk-meter-fill 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
