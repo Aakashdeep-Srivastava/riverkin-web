@@ -39,9 +39,15 @@ interface MapsToken {
   expiresOn: number;
 }
 
-/** Azure Maps raster tiles (Render v2024-04-01). Road base is enabled on all accounts. */
-const AZURE_TILE_URL =
-  'https://atlas.microsoft.com/map/tile?api-version=2024-04-01&tilesetId=microsoft.base.road&zoom={z}&x={x}&y={y}';
+/**
+ * Azure Maps raster tiles (Render v2024-04-01). Satellite imagery as the base
+ * for the "global earth" look, with transparent roads + labels layered on top.
+ * Both tilesets are enabled on this account; swap `tilesetId` to change.
+ */
+const AZURE_IMAGERY_URL =
+  'https://atlas.microsoft.com/map/tile?api-version=2024-04-01&tilesetId=microsoft.imagery&zoom={z}&x={x}&y={y}';
+const AZURE_HYBRID_URL =
+  'https://atlas.microsoft.com/map/tile?api-version=2024-04-01&tilesetId=microsoft.base.hybrid.road&zoom={z}&x={x}&y={y}';
 
 /** Re-fetch the token once we are within this window (ms) of its expiry. */
 const REFRESH_LEAD_MS = 120_000;
@@ -132,15 +138,22 @@ export default function GlobeMap() {
         version: 8,
         projection: { type: 'globe' },
         sources: {
-          'azure-base': {
+          'azure-imagery': {
             type: 'raster',
-            tiles: [AZURE_TILE_URL],
+            tiles: [AZURE_IMAGERY_URL],
+            tileSize: 256,
+          },
+          'azure-hybrid': {
+            type: 'raster',
+            tiles: [AZURE_HYBRID_URL],
             tileSize: 256,
           },
         },
         layers: [
           { id: 'background', type: 'background', paint: { 'background-color': '#0b1a2b' } },
-          { id: 'azure-base', type: 'raster', source: 'azure-base' },
+          { id: 'azure-imagery', type: 'raster', source: 'azure-imagery' },
+          // Transparent roads + place labels over the satellite base.
+          { id: 'azure-hybrid', type: 'raster', source: 'azure-hybrid' },
         ],
       };
 
