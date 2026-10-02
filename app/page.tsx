@@ -1,8 +1,10 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
+import { hasEntered } from '@/lib/entry-state';
 import { AppBar } from '@/components/app-bar';
 import { AttentionMap } from '@/components/attention-map';
 import { AttentionStatus } from '@/components/attention-status';
@@ -34,8 +36,11 @@ function matchesFilter(site: Site, filter: SiteFilter): boolean {
  * Full-screen map with a glass top-priority card and an accessible list view.
  */
 export default function HomePage() {
+  const router = useRouter();
   const [view, setView] = useState<HomeView>('map');
   const [filter, setFilter] = useState<SiteFilter>('all');
+  // Entry gate: first visit opens on the globe/login screen (remembered).
+  const [checked, setChecked] = useState(false);
 
   const sorted = useMemo(
     () =>
@@ -47,6 +52,14 @@ export default function HomePage() {
   const visible = useMemo(() => sorted.filter((s) => matchesFilter(s, filter)), [sorted, filter]);
   const maxDays = useMemo(() => sorted.reduce((m, s) => Math.max(m, s.daysUnseen), 0), [sorted]);
 
+  useEffect(() => {
+    if (hasEntered()) {
+      setChecked(true);
+    } else {
+      router.replace('/welcome');
+    }
+  }, [router]);
+
   const counts = {
     sites: sorted.length,
     attention: sorted.filter((s) => s.attention === 'attention' || s.attention === 'monitoring').length,
@@ -55,6 +68,10 @@ export default function HomePage() {
   };
 
   const lead = visible[0];
+
+  // While deciding whether to show the entry screen, render nothing (avoids a
+  // flash of the map before redirecting first-time visitors to /welcome).
+  if (!checked) return null;
 
   const controls = (
     <div className="flex items-center justify-between gap-2 px-4 pt-1">
