@@ -1,104 +1,36 @@
 /**
- * Mock data for the app shell.
+ * Demo data for the RiverKin citizen loop.
  *
- * Everything here is SIMULATED and only exists so the screens render without a
- * backend. Any UI that displays this data must show the "Simulated, illustrative"
- * label (see <SimulatedBadge />).
+ * Sites, cities and rivers are REAL OneAquaHealth research locations (Coimbra,
+ * Toulouse, Benevento, Ghent, Oslo) — see riverkin-api/data/DATA_PROVENANCE.md.
+ * Per-site coordinates are synthesized around the real city centres (OAH has not
+ * published exact citizen-site coordinates), so anything shown here still carries
+ * the "Simulated, illustrative" badge. The field codes mirror the real OAH code
+ * system (foam/colour/smell, hydrology, riparian vegetation, morphology).
  *
- * TODO(PRD): replace with live data from the RiverKin API (OneAquaHealth sites,
- * Open-Meteo weather) once endpoints and exact copy are defined in the PRD.
+ * TODO(PRD): replace with live RiverKin API data (GET /sites, Open-Meteo rain)
+ * and the full 106-site seed in riverkin-api/data/oah_sites.json.
  */
-import type { Mission, Site, VerifyCard } from './api-types';
+import type { Site } from './api-types';
 
 export const mockSites: Site[] = [
-  {
-    id: 'site-arno-01',
-    name: 'Rifredi reach',
-    waterbody: 'Arno',
-    daysUnseen: 19,
-    attention: 'urgent',
-    lat: 43.79,
-    lng: 11.23,
-  },
-  {
-    id: 'site-arno-02',
-    name: 'Cascine bend',
-    waterbody: 'Arno',
-    daysUnseen: 8,
-    attention: 'attention',
-    lat: 43.78,
-    lng: 11.22,
-  },
-  {
-    id: 'site-mugnone-01',
-    name: 'Mugnone confluence',
-    waterbody: 'Mugnone',
-    daysUnseen: 3,
-    attention: 'monitoring',
-    lat: 43.8,
-    lng: 11.25,
-  },
-  {
-    id: 'site-greve-01',
-    name: 'Greve footbridge',
-    waterbody: 'Greve',
-    daysUnseen: 0,
-    attention: 'ok',
-    lat: 43.74,
-    lng: 11.19,
-  },
+  { id: 'cb-coselhas', name: 'Ribeira de Coselhas — São Romão', waterbody: 'Ribeira de Coselhas', daysUnseen: 19, attention: 'urgent', lat: 40.1930, lng: -8.3971 },
+  { id: 'tl-touch', name: 'Touch — Tournefeuille reach', waterbody: 'Touch', daysUnseen: 26, attention: 'urgent', lat: 43.5890, lng: 1.4020 },
+  { id: 'bn-calore', name: 'Calore Irpino — Ponte Vanvitelli', waterbody: 'Calore Irpino', daysUnseen: 12, attention: 'attention', lat: 41.1312, lng: 14.7821 },
+  { id: 'cb-eiras', name: 'Ribeira de Eiras — Ponte dos Amores', waterbody: 'Ribeira de Eiras', daysUnseen: 8, attention: 'attention', lat: 40.2190, lng: -8.4210 },
+  { id: 'os-hovinbekken', name: 'Hovinbekken — Hasle reach', waterbody: 'Hovinbekken', daysUnseen: 5, attention: 'monitoring', lat: 59.9230, lng: 10.7920 },
+  { id: 'os-akerselva', name: 'Akerselva — Nydalen', waterbody: 'Akerselva', daysUnseen: 3, attention: 'monitoring', lat: 59.9490, lng: 10.7650 },
+  { id: 'cb-valeflores', name: 'Vale das Flores — park reach', waterbody: 'Vale das Flores', daysUnseen: 1, attention: 'ok', lat: 40.1920, lng: -8.4040 },
+  { id: 'ge-leie', name: 'Leie — Coupure', waterbody: 'Leie', daysUnseen: 0, attention: 'ok', lat: 51.0520, lng: 3.7150 },
 ];
 
-export const mockMissions: Mission[] = [
-  {
-    id: 'mission-arno-01',
-    siteId: 'site-arno-01',
-    siteName: 'Rifredi reach',
-    title: 'Check the Rifredi reach',
-    summary: 'Unseen for 19 days. A quick bank-side check closes the gap.',
-    distanceKm: 1.2,
-    attention: 'urgent',
-  },
-  {
-    id: 'mission-arno-02',
-    siteId: 'site-arno-02',
-    siteName: 'Cascine bend',
-    title: 'Look over Cascine bend',
-    summary: 'Flow looked high last week. Confirm the bank is clear.',
-    distanceKm: 2.6,
-    attention: 'attention',
-  },
-];
-
-export const mockVerifyCards: VerifyCard[] = [
-  {
-    id: 'verify-01',
-    prompt: 'Is there visible foam on the water surface?',
-    photoAlt: 'Simulated photo of a river surface near a bank',
-  },
-  {
-    id: 'verify-02',
-    prompt: 'Is the water colour unusually brown or cloudy?',
-    photoAlt: 'Simulated photo of river water close to the bank',
-  },
-];
-
-/** Look up a single mock mission by id. */
-export function getMockMission(id: string): Mission | undefined {
-  return mockMissions.find((m) => m.id === id);
-}
-
-/** Look up a single mock site by id. */
+/** Look up a single site by id. */
 export function getMockSite(id: string): Site | undefined {
   return mockSites.find((s) => s.id === id);
 }
 
 /* ============================================================
- * Extended, FRONTEND-ONLY mock detail for the citizen loop
- * (C2–C6). These shapes are local to the web app — not the
- * generated API types — so the whole loop renders without a
- * backend. Everything here is SIMULATED (show the badge).
- * TODO(PRD): replace with live RiverKin API data.
+ * Extended detail for the citizen loop (C2–C6).
  * ============================================================ */
 
 export type GapLevel = 'low' | 'medium' | 'high';
@@ -116,42 +48,45 @@ export interface SiteDetail {
 }
 
 export const mockSiteDetails: Record<string, SiteDetail> = {
-  'site-arno-01': {
-    city: 'Florence',
-    country: 'Italy',
-    rain48h: 12,
-    gapLevel: 'high',
-    reason:
-      'No recent observations after heavy rainfall. Help us update the conditions and keep the time series consistent.',
-    lastCheckLabel: '19 days ago',
-    photoCount: 3,
+  'cb-coselhas': {
+    city: 'Coimbra', country: 'Portugal', rain48h: 32, gapLevel: 'high',
+    reason: 'No observations since 32 mm of rain fell. A bank-side check keeps this OneAquaHealth site’s time series intact.',
+    lastCheckLabel: '19 days ago', photoCount: 3,
   },
-  'site-arno-02': {
-    city: 'Florence',
-    country: 'Italy',
-    rain48h: 8,
-    gapLevel: 'medium',
-    reason: 'Flow looked high last week. A quick bank-side look confirms whether it has settled.',
-    lastCheckLabel: '8 days ago',
-    photoCount: 2,
+  'tl-touch': {
+    city: 'Toulouse', country: 'France', rain48h: 9, gapLevel: 'high',
+    reason: 'Unseen for over three weeks — an orphan-site mission. Any look revives the record.',
+    lastCheckLabel: '26 days ago', photoCount: 1,
   },
-  'site-mugnone-01': {
-    city: 'Fiesole',
-    country: 'Italy',
-    rain48h: 4,
-    gapLevel: 'low',
+  'bn-calore': {
+    city: 'Benevento', country: 'Italy', rain48h: 14, gapLevel: 'medium',
+    reason: 'Flow looked high after recent rain. Confirm the bank is clear below Ponte Vanvitelli.',
+    lastCheckLabel: '12 days ago', photoCount: 2,
+  },
+  'cb-eiras': {
+    city: 'Coimbra', country: 'Portugal', rain48h: 11, gapLevel: 'medium',
+    reason: 'Due for its fortnightly check. Riparian vegetation here changes fast.',
+    lastCheckLabel: '8 days ago', photoCount: 4,
+  },
+  'os-hovinbekken': {
+    city: 'Oslo', country: 'Norway', rain48h: 6, gapLevel: 'low',
     reason: 'On its regular cadence. A monitoring check keeps the record fresh.',
-    lastCheckLabel: '3 days ago',
-    photoCount: 4,
+    lastCheckLabel: '5 days ago', photoCount: 3,
   },
-  'site-greve-01': {
-    city: 'Greve in Chianti',
-    country: 'Italy',
-    rain48h: 1,
-    gapLevel: 'low',
-    reason: 'Seen today — no action needed. Shown for coverage context.',
-    lastCheckLabel: 'today',
-    photoCount: 5,
+  'os-akerselva': {
+    city: 'Oslo', country: 'Norway', rain48h: 4, gapLevel: 'low',
+    reason: 'Recently seen and healthy. Shown for coverage context.',
+    lastCheckLabel: '3 days ago', photoCount: 6,
+  },
+  'cb-valeflores': {
+    city: 'Coimbra', country: 'Portugal', rain48h: 2, gapLevel: 'low',
+    reason: 'Seen yesterday. No action needed right now.',
+    lastCheckLabel: 'yesterday', photoCount: 5,
+  },
+  'ge-leie': {
+    city: 'Ghent', country: 'Belgium', rain48h: 1, gapLevel: 'low',
+    reason: 'Seen today — healthy. Shown for coverage context.',
+    lastCheckLabel: 'today', photoCount: 7,
   },
 };
 
@@ -172,24 +107,28 @@ export interface MissionBrief {
 }
 
 export const mockMissionBriefs: Record<string, MissionBrief> = {
-  'site-arno-01': {
-    id: 'mission-arno-01',
-    siteId: 'site-arno-01',
-    name: 'After-the-Rain Check',
-    windowLabel: 'Open for 2 days',
-    estMinutes: '3–5 min',
-    distanceKm: 1.2,
+  'cb-coselhas': {
+    id: 'mission-coselhas', siteId: 'cb-coselhas', name: 'After-the-Rain Check',
+    windowLabel: 'Open for 2 days', estMinutes: '3–5 min', distanceKm: 1.2,
     safetyLine: 'Photo from the bank only. Never wade or touch water near pipes.',
     steps: ['Observe', 'Photograph', 'Verify'],
   },
-  'site-arno-02': {
-    id: 'mission-arno-02',
-    siteId: 'site-arno-02',
-    name: 'Flow Settle Check',
-    windowLabel: 'Open for 5 days',
-    estMinutes: '3–5 min',
-    distanceKm: 2.6,
+  'tl-touch': {
+    id: 'mission-touch', siteId: 'tl-touch', name: 'Orphan-Site Check',
+    windowLabel: 'Unseen 26 days', estMinutes: '3–5 min', distanceKm: 3.4,
     safetyLine: 'Photo from the bank only. Keep back from fast or high water.',
+    steps: ['Observe', 'Photograph', 'Verify'],
+  },
+  'bn-calore': {
+    id: 'mission-calore', siteId: 'bn-calore', name: 'Flow Settle Check',
+    windowLabel: 'Open for 5 days', estMinutes: '3–5 min', distanceKm: 2.1,
+    safetyLine: 'Photo from the bank only. Keep back from fast or high water.',
+    steps: ['Observe', 'Photograph', 'Verify'],
+  },
+  'cb-eiras': {
+    id: 'mission-eiras', siteId: 'cb-eiras', name: 'Fortnightly Check',
+    windowLabel: 'Open for 6 days', estMinutes: '3–5 min', distanceKm: 0.8,
+    safetyLine: 'Photo from the bank only. Watch your footing on the path.',
     steps: ['Observe', 'Photograph', 'Verify'],
   },
 };
@@ -198,7 +137,7 @@ export function getMockMissionBrief(siteId: string): MissionBrief | undefined {
   return mockMissionBriefs[siteId];
 }
 
-/* ---- Field check questions (C4) — mirrors OAH protocol fields ---- */
+/* ---- Field check questions (C4) — mirror the real OAH code system ---- */
 export type AnswerTone = 'ok' | 'warn' | 'bad' | 'neutral';
 
 export interface FieldOption {
@@ -209,6 +148,7 @@ export interface FieldOption {
 
 export interface FieldQuestion {
   id: string;
+  /** Maps to the OAH code system where one exists (see oah_field_codes.json). */
   fieldCode: string;
   question: string;
   options: FieldOption[];
@@ -216,9 +156,7 @@ export interface FieldQuestion {
 
 export const fieldQuestions: FieldQuestion[] = [
   {
-    id: 'q-water',
-    fieldCode: 'water_appearance',
-    question: 'What is the water appearance?',
+    id: 'q-water', fieldCode: 'foam', question: 'What is the water appearance?',
     options: [
       { value: 'clear', label: 'Clear', tone: 'ok' },
       { value: 'slightly_cloudy', label: 'Slightly cloudy', tone: 'neutral' },
@@ -227,9 +165,7 @@ export const fieldQuestions: FieldQuestion[] = [
     ],
   },
   {
-    id: 'q-litter',
-    fieldCode: 'litter',
-    question: 'Any visible litter or debris?',
+    id: 'q-litter', fieldCode: 'litter', question: 'Any visible litter or debris?',
     options: [
       { value: 'none', label: 'None', tone: 'ok' },
       { value: 'some', label: 'Some', tone: 'warn' },
@@ -237,9 +173,7 @@ export const fieldQuestions: FieldQuestion[] = [
     ],
   },
   {
-    id: 'q-foam',
-    fieldCode: 'foam',
-    question: 'Is there foam on the surface?',
+    id: 'q-foam', fieldCode: 'foam', question: 'Is there foam on the surface?',
     options: [
       { value: 'none', label: 'None', tone: 'ok' },
       { value: 'patches', label: 'A few patches', tone: 'warn' },
@@ -247,9 +181,7 @@ export const fieldQuestions: FieldQuestion[] = [
     ],
   },
   {
-    id: 'q-flow',
-    fieldCode: 'flow',
-    question: 'How is the flow?',
+    id: 'q-flow', fieldCode: 'hydrology', question: 'How is the flow?',
     options: [
       { value: 'low', label: 'Low / still', tone: 'neutral' },
       { value: 'normal', label: 'Normal', tone: 'ok' },
@@ -257,9 +189,7 @@ export const fieldQuestions: FieldQuestion[] = [
     ],
   },
   {
-    id: 'q-pipe',
-    fieldCode: 'pipe_outfall',
-    question: 'Any pipe or outfall discharging?',
+    id: 'q-pipe', fieldCode: 'pipe_outfall', question: 'Any pipe or outfall discharging?',
     options: [
       { value: 'no', label: 'No', tone: 'ok' },
       { value: 'yes', label: 'Yes — I can see one', tone: 'bad' },
@@ -300,41 +230,11 @@ export interface VerifyItem {
 }
 
 export const verifyQueue: VerifyItem[] = [
-  {
-    id: 'v-01',
-    siteName: 'A stream in Coimbra',
-    prompt: 'Does this water look clear?',
-    aiBox: 'I flagged a possible sheen near the left bank. Humans decide.',
-    photoAlt: 'Simulated river surface near a bank',
-  },
-  {
-    id: 'v-02',
-    siteName: 'A stream in Ghent',
-    prompt: 'Is there visible foam on the surface?',
-    aiBox: 'I spotted light foam under the bridge. Humans decide.',
-    photoAlt: 'Simulated river water near a bridge',
-  },
-  {
-    id: 'v-03',
-    siteName: 'A stream in Benevento',
-    prompt: 'Is there litter in the frame?',
-    aiBox: 'Possible debris on the right. Humans decide.',
-    photoAlt: 'Simulated riverbank with vegetation',
-  },
-  {
-    id: 'v-04',
-    siteName: 'A stream in Oslo',
-    prompt: 'Does the bank look eroded?',
-    aiBox: 'Bank edge looks exposed. Humans decide.',
-    photoAlt: 'Simulated riverbank close-up',
-  },
-  {
-    id: 'v-05',
-    siteName: 'A stream in Florence',
-    prompt: 'Is a pipe or outfall visible?',
-    aiBox: 'No outfall detected, but check the shadows. Humans decide.',
-    photoAlt: 'Simulated river with a far bank',
-  },
+  { id: 'v-01', siteName: 'A stream in Coimbra', prompt: 'Does this water look clear?', aiBox: 'I flagged a possible sheen near the left bank. Humans decide.', photoAlt: 'Simulated river surface near a bank' },
+  { id: 'v-02', siteName: 'A stream in Ghent', prompt: 'Is there visible foam on the surface?', aiBox: 'I spotted light foam under the bridge. Humans decide.', photoAlt: 'Simulated river water near a bridge' },
+  { id: 'v-03', siteName: 'A stream in Benevento', prompt: 'Is there litter in the frame?', aiBox: 'Possible debris on the right. Humans decide.', photoAlt: 'Simulated riverbank with vegetation' },
+  { id: 'v-04', siteName: 'A stream in Oslo', prompt: 'Does the bank look eroded?', aiBox: 'Bank edge looks exposed. Humans decide.', photoAlt: 'Simulated riverbank close-up' },
+  { id: 'v-05', siteName: 'A stream in Toulouse', prompt: 'Is a pipe or outfall visible?', aiBox: 'No outfall detected, but check the shadows. Humans decide.', photoAlt: 'Simulated river with a far bank' },
 ];
 
 /* ---- Receipt (C6) ---- */
@@ -358,10 +258,10 @@ export function getMockReceipt(siteId: string): Receipt {
   return {
     siteName: site?.name ?? 'River reach',
     waterbody: site?.waterbody ?? 'River',
-    city: detail?.city ?? 'Florence',
+    city: detail?.city ?? 'Coimbra',
     gapBefore: site?.daysUnseen ?? 19,
     gapAfter: 0,
-    rainContext: `First verified check after ${detail?.rain48h ?? 12} mm of rain`,
+    rainContext: `First verified check after ${detail?.rain48h ?? 32} mm of rain`,
     verifierCount: 3,
     fhirId: 'a91f',
     sentinelLine: 'Sombra: "Plant cover was high on the left bank, so I\'m content."',

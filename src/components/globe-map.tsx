@@ -160,8 +160,9 @@ export default function GlobeMap() {
       const map = new MaplibreMap({
         container,
         style,
-        center: [11.23, 43.79],
-        zoom: 10.2,
+        // Europe-wide: the five OneAquaHealth cities span Oslo → Coimbra.
+        center: [7, 48],
+        zoom: 3.6,
         attributionControl: false,
         // Always read the *current* (possibly refreshed) token from the ref.
         transformRequest: (url: string): RequestParameters | undefined => {
@@ -195,7 +196,8 @@ export default function GlobeMap() {
       // when the viewer prefers reduced motion.
       let userInteracting = false;
       const secondsPerRevolution = 180;
-      const maxSpinZoom = 4;
+      // Only auto-rotate when zoomed right out (not at the Europe overview).
+      const maxSpinZoom = 2;
 
       const spinGlobe = () => {
         if (prefersReducedMotion || userInteracting || !mapRef.current) return;

@@ -33,7 +33,7 @@ function phaseOf(step: Step): number {
 function CheckFlow() {
   const router = useRouter();
   const params = useSearchParams();
-  const siteId = params.get('site') ?? 'site-arno-01';
+  const siteId = params.get('site') ?? 'cb-coselhas';
 
   const flow = useMemo<Step[]>(
     () => [
