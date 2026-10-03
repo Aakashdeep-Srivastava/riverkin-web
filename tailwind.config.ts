@@ -5,6 +5,11 @@ const config: Config = {
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
   ],
+  // Compile `hover:` to `@media (hover: hover)` so hover styles never stick
+  // after a tap on touch devices (mobile-native §1).
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
   theme: {
     extend: {
       colors: {

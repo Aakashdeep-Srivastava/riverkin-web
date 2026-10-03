@@ -5,7 +5,7 @@ type Variant = 'primary' | 'secondary' | 'ghost';
 type Size = 'cta' | 'md' | 'sm';
 
 const BASE =
-  'inline-flex items-center justify-center gap-2 rounded-button font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50';
+  'inline-flex items-center justify-center gap-2 rounded-button font-semibold transition-[background-color,border-color,color,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] disabled:cursor-not-allowed disabled:opacity-50';
 
 const VARIANTS: Record<Variant, string> = {
   // Primary CTA = crimson (brand showcase); active:scale gives instant

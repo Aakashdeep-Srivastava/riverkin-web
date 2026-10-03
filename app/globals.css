@@ -31,6 +31,10 @@
   --glass-border: rgba(14, 27, 56, 0.08);
   --rk-shadow: 0 1px 2px rgba(14, 27, 56, 0.04), 0 10px 30px -16px rgba(14, 27, 56, 0.18);
   --rk-shadow-lift: 0 2px 4px rgba(14, 27, 56, 0.06), 0 18px 40px -18px rgba(14, 27, 56, 0.28);
+  /* Strong custom easing curves (emil-design-eng — built-in CSS easings are too weak). */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1); /* entrances, press feedback */
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1); /* on-screen movement */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1); /* iOS-like sheets/drawers */
 }
 
 /*
@@ -66,6 +70,11 @@
 html {
   /* Lock to light so native controls/scrollbars never render dark by default. */
   color-scheme: light;
+  /* mobile-native baseline: no gray tap flash, no font inflation in landscape,
+   * and no whole-page pull-to-refresh/rubber-band (this is an app, not a doc). */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior: none;
 }
 
 html.dark {
@@ -79,6 +88,36 @@ body {
   font-feature-settings: 'tnum' 1, 'cv11' 1;
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Inputs never smaller than 16px, so iOS Safari doesn't zoom the page on focus
+ * (mobile-native §4). */
+input,
+textarea,
+select {
+  font-size: 16px;
+}
+
+/* Every pressable control: fire click immediately (no 300ms wait), don't let a
+ * long-press select the label, and give instant press feedback (apple-design §1,
+ * mobile-native §5/§8). Content links keep their text selectable. */
+button,
+[role='button'] {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+button:not(:disabled):active,
+[role='button']:not([aria-disabled='true']):active {
+  transform: scale(0.97);
+}
+
+/* Default press transition for controls that don't set their own. */
+button,
+[role='button'] {
+  transition: transform 160ms var(--ease-out);
 }
 
 /* Serif display face for hero headings (brand showcase). Size-specific negative
@@ -205,9 +244,9 @@ body {
 .rk-card {
   box-shadow: var(--rk-shadow);
   transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease,
-    border-color 0.18s ease;
+    transform 0.2s var(--ease-out),
+    box-shadow 0.2s var(--ease-out),
+    border-color 0.2s var(--ease-out);
 }
 
 .rk-card-link:hover {
@@ -393,7 +432,7 @@ body {
 .rk-draw {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  animation: rk-draw 1.6s ease-in-out 0.3s both;
+  animation: rk-draw 1.6s var(--ease-in-out) 0.3s both;
 }
 
 /* Flash — a brief white veil on photo capture. */

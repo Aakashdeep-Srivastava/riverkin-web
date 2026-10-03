@@ -36,7 +36,7 @@ export function OptionButton({
       onClick={onClick}
       aria-pressed={selected}
       className={cn(
-        'flex min-h-tap w-full items-center gap-3 rounded-button border bg-surface px-4 py-3.5 text-left text-[15px] font-medium transition-colors',
+        'flex min-h-tap w-full items-center gap-3 rounded-button border bg-surface px-4 py-3.5 text-left text-[15px] font-medium transition-[color,background-color,border-color,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]',
         selected
           ? 'border-[var(--action)] bg-[var(--action-tint)] text-ink'
           : 'border-unseen text-ink hover:border-[var(--action)]',

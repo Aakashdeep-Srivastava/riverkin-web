@@ -30,9 +30,17 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0052ff',
   width: 'device-width',
   initialScale: 1,
+  // Paint under the notch/home-indicator; let the keyboard shrink the layout
+  // viewport so bottom-pinned CTAs track it (mobile-native §7, baseline).
+  viewportFit: 'cover',
+  interactiveWidget: 'resizes-content',
+  // Match the top-of-page surface, per scheme (mobile-native §10).
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f7f5f0' },
+    { media: '(prefers-color-scheme: dark)', color: '#0e1b38' },
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -28,7 +28,7 @@ export function FilterChips({
             aria-selected={active}
             onClick={() => onChange(f.value)}
             className={cn(
-              'shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors',
+              'shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-[color,background-color,border-color,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]',
               active
                 ? 'border-[var(--action)] bg-[var(--action)] text-white'
                 : 'rk-glass text-ink hover:border-[var(--action)]',
