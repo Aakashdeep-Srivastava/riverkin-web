@@ -16,6 +16,7 @@ import {
   type CameraStep,
 } from '@/lib/mock-data';
 import { enqueueCheck } from '@/lib/offline-queue';
+import { submitObservation } from '@/lib/observations-api';
 
 type Step =
   | { kind: 'question'; q: FieldQuestion }
@@ -80,10 +81,28 @@ function CheckFlow() {
 
   async function submit() {
     setSubmitting(true);
+    const photoIds = Object.keys(photos).filter((k) => photos[k]);
+
+    // Try the live API first (PRD F1 step 6: submit the check).
+    const created = await submitObservation({
+      siteCode: siteId,
+      answers,
+      feeling,
+      photoCount: photoIds.length,
+    });
+
+    if (created) {
+      router.push(`/receipt/${created.id}?site=${encodeURIComponent(siteId)}`);
+      return;
+    }
+
+    // Offline / API down — queue in IndexedDB so the check is never lost and
+    // show the receipt from the site's mock data (PRD: works by a stream
+    // with no signal).
     await enqueueCheck({
       siteId,
       answers,
-      photos: Object.keys(photos).filter((k) => photos[k]),
+      photos: photoIds,
       feeling,
       createdAt: Date.now(),
     });
@@ -132,7 +151,7 @@ function CheckFlow() {
       <div key={i} className="rk-reveal flex flex-1 flex-col pt-7">
         {step.kind === 'question' ? (
           <div className="space-y-4">
-            <h1 className="text-[clamp(1.4rem,5.5vw,1.9rem)] font-bold leading-tight text-ink">
+            <h1 className="font-display text-[clamp(1.6rem,6.5vw,2.1rem)] font-semibold text-ink">
               {step.q.question}
             </h1>
             <div className="space-y-2.5">
@@ -158,7 +177,7 @@ function CheckFlow() {
           </div>
         ) : step.kind === 'camera' ? (
           <div className="space-y-4">
-            <h1 className="text-[clamp(1.4rem,5.5vw,1.9rem)] font-bold leading-tight text-ink">
+            <h1 className="font-display text-[clamp(1.6rem,6.5vw,2.1rem)] font-semibold text-ink">
               Photo — {step.c.label}
             </h1>
             <p className="text-sm text-ink-muted">{step.c.hint}</p>
@@ -179,7 +198,7 @@ function CheckFlow() {
           </div>
         ) : (
           <div className="space-y-4">
-            <h1 className="text-[clamp(1.4rem,5.5vw,1.9rem)] font-bold leading-tight text-ink">
+            <h1 className="font-display text-[clamp(1.6rem,6.5vw,2.1rem)] font-semibold text-ink">
               How did the river feel today?
             </h1>
             <p className="text-sm text-ink-muted">Stored with your crew, never tied to a field value.</p>

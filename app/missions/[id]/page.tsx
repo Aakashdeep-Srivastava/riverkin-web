@@ -78,7 +78,7 @@ export default async function MissionBriefPage({ params }: { params: { id: strin
 
       <div className="space-y-5 px-4 pt-6">
         <div>
-          <h1 className="text-[clamp(1.6rem,6vw,2rem)] font-bold leading-tight text-ink">{brief.name}</h1>
+          <h1 className="font-display text-[clamp(1.8rem,7vw,2.4rem)] font-semibold text-ink">{brief.name}</h1>
           <p className="mt-1 text-sm text-ink-muted">
             {site.name} · {site.waterbody} · {site.daysUnseen} days unseen
           </p>

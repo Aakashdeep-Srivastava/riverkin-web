@@ -1,13 +1,28 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Radar, Check, X, HelpCircle } from 'lucide-react';
 import { PhotoFrame } from '@/components/ui/photo-frame';
 import { buttonClasses } from '@/components/ui/button';
 import { verifyQueue } from '@/lib/mock-data';
+import {
+  fetchVerifyNext,
+  castVote,
+  getVoterId,
+  type VerifyCardUI,
+} from '@/lib/verify-api';
 
 type Answer = 'yes' | 'no' | 'cant_tell';
+
+/** Bundled demo queue, mapped to the shared card shape (offline fallback). */
+const MOCK_CARDS: VerifyCardUI[] = verifyQueue.map((c) => ({
+  id: c.id,
+  itemId: null,
+  siteName: c.siteName,
+  prompt: c.prompt,
+  aiBox: c.aiBox,
+}));
 const ROUND_SECONDS = 20;
 
 /** Circular 20-second countdown ring. */
@@ -41,10 +56,28 @@ function TimerRing({ remaining }: { remaining: number }) {
 }
 
 export default function VerifyPage() {
-  const cards = verifyQueue;
+  const [cards, setCards] = useState<VerifyCardUI[]>(MOCK_CARDS);
   const [index, setIndex] = useState(0);
   const [answered, setAnswered] = useState(0);
   const [remaining, setRemaining] = useState(ROUND_SECONDS);
+  const [voterId, setVoterId] = useState('demo-keeper');
+  const shownAtRef = useRef<number>(0);
+
+  // Load live cards once (falls back to the bundled demo queue).
+  useEffect(() => {
+    const id = getVoterId();
+    setVoterId(id);
+    let active = true;
+    void fetchVerifyNext(id, 5).then((live) => {
+      if (active && live && live.length > 0) {
+        setCards(live);
+        setIndex(0);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const done = index >= cards.length;
   const card = cards[index];
@@ -58,6 +91,7 @@ export default function VerifyPage() {
   useEffect(() => {
     if (done) return;
     setRemaining(ROUND_SECONDS);
+    shownAtRef.current = Date.now();
     const id = window.setInterval(() => {
       setRemaining((r) => {
         if (r <= 1) {
@@ -71,7 +105,12 @@ export default function VerifyPage() {
     return () => window.clearInterval(id);
   }, [index, done]);
 
-  function answer(_a: Answer) {
+  function answer(a: Answer) {
+    const current = cards[index];
+    if (current?.itemId != null) {
+      const msTaken = Math.max(0, Date.now() - shownAtRef.current);
+      void castVote(current.itemId, a, msTaken, voterId);
+    }
     setAnswered((n) => n + 1);
     setIndex((n) => n + 1);
   }

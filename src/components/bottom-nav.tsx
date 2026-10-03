@@ -13,12 +13,12 @@ interface NavItem {
 
 /** Four tabs flanking a center "+" action (start a check). */
 const LEFT: NavItem[] = [
-  { href: '/', label: 'Home', Icon: Map, match: (p) => p === '/' },
+  { href: '/', label: 'Explore', Icon: Map, match: (p) => p === '/' },
   { href: '/missions', label: 'Missions', Icon: Target, match: (p) => p.startsWith('/missions') },
 ];
 const RIGHT: NavItem[] = [
+  { href: '/crew', label: 'Community', Icon: Users, match: (p) => p.startsWith('/crew') },
   { href: '/impact', label: 'Impact', Icon: Sprout, match: (p) => p.startsWith('/impact') || p.startsWith('/receipt') },
-  { href: '/crew', label: 'Crew', Icon: Users, match: (p) => p.startsWith('/crew') },
 ];
 
 function Tab({ item, active }: { item: NavItem; active: boolean }) {
@@ -27,10 +27,10 @@ function Tab({ item, active }: { item: NavItem; active: boolean }) {
     <Link
       href={href}
       aria-current={active ? 'page' : undefined}
-      className="flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 text-ink-muted aria-[current=page]:text-[var(--action)]"
+      className="flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 text-ink-muted transition-colors aria-[current=page]:text-[var(--cta)]"
     >
       <Icon className="h-6 w-6" aria-hidden="true" strokeWidth={active ? 2.5 : 1.75} />
-      <span className={`text-[11px] ${active ? 'font-semibold text-[var(--action)]' : 'font-medium'}`}>
+      <span className={`text-[11px] ${active ? 'font-semibold text-[var(--cta)]' : 'font-medium'}`}>
         {label}
       </span>
     </Link>

@@ -1,37 +1,23 @@
 import { cn } from '@/lib/utils';
 
 /**
- * RiverKin wave mark — two stacked river currents. Uses the --water token so it
- * sits on-brand in light and dark. Decorative when paired with the wordmark.
+ * RiverKin emblem — the brand mark (royal-blue river through maroon terrain with
+ * a golden sun). The art is a crisp PNG so it stays recognizable at any size.
+ * A plain <img> keeps it dependency-free in the standalone build.
  */
 export function RiverMark({ className }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 32 24"
-      fill="none"
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/logo.png"
+      alt=""
       aria-hidden="true"
-      className={cn('h-6 w-8', className)}
-    >
-      <path
-        d="M2 8c4-4 7-4 10 0s6 4 10 0 7-4 8-3"
-        stroke="var(--water)"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M2 16c4-4 7-4 10 0s6 4 10 0 7-4 8-3"
-        stroke="var(--action)"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        opacity="0.8"
-      />
-    </svg>
+      className={cn('h-7 w-7 object-contain', className)}
+    />
   );
 }
 
-/** Wave mark + wordmark lockup. */
+/** Emblem + wordmark lockup. */
 export function RiverKinLogo({ className }: { className?: string }) {
   return (
     <span className={cn('inline-flex items-center gap-2', className)}>

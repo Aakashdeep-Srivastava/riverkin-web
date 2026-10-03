@@ -2,29 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Design-system tokens (from the PRD). Light values are authoritative. */
+/* RiverKin brand & design-system tokens (see design/BRAND_PSYCHOLOGY.md).
+ * River-blue is the strongest functional colour; crimson is the primary CTA;
+ * gold is a high-value accent; maroon is identity/terrain. Light is authoritative. */
 :root {
-  --bg: #f7f5f0;
+  --bg: #f7f5f0; /* warm off-white */
   --surface: #ffffff;
-  --ink: #12192b;
-  --ink-muted: #5b6475;
-  --water: #12a4d9;
-  --attention: #f2a93b;
-  --urgent: #e5484d; /* unresolved flags only */
+  --ink: #0e1b38; /* midnight navy */
+  --ink-muted: #6b7280; /* slate */
+  /* River-blue — primary interactive: links, selected, FAB, progress, focus. */
+  --action: #0052ff;
+  --action-strong: #0043d1;
+  --action-tint: color-mix(in srgb, var(--action) 10%, transparent);
+  /* Crimson — the big primary CTA + active bottom-nav (brand showcase). */
+  --cta: #c1124a;
+  --cta-strong: #a50f3f;
+  --cta-tint: color-mix(in srgb, var(--cta) 10%, transparent);
+  /* Azure — waterways, fresh/verified map accents, the river line. */
+  --water: #1e7bff;
+  --attention: #f2a93b; /* needs-attention band (amber) */
+  --gold: #ffc629; /* achievements / milestones (accent only) */
+  --maroon: #7a003c; /* identity / terrain / stat glyphs */
+  --urgent: #e5484d; /* unresolved pollution flag only */
   --unseen: #c9ced8; /* outline */
   --success: #2fa36b;
-  /* Vivid azure for primary actions (CTAs, links, FAB). Distinct from --water
-   * (which stays for map/accent/fresh). From the RiverKin brand direction. */
-  --action: #087fe5;
-  --action-strong: #0a6fc9;
-  --action-tint: color-mix(in srgb, var(--action) 10%, transparent);
-  /* Frosted floating map panels (PRD --glass). */
+  /* Frosted floating map panels (PRD --glass; used sparingly). */
   --glass: rgba(255, 255, 255, 0.72);
-  --glass-border: rgba(18, 25, 43, 0.08);
-  /* Depth tokens for the operations-console surface (not in the PRD table;
-   * derived from --ink so they stay on-palette). */
-  --rk-shadow: 0 1px 2px rgba(18, 25, 43, 0.04), 0 10px 30px -16px rgba(18, 25, 43, 0.18);
-  --rk-shadow-lift: 0 2px 4px rgba(18, 25, 43, 0.06), 0 18px 40px -18px rgba(18, 25, 43, 0.28);
+  --glass-border: rgba(14, 27, 56, 0.08);
+  --rk-shadow: 0 1px 2px rgba(14, 27, 56, 0.04), 0 10px 30px -16px rgba(14, 27, 56, 0.18);
+  --rk-shadow-lift: 0 2px 4px rgba(14, 27, 56, 0.06), 0 18px 40px -18px rgba(14, 27, 56, 0.28);
 }
 
 /*
@@ -34,19 +40,24 @@
  * on <html> to force it. Nothing applies it automatically.
  */
 .dark {
-  --bg: #0d1220;
-  --surface: #161d2e;
-  --ink: #eef1f6;
-  --ink-muted: #9aa3b5;
-  --water: #3fc0ef;
-  --attention: #f2a93b;
+  --bg: #0e1b38; /* atmospheric midnight, never pure black */
+  --surface: #16233f;
+  --ink: #ffffff;
+  --ink-muted: #b8c0d0;
+  --action: #1e7bff;
+  --action-strong: #4f97ff;
+  --action-tint: color-mix(in srgb, var(--action) 18%, transparent);
+  --cta: #d8285f;
+  --cta-strong: #e6487a;
+  --cta-tint: color-mix(in srgb, var(--cta) 20%, transparent);
+  --water: #4f97ff;
+  --attention: #f5b95c;
+  --gold: #ffc629;
+  --maroon: #c1124a;
   --urgent: #ff6166;
-  --unseen: #313a4f;
+  --unseen: #31415f;
   --success: #4cc48a;
-  --action: #2f95f0;
-  --action-strong: #58abf6;
-  --action-tint: color-mix(in srgb, var(--action) 16%, transparent);
-  --glass: rgba(23, 27, 34, 0.72);
+  --glass: rgba(22, 35, 63, 0.72);
   --glass-border: rgba(255, 255, 255, 0.08);
   --rk-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 14px 34px -16px rgba(0, 0, 0, 0.6);
   --rk-shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.5), 0 22px 46px -18px rgba(0, 0, 0, 0.7);
@@ -70,6 +81,16 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Serif display face for hero headings (brand showcase). Size-specific negative
+ * tracking + tight leading on large text (apple-design typography). Falls back to
+ * Georgia if the webfont is unavailable. */
+.font-display {
+  font-family: var(--font-serif), Georgia, 'Times New Roman', serif;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  font-optical-sizing: auto;
+}
+
 /* Respect reduced-motion globally (Framer Motion also reads this). */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -82,9 +103,18 @@ body {
   }
 }
 
-/* Visible keyboard focus everywhere. */
+/* Frostier/solid surfaces when the viewer reduces transparency (apple-design §14). */
+@media (prefers-reduced-transparency: reduce) {
+  .rk-glass {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* Visible keyboard focus everywhere (river-blue). */
 :focus-visible {
-  outline: 2px solid var(--water);
+  outline: 2px solid var(--action);
   outline-offset: 2px;
   border-radius: 4px;
 }

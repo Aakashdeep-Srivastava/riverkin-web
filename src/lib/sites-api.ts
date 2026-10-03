@@ -65,6 +65,24 @@ export async function fetchSites(): Promise<Site[] | null> {
   }
 }
 
+export interface TimelineEntry {
+  kind: string;
+  label: string;
+  at: string;
+}
+
+/** Site timeline (C7), newest first — or null on failure. */
+export async function fetchTimeline(id: string): Promise<TimelineEntry[] | null> {
+  try {
+    const data = await apiFetch<{ entries: TimelineEntry[] }>(
+      `/api/v1/sites/${encodeURIComponent(id)}/timeline`,
+    );
+    return Array.isArray(data.entries) ? data.entries : null;
+  } catch {
+    return null;
+  }
+}
+
 export interface SiteView {
   site: Site;
   detail: SiteDetail;

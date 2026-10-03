@@ -8,10 +8,12 @@ const BASE =
   'inline-flex items-center justify-center gap-2 rounded-button font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50';
 
 const VARIANTS: Record<Variant, string> = {
+  // Primary CTA = crimson (brand showcase); active:scale gives instant
+  // pointer-down feedback (apple-design §1).
   primary:
-    'bg-[var(--action)] text-white shadow-[var(--rk-shadow)] hover:bg-[var(--action-strong)]',
+    'bg-[var(--cta)] text-white shadow-[var(--rk-shadow)] hover:bg-[var(--cta-strong)] active:scale-[0.98]',
   secondary:
-    'border border-unseen bg-surface text-ink hover:border-[var(--action)] hover:text-[var(--action)]',
+    'border border-unseen bg-surface text-ink hover:border-[var(--action)] hover:text-[var(--action)] active:scale-[0.98]',
   ghost: 'text-[var(--action)] hover:bg-[var(--action-tint)]',
 };
 

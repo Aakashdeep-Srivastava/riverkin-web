@@ -4,6 +4,7 @@ import { buttonClasses } from '@/components/ui/button';
 import { SimulatedBadge } from '@/components/simulated-badge';
 import { getMockReceipt, type Receipt } from '@/lib/mock-data';
 import { fetchSiteView, type SiteView } from '@/lib/sites-api';
+import { fetchObservationStatus, type ApiReceipt } from '@/lib/observations-api';
 
 function buildReceipt(view: SiteView): Receipt {
   const { site, detail } = view;
@@ -22,14 +23,54 @@ function buildReceipt(view: SiteView): Receipt {
   };
 }
 
+/** Map the live API receipt (snake_case) to the front-end Receipt shape. */
+function apiToReceipt(a: ApiReceipt): Receipt {
+  return {
+    siteName: a.site_name,
+    waterbody: a.waterbody,
+    city: a.city,
+    gapBefore: a.gap_before,
+    gapAfter: a.gap_after,
+    rainContext: a.rain_context,
+    verifierCount: a.verifier_count,
+    fhirId: a.fhir_id ?? '—',
+    sentinelLine: a.sentinel_line,
+    state: a.state,
+    dateLabel: a.date_label,
+  };
+}
+
 /**
  * C6 — Status + impact receipt. The payoff: a concrete statement of what the
  * visit changed, a collectible receipt card with a self-drawing river line, and
  * one Sentinel flavour line. No points or scores (hard rule).
+ *
+ * A numeric ``id`` is a live observation → fetch its status/receipt. A site code
+ * (offline fallback from C4) builds a receipt from the site view / mock data.
  */
-export default async function ReceiptPage({ params }: { params: { id: string } }) {
-  const view = await fetchSiteView(params.id);
-  const r = view ? buildReceipt(view) : getMockReceipt(params.id);
+export default async function ReceiptPage({
+  params,
+  searchParams,
+}: {
+  params: { id: string };
+  searchParams: { site?: string };
+}) {
+  const isObservationId = /^\d+$/.test(params.id);
+  let r: Receipt;
+  if (isObservationId) {
+    const status = await fetchObservationStatus(params.id);
+    if (status) {
+      r = apiToReceipt(status.receipt);
+    } else {
+      const view = searchParams.site ? await fetchSiteView(searchParams.site) : null;
+      r = view ? buildReceipt(view) : getMockReceipt(searchParams.site ?? params.id);
+    }
+  } else {
+    const view = await fetchSiteView(params.id);
+    r = view ? buildReceipt(view) : getMockReceipt(params.id);
+  }
+
+  const verified = r.state.toLowerCase().includes('verified');
 
   const impact = [
     { Icon: CalendarCheck, title: 'Site updated', body: `${r.gapBefore} → ${r.gapAfter} days unseen` },
@@ -54,10 +95,15 @@ export default async function ReceiptPage({ params }: { params: { id: string } }
         <span className="rk-bloom flex h-20 w-20 items-center justify-center rounded-full bg-[var(--success)] text-white">
           <Check className="h-10 w-10" aria-hidden="true" />
         </span>
-        <h1 className="mt-4 text-2xl font-bold text-ink">Check submitted!</h1>
+        <h1 className="mt-4 text-2xl font-bold text-ink">
+          {verified ? 'Community verified!' : 'Check submitted!'}
+        </h1>
         <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-ink-muted">
           <ShieldCheck className="h-4 w-4 text-[var(--action)]" aria-hidden="true" />
-          {r.state} · 3 guardians are reviewing it
+          {r.state}
+          {r.verifierCount > 0
+            ? ` · ${r.verifierCount} ${r.verifierCount === 1 ? 'guardian' : 'guardians'} reviewed it`
+            : ' · peer review is open'}
         </p>
       </div>
 

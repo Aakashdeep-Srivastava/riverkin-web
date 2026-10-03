@@ -54,7 +54,7 @@ export default async function SitePage({ params }: { params: { id: string } }) {
       <div className="space-y-5 px-4 pt-5">
         <div>
           <AttentionStatus level={site.attention} />
-          <h1 className="mt-1.5 text-[clamp(1.6rem,6vw,2rem)] font-bold leading-tight text-ink">
+          <h1 className="font-display mt-1.5 text-[clamp(1.7rem,6.5vw,2.2rem)] font-semibold text-ink">
             {site.name}
           </h1>
           <p className="mt-1 text-sm text-ink-muted">
@@ -82,6 +82,15 @@ export default async function SitePage({ params }: { params: { id: string } }) {
             <p className="mt-1 text-sm leading-relaxed text-ink-muted">{detail.reason}</p>
           </div>
         </div>
+
+        {/* Timeline link */}
+        <Link
+          href={`/timeline/${site.id}`}
+          className="flex items-center justify-between rounded-card border border-unseen bg-surface px-4 py-3 text-sm font-semibold text-ink hover:border-water"
+        >
+          View site timeline
+          <ArrowRight className="h-4 w-4 text-[var(--action)]" aria-hidden="true" />
+        </Link>
 
         {/* Photo strip */}
         <div>
