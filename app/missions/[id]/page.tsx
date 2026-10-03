@@ -12,6 +12,7 @@ import {
   type SiteDetail,
 } from '@/lib/mock-data';
 import { fetchSiteView } from '@/lib/sites-api';
+import { fetchMissionBrief } from '@/lib/missions-api';
 import type { Site } from '@/lib/api-types';
 
 /** Generate a mission brief for any site when there is no bundled one. */
@@ -48,11 +49,15 @@ const STEP_HINTS = [
  * mandatory safety line (hard rule) before the check begins.
  */
 export default async function MissionBriefPage({ params }: { params: { id: string } }) {
-  const view = await fetchSiteView(params.id);
+  const [view, liveBrief] = await Promise.all([
+    fetchSiteView(params.id),
+    fetchMissionBrief(params.id),
+  ]);
   const site = view?.site ?? getMockSite(params.id);
   const detail = view?.detail ?? getMockSiteDetail(params.id);
   if (!site || !detail) notFound();
-  const brief = getMockMissionBrief(params.id) ?? buildBrief(site, detail);
+  // Live missions engine first, then a bundled brief, then a client-derived one.
+  const brief = liveBrief ?? getMockMissionBrief(params.id) ?? buildBrief(site, detail);
 
   return (
     <main className="mx-auto min-h-dvh max-w-2xl pb-28">

@@ -4,13 +4,37 @@ import { AppBar } from '@/components/app-bar';
 import { AttentionStatus } from '@/components/attention-status';
 import { SiteFooter } from '@/components/site-footer';
 import { mockMissionBriefs, getMockSite } from '@/lib/mock-data';
+import { fetchMissions, type MissionListItem } from '@/lib/missions-api';
+import type { AttentionLevel } from '@/lib/api-types';
+
+/** Bundled fallback used when the live missions engine is unreachable. */
+function mockMissionList(): MissionListItem[] {
+  return Object.values(mockMissionBriefs).flatMap((brief) => {
+    const site = getMockSite(brief.siteId);
+    if (!site) return [];
+    return [
+      {
+        id: brief.id,
+        siteId: brief.siteId,
+        title: brief.name,
+        siteName: site.name,
+        waterbody: site.waterbody,
+        summary: '',
+        attention: site.attention as AttentionLevel,
+        estMinutes: brief.estMinutes,
+      },
+    ];
+  });
+}
 
 /**
  * Missions tab — the two ways to help: verify others' checks (at home), and run
- * a suggested mission (in the field). Entry point into F1 and F2.
+ * a suggested mission (in the field). Entry point into F1 and F2. Reads the live
+ * missions engine (GET /api/v1/missions), falling back to bundled briefs.
  */
-export default function MissionsPage() {
-  const briefs = Object.values(mockMissionBriefs);
+export default async function MissionsPage() {
+  const live = await fetchMissions();
+  const missions = live && live.length > 0 ? live.slice(0, 12) : mockMissionList();
 
   return (
     <main className="mx-auto min-h-dvh max-w-2xl pb-28">
@@ -38,32 +62,28 @@ export default function MissionsPage() {
             Suggested missions
           </h2>
           <ul className="space-y-3">
-            {briefs.map((brief) => {
-              const site = getMockSite(brief.siteId);
-              if (!site) return null;
-              return (
-                <li key={brief.id}>
-                  <Link
-                    href={`/missions/${brief.siteId}`}
-                    className="rk-card rk-card-link flex items-center gap-3 rounded-card border border-unseen bg-surface p-4"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-ink">{brief.name}</p>
-                      <p className="truncate text-sm text-ink-muted">
-                        {site.name} · {site.waterbody}
-                      </p>
-                      <div className="mt-1.5 flex items-center gap-3">
-                        <AttentionStatus level={site.attention} />
-                        <span className="inline-flex items-center gap-1 text-xs text-ink-muted">
-                          <Clock className="h-3.5 w-3.5" aria-hidden="true" /> {brief.estMinutes}
-                        </span>
-                      </div>
+            {missions.map((mission) => (
+              <li key={mission.id}>
+                <Link
+                  href={`/missions/${mission.siteId}`}
+                  className="rk-card rk-card-link flex items-center gap-3 rounded-card border border-unseen bg-surface p-4"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-ink">{mission.title}</p>
+                    <p className="truncate text-sm text-ink-muted">
+                      {mission.siteName} · {mission.waterbody}
+                    </p>
+                    <div className="mt-1.5 flex items-center gap-3">
+                      <AttentionStatus level={mission.attention} />
+                      <span className="inline-flex items-center gap-1 text-xs text-ink-muted">
+                        <Clock className="h-3.5 w-3.5" aria-hidden="true" /> {mission.estMinutes}
+                      </span>
                     </div>
-                    <ChevronRight className="h-5 w-5 shrink-0 text-ink-muted" aria-hidden="true" />
-                  </Link>
-                </li>
-              );
-            })}
+                  </div>
+                  <ChevronRight className="h-5 w-5 shrink-0 text-ink-muted" aria-hidden="true" />
+                </Link>
+              </li>
+            ))}
           </ul>
         </section>
       </div>
