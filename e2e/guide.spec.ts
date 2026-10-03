@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { capturePhoto } from './helpers';
 
 /**
  * Guided learning tour — launched from the app bar, it narrates and navigates
@@ -50,9 +51,9 @@ test('guided tour walks the full loop', async ({ page }) => {
   await clickButton(page, /^Next$/);
   await clickButton(page, /^No$/);
   await clickButton(page, /^Next$/);
-  await clickButton(page, /capture photo/i);
+  await capturePhoto(page);
   await clickButton(page, /^Next$/);
-  await clickButton(page, /capture photo/i);
+  await capturePhoto(page);
   await clickButton(page, /^Next$/);
   await clickButton(page, /^Skip$/);
   await clickButton(page, /^Hopeful$/);

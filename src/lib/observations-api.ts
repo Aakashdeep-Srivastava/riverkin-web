@@ -3,7 +3,23 @@
  * Mirrors app/routers/observations.py. Every call returns null on any error so
  * C4/C6 can fall back to the bundled demo content when the API is unreachable.
  */
-import { apiFetch } from './api';
+import { apiFetch, API_BASE_URL } from './api';
+
+/** Shape of app/schemas.py::ReceiptPhotoOut. */
+export interface ApiReceiptPhoto {
+  url: string;
+  summary: string;
+  tags: string[];
+  model: string;
+  used_model: boolean;
+  ai_generated_likelihood: number;
+  authenticity: number;
+  authenticity_reason: string;
+  captured_live: boolean;
+  geotag_label: string | null;
+  lat: number | null;
+  lng: number | null;
+}
 
 /** Shape of app/schemas.py::ReceiptOut. */
 export interface ApiReceipt {
@@ -18,6 +34,55 @@ export interface ApiReceipt {
   sentinel_line: string;
   state: string;
   date_label: string;
+  photo: ApiReceiptPhoto | null;
+}
+
+export interface PhotoUploadResult {
+  ok: boolean;
+  reason?: 'retake_photo' | 'duplicate_photo' | 'unreadable_image' | 'error';
+  message?: string;
+}
+
+/**
+ * Upload one captured photo to an observation. Runs the server-side blur/dedup
+ * gates + vision analysis + authenticity score. Returns a typed result so the
+ * check flow can prompt a retake (422) or flag a duplicate (409).
+ */
+export async function uploadObservationPhoto(
+  observationId: number | string,
+  file: File,
+  kind: string,
+  capturedLive: boolean,
+): Promise<PhotoUploadResult> {
+  if (!API_BASE_URL) return { ok: false, reason: 'error' };
+  const form = new FormData();
+  form.append('file', file, file.name || `${kind}.jpg`);
+  form.append('kind', kind);
+  form.append('captured_live', String(capturedLive));
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/v1/observations/${observationId}/photos`, {
+      method: 'POST',
+      body: form,
+    });
+    if (res.ok) return { ok: true };
+    let reason: PhotoUploadResult['reason'] = 'error';
+    let message: string | undefined;
+    try {
+      const detail = (await res.json())?.detail;
+      if (detail?.reason) reason = detail.reason;
+      message = detail?.message;
+    } catch {
+      /* non-JSON error body */
+    }
+    return { ok: false, reason, message };
+  } catch {
+    return { ok: false, reason: 'error' };
+  }
+}
+
+/** Absolute URL for a receipt photo path returned by the API. */
+export function photoUrl(path: string): string {
+  return path.startsWith('http') ? path : `${API_BASE_URL}${path}`;
 }
 
 /** Shape of app/schemas.py::ObservationCreated. */

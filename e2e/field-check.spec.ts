@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { capturePhoto } from './helpers';
 
 /**
  * PRD F1 — Field check (C1/C2 → C3 → C4 → receipt), driven against the live API.
@@ -55,13 +56,14 @@ test('F1: complete a field check and land on a live receipt', async ({ page }) =
   await clickButton(page, /^No$/);
   await clickButton(page, /^Next$/);
 
-  // Camera steps: upstream + downstream required, bank optional.
+  // Camera steps: upstream + downstream required, bank optional. Use the file
+  // fallback (no real camera in CI) to drive the real upload + analysis path.
   await expect(page.getByRole('heading', { name: /upstream/i })).toBeVisible();
-  await clickButton(page, /capture photo/i);
+  await capturePhoto(page);
   await clickButton(page, /^Next$/);
 
   await expect(page.getByRole('heading', { name: /downstream/i })).toBeVisible();
-  await clickButton(page, /capture photo/i);
+  await capturePhoto(page);
   await clickButton(page, /^Next$/);
 
   // Optional bank — skip it.
@@ -78,4 +80,9 @@ test('F1: complete a field check and land on a live receipt', async ({ page }) =
   // C6 — the receipt renders live data: the gap-closed line and a real FHIR id.
   await expect(page.getByText(/monitoring gap closed/i)).toBeVisible();
   await expect(page.getByText(/FHIR Observation rk-/i)).toBeVisible();
+
+  // The captured photo, its geotag and the capture-authenticity meter appear.
+  await expect(page.getByRole('heading', { name: /your photo/i })).toBeVisible();
+  await expect(page.getByText(/capture authenticity/i)).toBeVisible();
+  await expect(page.getByText(/within 150 m/i)).toBeVisible();
 });

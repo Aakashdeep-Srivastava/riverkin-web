@@ -1,13 +1,13 @@
 'use client';
 
-import { Suspense, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Camera, Check, ShieldAlert, Send } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ShieldAlert, Send } from 'lucide-react';
 import { StepIndicator } from '@/components/ui/step-indicator';
 import { OptionButton } from '@/components/ui/option-button';
-import { PhotoFrame } from '@/components/ui/photo-frame';
 import { Button, buttonClasses } from '@/components/ui/button';
+import { CameraCapture, type Capture } from '@/components/check/camera-capture';
 import {
   fieldQuestions,
   cameraSteps,
@@ -16,7 +16,7 @@ import {
   type CameraStep,
 } from '@/lib/mock-data';
 import { enqueueCheck } from '@/lib/offline-queue';
-import { submitObservation } from '@/lib/observations-api';
+import { submitObservation, uploadObservationPhoto } from '@/lib/observations-api';
 
 type Step =
   | { kind: 'question'; q: FieldQuestion }
@@ -47,10 +47,21 @@ function CheckFlow() {
 
   const [i, setI] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [photos, setPhotos] = useState<Record<string, boolean>>({});
+  const [captures, setCaptures] = useState<Record<string, Capture>>({});
   const [feeling, setFeeling] = useState<string>('');
-  const [flashing, setFlashing] = useState(false);
+  const [geo, setGeo] = useState<{ lat: number; lng: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Capture the device location once, for the geofence check only (raw GPS is
+  // used server-side then discarded — the photo geotag uses the site location).
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setGeo({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => setGeo(null),
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60_000 },
+    );
+  }, []);
 
   const step = flow[i];
   const isLast = i === flow.length - 1;
@@ -60,7 +71,7 @@ function CheckFlow() {
     step.kind === 'question'
       ? Boolean(answers[step.q.id])
       : step.kind === 'camera'
-        ? step.c.optional || Boolean(photos[step.c.id])
+        ? step.c.optional || Boolean(captures[step.c.id])
         : Boolean(feeling);
 
   const pipeAlert =
@@ -73,25 +84,29 @@ function CheckFlow() {
         ? `Photo · ${step.c.label}${step.c.optional ? ' (optional)' : ''}`
         : 'One last thing';
 
-  function capture(id: string) {
-    setFlashing(true);
-    setPhotos((p) => ({ ...p, [id]: true }));
-    window.setTimeout(() => setFlashing(false), 450);
-  }
-
   async function submit() {
     setSubmitting(true);
-    const photoIds = Object.keys(photos).filter((k) => photos[k]);
+    const photoKinds = Object.keys(captures);
 
     // Try the live API first (PRD F1 step 6: submit the check).
     const created = await submitObservation({
       siteCode: siteId,
       answers,
       feeling,
-      photoCount: photoIds.length,
+      photoCount: photoKinds.length,
+      lat: geo?.lat,
+      lng: geo?.lng,
     });
 
     if (created) {
+      // Upload each captured photo to the new observation (blur/dedup gates +
+      // vision analysis + authenticity run server-side). Best-effort: a rejected
+      // photo doesn't lose the check — the receipt shows whatever succeeded.
+      await Promise.all(
+        photoKinds.map((kind) =>
+          uploadObservationPhoto(created.id, captures[kind].file, kind, captures[kind].live),
+        ),
+      );
       router.push(`/receipt/${created.id}?site=${encodeURIComponent(siteId)}`);
       return;
     }
@@ -102,7 +117,7 @@ function CheckFlow() {
     await enqueueCheck({
       siteId,
       answers,
-      photos: photoIds,
+      photos: photoKinds,
       feeling,
       createdAt: Date.now(),
     });
@@ -127,10 +142,6 @@ function CheckFlow() {
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-2xl flex-col px-4">
-      {flashing ? (
-        <div aria-hidden="true" className="rk-flash pointer-events-none fixed inset-0 z-50 bg-white" />
-      ) : null}
-
       {/* Header */}
       <header className="flex items-center gap-3 pt-[calc(env(safe-area-inset-top)+0.75rem)]">
         <button
@@ -181,20 +192,19 @@ function CheckFlow() {
               Photo — {step.c.label}
             </h1>
             <p className="text-sm text-ink-muted">{step.c.hint}</p>
-            <PhotoFrame aspect="video" simulated={photos[step.c.id]}>
-              {photos[step.c.id] ? (
-                <span className="rk-bloom flex flex-col items-center gap-1 text-white">
-                  <Check className="h-8 w-8" aria-hidden="true" />
-                  <span className="text-sm font-semibold">Captured</span>
-                </span>
-              ) : (
-                <Camera className="h-8 w-8 text-white/80" aria-hidden="true" />
-              )}
-            </PhotoFrame>
-            <Button variant={photos[step.c.id] ? 'secondary' : 'primary'} size="md" onClick={() => capture(step.c.id)}>
-              <Camera className="h-4 w-4" aria-hidden="true" />
-              {photos[step.c.id] ? 'Retake photo' : 'Capture photo'}
-            </Button>
+            <CameraCapture
+              label={step.c.label}
+              hint={step.c.hint}
+              capture={captures[step.c.id] ?? null}
+              onCapture={(c) => setCaptures((prev) => ({ ...prev, [step.c.id]: c }))}
+              onRetake={() =>
+                setCaptures((prev) => {
+                  const next = { ...prev };
+                  delete next[step.c.id];
+                  return next;
+                })
+              }
+            />
           </div>
         ) : (
           <div className="space-y-4">
@@ -218,7 +228,7 @@ function CheckFlow() {
 
       {/* Footer CTA */}
       <div className="sticky bottom-0 flex items-center gap-3 bg-[var(--bg)] py-4">
-        {step.kind === 'camera' && step.c.optional && !photos[step.c.id] ? (
+        {step.kind === 'camera' && step.c.optional && !captures[step.c.id] ? (
           <button onClick={next} className={buttonClasses('secondary', 'cta')}>
             Skip
           </button>

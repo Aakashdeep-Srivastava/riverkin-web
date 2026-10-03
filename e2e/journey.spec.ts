@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { capturePhoto } from './helpers';
 
 /**
  * Full judge journey — from a cold start (no storage) through onboarding and the
@@ -46,9 +47,9 @@ test('cold start → onboarding → guest → full loop → every surface', asyn
   await clickButton(page, /^Next$/);
   await clickButton(page, /^No$/);
   await clickButton(page, /^Next$/);
-  await clickButton(page, /capture photo/i);
+  await capturePhoto(page);
   await clickButton(page, /^Next$/);
-  await clickButton(page, /capture photo/i);
+  await capturePhoto(page);
   await clickButton(page, /^Next$/);
   await clickButton(page, /^Skip$/);
   await clickButton(page, /^Hopeful$/);

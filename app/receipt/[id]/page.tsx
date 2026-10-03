@@ -1,10 +1,15 @@
 import Link from 'next/link';
-import { X, Check, CalendarCheck, Database, Sprout, ShieldCheck } from 'lucide-react';
+import { X, Check, CalendarCheck, Database, Sprout, ShieldCheck, MapPin, Sparkles } from 'lucide-react';
 import { buttonClasses } from '@/components/ui/button';
 import { SimulatedBadge } from '@/components/simulated-badge';
 import { getMockReceipt, type Receipt } from '@/lib/mock-data';
 import { fetchSiteView, type SiteView } from '@/lib/sites-api';
-import { fetchObservationStatus, type ApiReceipt } from '@/lib/observations-api';
+import {
+  fetchObservationStatus,
+  photoUrl,
+  type ApiReceipt,
+  type ApiReceiptPhoto,
+} from '@/lib/observations-api';
 
 function buildReceipt(view: SiteView): Receipt {
   const { site, detail } = view;
@@ -57,10 +62,12 @@ export default async function ReceiptPage({
 }) {
   const isObservationId = /^\d+$/.test(params.id);
   let r: Receipt;
+  let photo: ApiReceiptPhoto | null = null;
   if (isObservationId) {
     const status = await fetchObservationStatus(params.id);
     if (status) {
       r = apiToReceipt(status.receipt);
+      photo = status.receipt.photo;
     } else {
       const view = searchParams.site ? await fetchSiteView(searchParams.site) : null;
       r = view ? buildReceipt(view) : getMockReceipt(searchParams.site ?? params.id);
@@ -155,6 +162,85 @@ export default async function ReceiptPage({
           <p className="text-xs italic leading-relaxed text-ink-muted">{r.sentinelLine}</p>
         </div>
       </div>
+
+      {/* Captured photo — geotag, vision analysis, capture authenticity */}
+      {photo ? (
+        <section className="mt-7">
+          <h2 className="mb-3 text-[13px] font-semibold uppercase tracking-wide text-ink-muted">
+            Your photo
+          </h2>
+          <div className="overflow-hidden rounded-card border border-unseen bg-surface">
+            <div className="relative aspect-video w-full bg-[#0b1626]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={photoUrl(photo.url)}
+                alt="Your processed river photo (faces blurred, location stripped)"
+                className="h-full w-full object-cover"
+              />
+              {photo.geotag_label ? (
+                <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-1 text-xs font-medium text-white">
+                  <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+                  {photo.geotag_label}
+                </span>
+              ) : null}
+            </div>
+
+            <div className="space-y-3 px-4 py-4">
+              {/* Vision analysis */}
+              <div className="flex gap-2.5">
+                <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[var(--action)]" aria-hidden="true" />
+                <div>
+                  <p className="text-sm text-ink">{photo.summary}</p>
+                  {photo.tags.length ? (
+                    <div className="mt-1.5 flex flex-wrap gap-1.5">
+                      {photo.tags.map((t) => (
+                        <span
+                          key={t}
+                          className="rounded-full bg-[var(--action-tint)] px-2 py-0.5 text-[11px] font-medium text-[var(--action)]"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                  <p className="mt-1 text-[11px] text-ink-muted">
+                    {photo.used_model ? `Analysed by ${photo.model}` : 'Heuristic analysis (model offline)'}
+                    {' · AI asks, humans decide'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Capture authenticity meter */}
+              <div className="rounded-xl border border-unseen bg-[var(--bg)] p-3">
+                <div className="flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink">
+                    <ShieldCheck className="h-4 w-4 text-[var(--action)]" aria-hidden="true" />
+                    Capture authenticity
+                  </span>
+                  <span className="text-sm font-bold tabular-nums text-ink">{photo.authenticity}%</span>
+                </div>
+                <div
+                  className="mt-2 h-2 w-full overflow-hidden rounded-full bg-unseen"
+                  role="meter"
+                  aria-valuenow={photo.authenticity}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label="Capture authenticity"
+                >
+                  <div
+                    className="h-full rounded-full bg-[var(--success)]"
+                    style={{ width: `${photo.authenticity}%` }}
+                  />
+                </div>
+                <p className="mt-1.5 text-[11px] leading-relaxed text-ink-muted">
+                  {photo.captured_live ? 'Captured live in-app' : 'Uploaded photo'} ·{' '}
+                  {Math.round(photo.ai_generated_likelihood * 100)}% AI-generated estimate · {photo.authenticity_reason}
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {/* Your impact */}
       <section className="mt-7">
