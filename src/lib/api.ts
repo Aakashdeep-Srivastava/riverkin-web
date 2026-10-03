@@ -27,10 +27,22 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
     throw new ApiError(0, 'NEXT_PUBLIC_API_URL is not set');
   }
 
+  // Attach the bearer token when signed in (client-side only; no-op on the server).
+  let authHeader: Record<string, string> = {};
+  if (typeof window !== 'undefined') {
+    try {
+      const token = localStorage.getItem('rk_token');
+      if (token) authHeader = { Authorization: `Bearer ${token}` };
+    } catch {
+      /* storage unavailable */
+    }
+  }
+
   const res = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
     headers: {
       Accept: 'application/json',
+      ...authHeader,
       ...(init?.headers ?? {}),
     },
   });

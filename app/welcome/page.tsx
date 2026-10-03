@@ -1,13 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Entry, type Role } from '@/components/entry';
+import { Entry } from '@/components/entry';
 import { markEntered } from '@/lib/entry-state';
 
-/** The opening globe/login screen. */
+/** The opening splash → onboarding → sign-in screen. */
 export default function WelcomePage() {
   const router = useRouter();
-  const enter = (role: Role) => {
+  const enter = (role: string) => {
     markEntered(role);
     router.replace('/');
   };

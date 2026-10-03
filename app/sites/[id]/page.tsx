@@ -54,7 +54,7 @@ export default async function SitePage({ params }: { params: { id: string } }) {
       <div className="space-y-5 px-4 pt-5">
         <div>
           <AttentionStatus level={site.attention} />
-          <h1 className="font-display mt-1.5 text-[clamp(1.7rem,6.5vw,2.2rem)] font-semibold text-ink">
+          <h1 className="font-display mt-1.5 text-[clamp(1.35rem,4.5vw,1.65rem)] font-semibold text-ink">
             {site.name}
           </h1>
           <p className="mt-1 text-sm text-ink-muted">

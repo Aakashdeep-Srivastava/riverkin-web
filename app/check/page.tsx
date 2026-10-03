@@ -151,7 +151,7 @@ function CheckFlow() {
       <div key={i} className="rk-reveal flex flex-1 flex-col pt-7">
         {step.kind === 'question' ? (
           <div className="space-y-4">
-            <h1 className="font-display text-[clamp(1.6rem,6.5vw,2.1rem)] font-semibold text-ink">
+            <h1 className="font-display text-[clamp(1.3rem,4.8vw,1.6rem)] font-semibold text-ink">
               {step.q.question}
             </h1>
             <div className="space-y-2.5">
@@ -177,7 +177,7 @@ function CheckFlow() {
           </div>
         ) : step.kind === 'camera' ? (
           <div className="space-y-4">
-            <h1 className="font-display text-[clamp(1.6rem,6.5vw,2.1rem)] font-semibold text-ink">
+            <h1 className="font-display text-[clamp(1.3rem,4.8vw,1.6rem)] font-semibold text-ink">
               Photo — {step.c.label}
             </h1>
             <p className="text-sm text-ink-muted">{step.c.hint}</p>
@@ -198,7 +198,7 @@ function CheckFlow() {
           </div>
         ) : (
           <div className="space-y-4">
-            <h1 className="font-display text-[clamp(1.6rem,6.5vw,2.1rem)] font-semibold text-ink">
+            <h1 className="font-display text-[clamp(1.3rem,4.8vw,1.6rem)] font-semibold text-ink">
               How did the river feel today?
             </h1>
             <p className="text-sm text-ink-muted">Stored with your crew, never tied to a field value.</p>

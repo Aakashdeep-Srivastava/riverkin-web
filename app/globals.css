@@ -6,8 +6,10 @@
  * River-blue is the strongest functional colour; crimson is the primary CTA;
  * gold is a high-value accent; maroon is identity/terrain. Light is authoritative. */
 :root {
-  --bg: #f7f5f0; /* warm off-white */
+  --bg: #ffffff; /* clean white */
   --surface: #ffffff;
+  /* A whisper-faint tint for cards/sections to separate on pure white. */
+  --raised: #fafbfc;
   --ink: #0e1b38; /* midnight navy */
   --ink-muted: #6b7280; /* slate */
   /* River-blue — primary interactive: links, selected, FAB, progress, focus. */
