@@ -3,6 +3,8 @@ import { Inter, Newsreader } from 'next/font/google';
 import './globals.css';
 import { QueryProvider } from '@/lib/query-provider';
 import { BottomNav } from '@/components/bottom-nav';
+import { GuideProvider } from '@/components/guide/guide-context';
+import { GuideBanner } from '@/components/guide/guide-banner';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -48,10 +50,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${inter.variable} ${newsreader.variable}`}>
       <body className="font-sans antialiased">
         <QueryProvider>
-          {/* Screens own their own bottom clearance (pb-24) so the full-screen
-           * map home can use the whole viewport. */}
-          <div className="min-h-dvh">{children}</div>
-          <BottomNav />
+          <GuideProvider>
+            {/* Screens own their own bottom clearance (pb-24) so the full-screen
+             * map home can use the whole viewport. */}
+            <div className="min-h-dvh">{children}</div>
+            <BottomNav />
+            <GuideBanner />
+          </GuideProvider>
         </QueryProvider>
       </body>
     </html>
