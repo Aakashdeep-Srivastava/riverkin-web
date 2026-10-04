@@ -12,14 +12,8 @@ async function clickButton(page: Page, name: string | RegExp) {
 }
 
 test('cold start → onboarding → guest → full loop → every surface', async ({ page }) => {
-  // --- Cold start: real splash → onboarding → sign-in (nothing in storage). ---
+  // --- Cold start: the immersive welcome shows sign-in directly. ---
   await page.goto('/welcome');
-  await page.getByRole('button', { name: /continue/i }).click();
-
-  // Onboarding slides (Next ×2 → Get started), then the sign-in panel.
-  await clickButton(page, /^Next$/);
-  await clickButton(page, /^Next$/);
-  await clickButton(page, /get started/i);
 
   // --- Guest sign-in lands on the map. ---
   await page.getByRole('button', { name: /browse as a guest/i }).click();

@@ -4,10 +4,8 @@ const API = 'http://127.0.0.1:8000';
 
 /** Skip onboarding so the sign-in panel shows; splash still plays briefly. */
 async function toAuthStage(page: Page) {
-  await page.addInitScript(() => localStorage.setItem('rk_onboarded', '1'));
+  // The welcome screen now shows sign-in directly (one immersive screen).
   await page.goto('/welcome');
-  // Splash is a full-screen button — tap to advance straight to sign-in.
-  await page.getByRole('button', { name: /continue/i }).click();
 }
 
 test('welcome shows guest + Microsoft sign-in (no demo roles)', async ({ page }) => {

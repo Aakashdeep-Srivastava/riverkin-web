@@ -15,9 +15,7 @@ async function shot(page: Page, name: string) {
 }
 
 test('capture welcome sign-in', async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem('rk_onboarded', '1'));
   await page.goto('/welcome');
-  await page.getByRole('button', { name: /continue/i }).click();
   await page.waitForTimeout(900);
   await page.screenshot({ path: 'design/shots/welcome-auth.png' });
 });

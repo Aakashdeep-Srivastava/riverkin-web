@@ -1,162 +1,135 @@
 'use client';
 
-import dynamic from 'next/dynamic';
-import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { Droplets, BarChart3, Leaf, Users, Globe } from 'lucide-react';
 import { RiverMark } from '@/components/ui/logo';
-import { Onboarding } from '@/components/onboarding';
 import { AuthPanel } from '@/components/auth-panel';
-import { hasOnboarded, markOnboarded } from '@/lib/entry-state';
 import type { Role } from '@/lib/auth-api';
 
 export type { Role };
 
-const Globe = dynamic(() => import('@/components/ui/globe'), { ssr: false, loading: () => null });
-
-type Stage = 'splash' | 'onboarding' | 'auth';
-
-const RIVER_DAY =
-  'radial-gradient(130% 80% at 50% -10%, #ffffff 0%, #f1f6fb 55%, #e7eff6 100%)';
-
-// Clean white backdrop for the opening brand splash.
-const SPLASH_WHITE = '#ffffff';
+const CHIPS = [
+  { Icon: Droplets, title: 'Real data', sub: 'Live river insights', color: '#6fb6ff' },
+  { Icon: BarChart3, title: 'Clear priorities', sub: 'See what matters', color: '#6fb6ff' },
+  { Icon: Leaf, title: 'Take action', sub: 'On-ground impact', color: '#45d483' },
+  { Icon: Users, title: 'For everyone', sub: 'Citizens · NGOs · Cities', color: '#ffffff' },
+];
 
 /**
- * Opening flow: brand splash → first-run onboarding (once) → sign-in. Light
- * theme throughout, matching the rest of the app (paper-white console).
+ * Opening screen — an immersive globe hero (Europe's rivers) fading into a
+ * sunlit stream at the foot, with a white sign-in sheet. The one dark,
+ * photographic surface in the app; everything after it is the paper-white console.
  */
 export function Entry({ onEnter }: { onEnter: (role: string) => void }) {
-  const [stage, setStage] = useState<Stage>('splash');
-
-  // Auto-advance the splash (shorter when reduced motion is requested).
-  useEffect(() => {
-    const reduce =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const next = () => setStage(hasOnboarded() ? 'auth' : 'onboarding');
-    const t = window.setTimeout(next, reduce ? 400 : 2100);
-    return () => window.clearTimeout(t);
-  }, []);
-
-  function finishOnboarding() {
-    markOnboarded();
-    setStage('auth');
-  }
-
   return (
-    <main
-      className="relative flex min-h-dvh flex-col overflow-hidden"
-      style={{ background: stage === 'splash' ? SPLASH_WHITE : RIVER_DAY }}
-    >
-      {/* Globe backdrop on the sign-in stage. */}
-      {stage === 'auth' ? (
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-[2%] h-[72vh] w-[150vw] max-w-[900px] -translate-x-1/2"
-        >
-          <Globe className="h-full w-full" />
+    <main className="relative flex min-h-dvh flex-col overflow-hidden bg-[#071326] text-white">
+      {/* Background: globe hero, sunlit river at the foot, legibility scrim.
+       * No negative z-index — main isn't a stacking context, so DOM order wins:
+       * images paint first, scrim over them, content sits at z-10. */}
+      <div
+        aria-hidden="true"
+        className="rk-bg-in absolute inset-0 bg-cover bg-top"
+        style={{ backgroundImage: 'url(/hero-globe.jpg)' }}
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 bottom-0 h-[40vh] bg-cover bg-bottom"
+        style={{ backgroundImage: 'url(/hero-river.jpg)' }}
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(180deg, rgba(5,16,33,0) 0%, rgba(5,16,33,0) 26%, rgba(5,16,33,0.5) 50%, rgba(5,16,33,0.74) 64%, rgba(5,16,33,0.15) 76%, rgba(5,16,33,0) 82%)',
+        }}
+      />
+
+      {/* Top bar: brand + language. */}
+      <header className="relative z-10 flex items-start justify-between px-5 pt-[calc(env(safe-area-inset-top)+1rem)]">
+        <div className="rk-reveal flex items-center gap-2.5">
+          <RiverMark className="h-10 w-10 drop-shadow" />
+          <span className="leading-none">
+            <span className="block text-[18px] font-bold tracking-[0.14em]">RIVERKIN</span>
+            <span className="mt-0.5 block text-[9px] font-medium uppercase tracking-[0.3em] text-white/70">
+              Rivers connect us
+            </span>
+          </span>
         </div>
-      ) : null}
+        <span className="rk-reveal rk-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold text-white">
+          <Globe className="h-4 w-4" aria-hidden="true" /> EN
+        </span>
+      </header>
 
-      {stage === 'splash' ? (
-        <button
-          onClick={() => setStage(hasOnboarded() ? 'auth' : 'onboarding')}
-          aria-label="Continue"
-          className="relative z-10 flex flex-1 flex-col items-center justify-center"
+      {/* Hero copy + value chips, pushed to the lower third. */}
+      <div className="relative z-10 mt-auto px-5">
+        <h1
+          className="rk-reveal text-[clamp(2.3rem,12vw,3.2rem)] font-extrabold leading-[1.02] tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.4)]"
+          style={{ animationDelay: '80ms' }}
         >
-          {/* Dawn light on paper — a whisper of river-blue at the top, warmth at
-           * the foot. Decorative; keeps the splash white-dominant. */}
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                'radial-gradient(120% 70% at 50% 8%, color-mix(in srgb, var(--water) 9%, transparent) 0%, transparent 58%),' +
-                'radial-gradient(90% 50% at 50% 104%, color-mix(in srgb, var(--gold) 6%, transparent) 0%, transparent 60%)',
-            }}
+          Find where
+          <br />
+          <span className="text-[#4ea6ff]">the river</span>
+          <br />
+          needs you.
+        </h1>
+
+        <svg aria-hidden="true" viewBox="0 0 200 20" className="mt-2 h-4 w-44 overflow-visible" fill="none">
+          <path
+            className="rk-draw"
+            pathLength={1}
+            d="M2 11 C 36 2, 56 18, 92 10 S 158 2, 198 10"
+            stroke="#4ea6ff"
+            strokeWidth={4}
+            strokeLinecap="round"
           />
+        </svg>
 
-          <span className="rk-bloom">
-            <RiverMark className="h-[5.5rem] w-[5.5rem]" />
-          </span>
+        <p
+          className="rk-reveal mt-4 max-w-xs text-[15px] leading-relaxed text-white/85"
+          style={{ animationDelay: '200ms' }}
+        >
+          106 urban streams across five European cities, ranked by what needs a look today.
+        </p>
 
-          <span
-            className="rk-reveal mt-6 font-display text-[2.75rem] font-semibold leading-none text-ink"
-            style={{ animationDelay: '120ms' }}
-          >
-            RiverKin
-          </span>
-
-          {/* The signature: a river line that draws itself under the wordmark
-           * (rk-draw = "the river line drawing itself"). */}
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 240 24"
-            className="mt-3 h-6 w-[240px] overflow-visible"
-            fill="none"
-          >
-            <defs>
-              <linearGradient id="rk-splash-river" x1="0" y1="0" x2="240" y2="0" gradientUnits="userSpaceOnUse">
-                <stop offset="0" stopColor="var(--action)" stopOpacity="0" />
-                <stop offset="0.18" stopColor="var(--action)" />
-                <stop offset="0.82" stopColor="var(--water)" />
-                <stop offset="1" stopColor="var(--water)" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            <path
-              className="rk-draw"
-              pathLength={1}
-              d="M2 12 C 40 2, 64 22, 102 12 S 176 2, 202 12 S 232 16, 238 12"
-              stroke="url(#rk-splash-river)"
-              strokeWidth={2.5}
-              strokeLinecap="round"
-            />
-          </svg>
-
-          <span
-            className="rk-reveal mt-5 flex items-center gap-2.5 text-[12px] font-medium uppercase tracking-[0.3em] text-ink-muted"
-            style={{ animationDelay: '320ms' }}
-          >
-            <span>Observe</span>
-            <span aria-hidden="true" className="h-1 w-1 rounded-full bg-[var(--water)]/70" />
-            <span>Verify</span>
-            <span aria-hidden="true" className="h-1 w-1 rounded-full bg-[var(--water)]/70" />
-            <span>Protect</span>
-          </span>
-        </button>
-      ) : null}
-
-      {stage === 'onboarding' ? <Onboarding onDone={finishOnboarding} /> : null}
-
-      {stage === 'auth' ? (
-        <>
-          <div className="relative z-10 px-6 pt-[calc(env(safe-area-inset-top)+2.25rem)]">
-            <div className="rk-reveal flex items-center gap-2">
-              <RiverMark className="h-8 w-8" />
-              <span className="text-[12px] font-semibold uppercase tracking-[0.18em] text-ink-muted">RiverKin</span>
+        <div className="rk-reveal mt-5 grid grid-cols-4 gap-2" style={{ animationDelay: '300ms' }}>
+          {CHIPS.map(({ Icon, title, sub, color }) => (
+            <div key={title} className="rk-glass rounded-2xl border border-white/15 p-2.5">
+              <Icon className="h-5 w-5" aria-hidden="true" style={{ color }} />
+              <p className="mt-1.5 text-[11px] font-semibold leading-tight text-white">{title}</p>
+              <p className="mt-0.5 text-[9px] leading-tight text-white/65">{sub}</p>
             </div>
-          </div>
+          ))}
+        </div>
+      </div>
 
-          <div className="relative z-10 mt-auto px-6 pb-[calc(env(safe-area-inset-bottom)+1.75rem)]">
-            <div className="rk-reveal" style={{ animationDelay: '120ms' }}>
-              <h1 className="font-display text-[clamp(1.7rem,6.5vw,2.1rem)] font-semibold leading-[1.1] text-ink">
-                Find where the river needs you.
-              </h1>
-              <p className="mt-2.5 max-w-xs text-[14px] leading-relaxed text-ink-muted">
-                106 urban streams across five European cities, ranked by what needs a look today.
-              </p>
-            </div>
+      {/* Lower part — the sheet + terms rise up together from the foot on load. */}
+      <div className="rk-rise relative z-10 mt-5">
+        <div className="rounded-t-[1.75rem] bg-surface px-5 pt-3.5 text-ink shadow-[0_-10px_34px_rgba(0,0,0,0.3)]">
+        <div className="mx-auto mb-3.5 h-1 w-10 rounded-full bg-black/15" />
+        <AuthPanel
+          onGuest={() => {
+            void import('@/lib/analytics').then((m) => m.track('guest_entered'));
+            onEnter('guest');
+          }}
+        />
+      </div>
 
-            <div className="mt-6">
-              <AuthPanel
-                onGuest={() => {
-                  void import('@/lib/analytics').then((m) => m.track('guest_entered'));
-                  onEnter('guest');
-                }}
-              />
-            </div>
-          </div>
-        </>
-      ) : null}
+        {/* Terms, over the sunlit river at the foot. */}
+        <div className="px-5 pb-[calc(env(safe-area-inset-bottom)+0.9rem)] pt-2.5 text-center">
+          <p className="text-[11px] leading-relaxed text-white/85 drop-shadow">
+            By continuing you agree to our{' '}
+            <Link href="/terms" className="font-medium underline underline-offset-2">
+              Terms
+            </Link>{' '}
+            and{' '}
+            <Link href="/privacy" className="font-medium underline underline-offset-2">
+              Privacy Policy
+            </Link>
+            .
+          </p>
+        </div>
+      </div>
     </main>
   );
 }

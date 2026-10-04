@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2, Compass, Search, Heart } from 'lucide-react';
 import { isMicrosoftEnabled, signInWithMicrosoft } from '@/lib/auth-api';
 
 /** Microsoft's four-square mark. */
@@ -17,10 +16,16 @@ function MicrosoftMark() {
   );
 }
 
+const ITEMS = [
+  { Icon: Compass, title: 'Explore freely', sub: 'No account needed' },
+  { Icon: Search, title: 'Try a check', sub: 'See how it works' },
+  { Icon: Heart, title: 'Make it count', sub: 'Sign in to contribute' },
+];
+
 /**
  * Sign-in surface: browse as a guest (no wall), or sign in with Microsoft for a
- * real account that makes your work count. No forced registration (progressive
- * registration — see the RiverKin auth model).
+ * real account that makes your work count. Progressive registration (RiverKin
+ * auth model). Styled as the white sheet in the welcome mockup.
  */
 export function AuthPanel({ onGuest }: { onGuest: () => void }) {
   const [msEnabled, setMsEnabled] = useState(false);
@@ -45,37 +50,37 @@ export function AuthPanel({ onGuest }: { onGuest: () => void }) {
             signInWithMicrosoft();
           }}
           disabled={redirecting}
-          className="flex min-h-tap w-full items-center justify-center gap-2.5 rounded-button border border-unseen bg-surface px-4 py-3 font-semibold text-ink transition-transform active:scale-[0.98] disabled:opacity-70"
+          className="flex min-h-tap w-full items-center justify-center gap-2.5 rounded-full border border-unseen bg-surface px-4 py-3.5 text-[15px] font-semibold text-ink shadow-sm transition-transform active:scale-[0.98] disabled:opacity-70"
         >
           {redirecting ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> : <MicrosoftMark />}
           Sign in with Microsoft
+          <ArrowRight className="ml-auto h-5 w-5 text-ink-muted" aria-hidden="true" />
         </button>
       ) : null}
 
       <button
         onClick={onGuest}
-        className={`flex min-h-tap w-full items-center justify-center gap-2 rounded-button bg-[var(--action)] px-4 font-semibold text-white transition-transform active:scale-[0.98] ${
-          msEnabled ? 'mt-2.5 py-3' : 'py-3.5'
+        className={`flex min-h-tap w-full items-center justify-center gap-2.5 rounded-full px-4 py-3.5 text-[15px] font-semibold text-white shadow-[0_6px_18px_rgba(10,110,255,0.35)] transition-transform active:scale-[0.98] ${
+          msEnabled ? 'mt-3' : ''
         }`}
+        style={{ background: 'linear-gradient(90deg, #1E7BFF 0%, #0052FF 100%)' }}
       >
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/25">
+          <Compass className="h-4 w-4" aria-hidden="true" />
+        </span>
         Browse as a guest
-        <ArrowRight className="h-4 w-4 opacity-80" aria-hidden="true" />
+        <ArrowRight className="ml-auto h-5 w-5" aria-hidden="true" />
       </button>
 
-      <p className="mt-3 text-center text-[12px] leading-relaxed text-ink-muted">
-        Guests can explore and try a check. Sign in to make your work count toward the shared data.
-      </p>
-      <p className="mt-2 text-center text-[11px] text-ink-muted">
-        By continuing you agree to our{' '}
-        <Link href="/terms" className="underline underline-offset-2 hover:text-ink">
-          Terms
-        </Link>{' '}
-        and{' '}
-        <Link href="/privacy" className="underline underline-offset-2 hover:text-ink">
-          Privacy Policy
-        </Link>
-        .
-      </p>
+      <div className="mt-4 grid grid-cols-3 gap-2">
+        {ITEMS.map(({ Icon, title, sub }) => (
+          <div key={title} className="text-center">
+            <Icon className="mx-auto h-5 w-5 text-ink" aria-hidden="true" />
+            <p className="mt-1.5 text-[12px] font-semibold leading-tight text-ink">{title}</p>
+            <p className="mt-0.5 text-[10px] leading-tight text-ink-muted">{sub}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
