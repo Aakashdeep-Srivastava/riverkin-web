@@ -10,6 +10,7 @@ import { SiteFooter } from '@/components/site-footer';
 import { buttonClasses } from '@/components/ui/button';
 import { getStoredUser, signOut, type AuthUser } from '@/lib/auth-api';
 import { TourMenuItem } from '@/components/guide/tour-button';
+import { InstallButton } from '@/components/pwa';
 
 const ROLE_LABEL: Record<string, string> = {
   keeper: 'Keeper · adult volunteer',
@@ -83,6 +84,8 @@ export default function MePage() {
         </div>
 
         <TourMenuItem />
+
+        <InstallButton />
 
         <button onClick={handleSignOut} className={buttonClasses('secondary', 'cta')}>
           <LogOut className="h-5 w-5" aria-hidden="true" />

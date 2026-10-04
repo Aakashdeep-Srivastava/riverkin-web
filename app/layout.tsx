@@ -5,6 +5,7 @@ import { QueryProvider } from '@/lib/query-provider';
 import { BottomNav } from '@/components/bottom-nav';
 import { GuideProvider } from '@/components/guide/guide-context';
 import { GuideBanner } from '@/components/guide/guide-banner';
+import { ServiceWorkerRegister } from '@/components/pwa';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -22,12 +23,28 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://riverkin.online'),
+  applicationName: 'RiverKin',
   title: 'RiverKin — find where the river needs you',
   description:
     'Find where the river needs you. Observe. Verify. Protect. RiverKin spots the sites that need a look, runs a 5-minute field check, and has peers verify it.',
   icons: {
-    icon: '/logo.png',
-    apple: '/logo.png',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon-32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
+  },
+  appleWebApp: {
+    capable: true,
+    title: 'RiverKin',
+    statusBarStyle: 'default',
+  },
+  openGraph: {
+    title: 'RiverKin — find where the river needs you',
+    description: 'Citizen science that keeps Europe’s urban rivers healthy.',
+    images: ['/icon-512.png'],
   },
 };
 
@@ -56,6 +73,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="min-h-dvh">{children}</div>
             <BottomNav />
             <GuideBanner />
+            <ServiceWorkerRegister />
           </GuideProvider>
         </QueryProvider>
       </body>
