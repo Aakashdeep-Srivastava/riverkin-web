@@ -21,9 +21,10 @@ const AtmospherePlayer = dynamic(() => import('@/components/scene/atmosphere-pla
   ssr: false,
 });
 
-// The live satellite globe (opt-in). Reuses the proven home-map component,
-// which token-auths its tiles and falls back to a WebGL orb if unavailable.
-const GlobeMap = dynamic(() => import('@/components/globe-map'), { ssr: false });
+// The live satellite globe (opt-in) with the flowing river-monitoring network.
+// Token-auths its tiles and falls back to a WebGL orb if unavailable. Separate
+// from the home map so that critical screen is untouched.
+const LoginGlobe = dynamic(() => import('@/components/scene/login-globe'), { ssr: false });
 
 export function RiverKinScene() {
   const [mounted, setMounted] = useState(false);
@@ -48,8 +49,8 @@ export function RiverKinScene() {
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
       {/* --- Geography layer --- */}
       {liveGlobe ? (
-        <div className="absolute inset-0 pointer-events-auto">
-          <GlobeMap />
+        <div className="absolute inset-0">
+          <LoginGlobe />
         </div>
       ) : (
         <div
