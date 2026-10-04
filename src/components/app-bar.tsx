@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { RiverKinLogo } from '@/components/ui/logo';
 import { TourButton } from '@/components/guide/tour-button';
+import { NotificationCenter } from '@/components/notifications/notification-center';
 
 /**
  * Top app bar for the citizen surface: wave mark + wordmark, search, and the
@@ -21,6 +22,7 @@ export function AppBar({ transparent = false }: { transparent?: boolean }) {
       </Link>
       <div className="flex items-center gap-2">
         <TourButton transparent={transparent} />
+        <NotificationCenter transparent={transparent} />
         <button
           type="button"
           aria-label="Search sites"
