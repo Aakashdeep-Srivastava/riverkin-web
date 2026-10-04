@@ -4,6 +4,7 @@
  * failure leaves the user exactly where they were (no nagging).
  */
 import { apiFetch } from './api';
+import { track } from './analytics';
 
 export type PushState = 'unsupported' | 'default' | 'denied' | 'subscribed';
 
@@ -59,6 +60,7 @@ export async function enablePush(): Promise<boolean> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ endpoint: json.endpoint, keys: json.keys }),
     });
+    track('push_subscribed');
     return true;
   } catch {
     return false;

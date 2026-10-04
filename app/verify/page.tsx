@@ -12,6 +12,7 @@ import {
   getVoterId,
   type VerifyCardUI,
 } from '@/lib/verify-api';
+import { track } from '@/lib/analytics';
 
 type Answer = 'yes' | 'no' | 'cant_tell';
 
@@ -81,6 +82,12 @@ export default function VerifyPage() {
 
   const done = index >= cards.length;
   const card = cards[index];
+
+  // Funnel: finishing a verify round (after at least one card).
+  useEffect(() => {
+    if (done && cards.length > 0) track('verification_completed', { cards: cards.length });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [done]);
 
   const cities = useMemo(
     () => new Set(cards.map((c) => c.siteName.replace('A stream in ', ''))).size,

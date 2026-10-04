@@ -69,6 +69,7 @@ export function NotificationCenter({ transparent = false }: { transparent?: bool
 
   function go(n: AppNotification) {
     markRead([n.id]);
+    void import('@/lib/analytics').then((m) => m.track('notification_opened', { kind: n.kind }));
     setOpen(false);
     setToast(null);
     router.push(n.href);

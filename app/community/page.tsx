@@ -12,6 +12,7 @@ import {
   type CityStanding,
   type Challenge,
 } from '@/lib/community-api';
+import { track } from '@/lib/analytics';
 
 /**
  * Community — the Track 5 home for sustained participation. Collective city
@@ -23,6 +24,7 @@ export default function CommunityPage() {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
 
   useEffect(() => {
+    track('community_opened');
     void fetchStandings().then(setStandings);
     void fetchChallenges().then((c) => setChallenges(c ?? []));
   }, []);

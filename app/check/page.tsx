@@ -17,6 +17,7 @@ import {
 } from '@/lib/mock-data';
 import { enqueueCheck } from '@/lib/offline-queue';
 import { submitObservation, uploadObservationPhoto } from '@/lib/observations-api';
+import { track } from '@/lib/analytics';
 
 type Step =
   | { kind: 'question'; q: FieldQuestion }
@@ -63,6 +64,12 @@ function CheckFlow() {
     );
   }, []);
 
+  // Funnel: reaching the field check = mission started.
+  useEffect(() => {
+    track('mission_started', { site: siteId });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const step = flow[i];
   const isLast = i === flow.length - 1;
   const questionCount = fieldQuestions.length;
@@ -86,6 +93,7 @@ function CheckFlow() {
 
   async function submit() {
     setSubmitting(true);
+    track('mission_submitted', { site: siteId });
     const photoKinds = Object.keys(captures);
 
     // Try the live API first (PRD F1 step 6: submit the check).

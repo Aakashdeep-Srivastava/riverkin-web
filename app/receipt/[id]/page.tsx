@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { X, Check, CalendarCheck, Database, Sprout, ShieldCheck, MapPin, Sparkles } from 'lucide-react';
 import { buttonClasses } from '@/components/ui/button';
 import { ShareImpact } from '@/components/share-impact';
+import { TrackView } from '@/components/track-view';
 import { SimulatedBadge } from '@/components/simulated-badge';
 import { getMockReceipt, type Receipt } from '@/lib/mock-data';
 import { fetchSiteView, type SiteView } from '@/lib/sites-api';
@@ -98,6 +99,7 @@ export default async function ReceiptPage({
 
   return (
     <main className="mx-auto min-h-dvh max-w-2xl px-4 pb-28">
+      <TrackView name="receipt_viewed" />
       <div className="flex justify-end pt-[calc(env(safe-area-inset-top)+0.75rem)]">
         <Link
           href="/"
