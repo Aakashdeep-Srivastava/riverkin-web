@@ -4,7 +4,8 @@ const API = 'http://127.0.0.1:8000';
 
 /** Skip onboarding so the sign-in panel shows; splash still plays briefly. */
 async function toAuthStage(page: Page) {
-  // The welcome screen now shows sign-in directly (one immersive screen).
+  // Skip the learning screens → go straight to sign-in.
+  await page.addInitScript(() => localStorage.setItem('rk_onboarded', '1'));
   await page.goto('/welcome');
 }
 
