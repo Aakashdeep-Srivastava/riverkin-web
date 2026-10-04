@@ -5,7 +5,7 @@ import { QueryProvider } from '@/lib/query-provider';
 import { BottomNav } from '@/components/bottom-nav';
 import { GuideProvider } from '@/components/guide/guide-context';
 import { GuideBanner } from '@/components/guide/guide-banner';
-import { ServiceWorkerRegister } from '@/components/pwa';
+import { ServiceWorkerRegister, InstallBanner } from '@/components/pwa';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -74,6 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <BottomNav />
             <GuideBanner />
             <ServiceWorkerRegister />
+            <InstallBanner />
           </GuideProvider>
         </QueryProvider>
       </body>
