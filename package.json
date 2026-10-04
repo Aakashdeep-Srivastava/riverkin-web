@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "render:intro": "node scripts/render-intro.mjs",
     "gen:api": "npx openapi-typescript \"$NEXT_PUBLIC_API_URL/openapi.json\" -o src/lib/api-types.ts"
   },
   "dependencies": {
@@ -33,6 +34,8 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
+    "@remotion/bundler": "^4.0.532",
+    "@remotion/renderer": "^4.0.532",
     "@types/node": "^20.16.11",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.0",

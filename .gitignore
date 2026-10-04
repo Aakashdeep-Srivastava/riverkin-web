@@ -31,3 +31,6 @@ next-env.d.ts
 design/shots/
 test-results/
 playwright-report/
+
+# Rendered marketing video exports (large binaries, not deployed)
+design/marketing/
