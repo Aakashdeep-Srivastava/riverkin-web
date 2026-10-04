@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArrowRight, Loader2, Compass, Search, Heart } from 'lucide-react';
+import { ArrowRight, Loader2, Compass } from 'lucide-react';
 import { isMicrosoftEnabled, signInWithMicrosoft } from '@/lib/auth-api';
 
 /** Microsoft's four-square mark. */
@@ -15,12 +15,6 @@ function MicrosoftMark() {
     </svg>
   );
 }
-
-const ITEMS = [
-  { Icon: Compass, title: 'Explore freely', sub: 'No account needed' },
-  { Icon: Search, title: 'Try a check', sub: 'See how it works' },
-  { Icon: Heart, title: 'Make it count', sub: 'Sign in to contribute' },
-];
 
 /**
  * Sign-in surface: browse as a guest (no wall), or sign in with Microsoft for a
@@ -72,15 +66,9 @@ export function AuthPanel({ onGuest }: { onGuest: () => void }) {
         <ArrowRight className="ml-auto h-5 w-5" aria-hidden="true" />
       </button>
 
-      <div className="mt-4 grid grid-cols-3 gap-2">
-        {ITEMS.map(({ Icon, title, sub }) => (
-          <div key={title} className="text-center">
-            <Icon className="mx-auto h-5 w-5 text-ink" aria-hidden="true" />
-            <p className="mt-1.5 text-[12px] font-semibold leading-tight text-ink">{title}</p>
-            <p className="mt-0.5 text-[10px] leading-tight text-ink-muted">{sub}</p>
-          </div>
-        ))}
-      </div>
+      <p className="mt-3.5 text-center text-[12px] leading-relaxed text-white/85 drop-shadow">
+        Guests can explore and try a check. Sign in to make your work count toward the shared data.
+      </p>
     </div>
   );
 }
