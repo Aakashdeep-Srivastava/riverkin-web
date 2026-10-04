@@ -23,6 +23,8 @@ export interface ApiReceiptPhoto {
   correlation: PhotoFieldCheck[];
   escalated: boolean;
   photos_count: number;
+  evidence_region: { x: number; y: number; w: number; h: number } | null;
+  focus_field: string | null;
 }
 
 /** One field cross-checked: the citizen's answer vs the model's read of the photo. */

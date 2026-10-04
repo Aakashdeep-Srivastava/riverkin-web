@@ -194,6 +194,22 @@ export default async function ReceiptPage({
                 alt="Your processed river photo (faces blurred, location stripped)"
                 className="h-full w-full object-cover"
               />
+              {photo.evidence_region ? (
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute rounded-md border-2 border-[var(--attention)] shadow-[0_0_0_9999px_rgba(0,0,0,0.12)]"
+                  style={{
+                    left: `${photo.evidence_region.x * 100}%`,
+                    top: `${photo.evidence_region.y * 100}%`,
+                    width: `${photo.evidence_region.w * 100}%`,
+                    height: `${photo.evidence_region.h * 100}%`,
+                  }}
+                >
+                  <span className="absolute -top-5 left-0 whitespace-nowrap rounded bg-[var(--attention)] px-1.5 py-0.5 text-[10px] font-bold text-ink">
+                    AI focus{photo.focus_field ? `: ${photo.focus_field.replace(/_/g, ' ')}` : ''} (approx.)
+                  </span>
+                </span>
+              ) : null}
               {photo.geotag_label ? (
                 <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-1 text-xs font-medium text-white">
                   <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
