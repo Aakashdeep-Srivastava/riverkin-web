@@ -11,6 +11,12 @@ export interface ApiMetrics {
   verified_this_month: number;
   open_expert_reviews: number;
   coverage_fresh_pct: number;
+  ai_human_agreement_pct: number | null;
+  ai_human_agreement_n: number;
+  median_verify_seconds: number | null;
+  verify_votes_n: number;
+  revisit_rate_pct: number | null;
+  revisit_eligible_n: number;
   simulated: boolean;
 }
 

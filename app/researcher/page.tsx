@@ -81,6 +81,45 @@ export default async function ResearcherPage() {
           ))}
         </div>
 
+        {/* AI & verification metrics — honest, each with its sample size. */}
+        <h2 className="mt-8 text-[13px] font-semibold uppercase tracking-wide text-ink-muted">
+          AI &amp; verification
+        </h2>
+        <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="rounded-card border border-unseen bg-surface p-4">
+            <p className="text-[clamp(1.4rem,5vw,1.8rem)] font-bold tabular-nums text-ink">
+              {metrics?.ai_human_agreement_pct != null ? `${metrics.ai_human_agreement_pct}%` : '—'}
+            </p>
+            <p className="text-xs font-medium text-ink">AI–human agreement</p>
+            <p className="text-[11px] text-ink-muted">
+              {metrics?.ai_human_agreement_n
+                ? `over ${metrics.ai_human_agreement_n} verified item${metrics.ai_human_agreement_n === 1 ? '' : 's'}`
+                : 'needs verified votes'}
+            </p>
+          </div>
+          <div className="rounded-card border border-unseen bg-surface p-4">
+            <p className="text-[clamp(1.4rem,5vw,1.8rem)] font-bold tabular-nums text-ink">
+              {metrics?.median_verify_seconds != null ? `${metrics.median_verify_seconds}s` : '—'}
+            </p>
+            <p className="text-xs font-medium text-ink">Median verify time</p>
+            <p className="text-[11px] text-ink-muted">
+              {metrics?.verify_votes_n ? `${metrics.verify_votes_n} votes` : 'needs votes'} · lift (vs
+              human-only) is roadmap
+            </p>
+          </div>
+          <div className="rounded-card border border-unseen bg-surface p-4">
+            <p className="text-[clamp(1.4rem,5vw,1.8rem)] font-bold tabular-nums text-ink">
+              {metrics?.revisit_rate_pct != null ? `${metrics.revisit_rate_pct}%` : '—'}
+            </p>
+            <p className="text-xs font-medium text-ink">Revisit rate (30d)</p>
+            <p className="text-[11px] text-ink-muted">
+              {metrics?.revisit_eligible_n
+                ? `of ${metrics.revisit_eligible_n} checked site${metrics.revisit_eligible_n === 1 ? '' : 's'}`
+                : 'needs checks'}
+            </p>
+          </div>
+        </div>
+
         {/* Expert queue */}
         <div className="mt-8 flex items-center justify-between">
           <h2 className="text-[13px] font-semibold uppercase tracking-wide text-ink-muted">
