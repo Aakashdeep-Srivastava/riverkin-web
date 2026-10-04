@@ -15,10 +15,18 @@ async function shot(page: Page, name: string) {
 }
 
 test('capture welcome sign-in', async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem('rk_onboarded', '1'));
   await page.goto('/welcome');
-  await page.waitForTimeout(900);
+  // Advance splash → onboarding → sign-in.
+  await page.getByRole('button', { name: /continue to riverkin/i }).click();
+  await page.getByRole('button', { name: /^Skip$/ }).click();
+  await page.waitForTimeout(1000);
   await page.screenshot({ path: 'design/shots/welcome-auth.png' });
+});
+
+test('capture welcome splash', async ({ page }) => {
+  await page.goto('/welcome');
+  await page.waitForTimeout(1400); // let the brand reveal settle (before auto-advance)
+  await page.screenshot({ path: 'design/shots/welcome-splash.png' });
 });
 
 test('capture brand screens', async ({ page }) => {

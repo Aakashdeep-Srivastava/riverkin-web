@@ -1,7 +1,6 @@
 'use client';
 
 import { MapPin } from 'lucide-react';
-import { SimulatedBadge } from './simulated-badge';
 import FluidOrb from '@/components/ui/fluid-orb';
 
 /**
@@ -47,7 +46,6 @@ export function MapPlaceholder() {
         <p className="max-w-xs text-xs text-ink-muted">
           MapLibre + OpenStreetMap tiles render here. Use the list below to reach every site by keyboard.
         </p>
-        <SimulatedBadge className="mt-1" />
       </div>
     </div>
   );

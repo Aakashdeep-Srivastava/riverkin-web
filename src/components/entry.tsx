@@ -7,12 +7,15 @@ import { Globe, ChevronDown, Eye, Camera, ShieldCheck, ArrowRight, type LucideIc
 import { RiverMark } from '@/components/ui/logo';
 import { AuthPanel } from '@/components/auth-panel';
 import { RiverKinScene } from '@/components/scene/riverkin-scene';
-import { hasOnboarded, markOnboarded } from '@/lib/entry-state';
+import { markOnboarded } from '@/lib/entry-state';
 import type { Role } from '@/lib/auth-api';
 
 export type { Role };
 
-type Stage = 'onboarding' | 'auth';
+type Stage = 'splash' | 'onboarding' | 'auth';
+
+/** How long the brand splash holds before advancing (ms). Tap to skip. */
+const SPLASH_MS = 2600;
 
 interface Slide {
   Icon: LucideIcon;
@@ -46,13 +49,21 @@ const SLIDES: Slide[] = [
 
 export function Entry({ onEnter }: { onEnter: (role: string) => void }) {
   // Resolve the stage AFTER mount so SSR and the first client render match
-  // (reading localStorage during render causes a hydration mismatch).
+  // (touching the DOM/localStorage during render causes a hydration mismatch).
+  // Every /welcome visit plays the full story: splash → learning → sign-in.
   const [stage, setStage] = useState<Stage | null>(null);
   const [slide, setSlide] = useState(0);
 
   useEffect(() => {
-    setStage(hasOnboarded() ? 'auth' : 'onboarding');
+    setStage('splash');
   }, []);
+
+  // The brand splash auto-advances to the learning screens (tap to skip).
+  useEffect(() => {
+    if (stage !== 'splash') return;
+    const t = setTimeout(() => setStage('onboarding'), SPLASH_MS);
+    return () => clearTimeout(t);
+  }, [stage]);
 
   function finishOnboarding() {
     markOnboarded();
@@ -71,7 +82,8 @@ export function Entry({ onEnter }: { onEnter: (role: string) => void }) {
       {/* Layered cinematic background: geography + Remotion atmosphere + blend. */}
       <RiverKinScene />
 
-      {/* Top bar: brand + language. */}
+      {/* Top bar: brand + language (hidden during the splash). */}
+      {stage && stage !== 'splash' ? (
       <header className="relative z-10 flex items-start justify-between px-5 pt-[calc(env(safe-area-inset-top)+1rem)]">
         <div className="rk-reveal flex items-center gap-2.5">
           <RiverMark className="h-10 w-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]" />
@@ -90,6 +102,57 @@ export function Entry({ onEnter }: { onEnter: (role: string) => void }) {
           <ChevronDown className="h-3.5 w-3.5 text-ink-muted" aria-hidden="true" />
         </button>
       </header>
+      ) : null}
+
+      {/* ---- Brand splash (always first; tap or auto-advance) ---- */}
+      {stage === 'splash' ? (
+        <button
+          type="button"
+          onClick={() => setStage('onboarding')}
+          aria-label="Continue to RiverKin"
+          className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 text-center"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.88, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.9, ease: 'easeOut' }}
+          >
+            <RiverMark className="mx-auto h-24 w-24 drop-shadow-[0_8px_28px_rgba(0,0,0,0.5)]" />
+          </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut', delay: 0.3 }}
+            className="mt-6 text-[34px] font-extrabold tracking-[0.18em] [text-shadow:0_2px_16px_rgba(0,0,0,0.6)]"
+          >
+            RIVERKIN
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.9, delay: 0.55 }}
+            className="mt-2 text-[12px] font-semibold uppercase tracking-[0.34em] text-white/85 drop-shadow"
+          >
+            Rivers connect us
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.9, delay: 0.95 }}
+            className="mt-7 max-w-xs text-[14px] leading-relaxed text-white/85 drop-shadow"
+          >
+            Citizen science for the rivers running through our cities — notice, understand, and care for the water around you.
+          </motion.p>
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 1, 0.5, 1] }}
+            transition={{ duration: 2.2, delay: 1.5, repeat: Infinity, repeatType: 'loop' }}
+            className="mt-10 text-[12px] font-medium text-white/70 drop-shadow"
+          >
+            Tap to begin
+          </motion.span>
+        </button>
+      ) : null}
 
       {/* ---- Learning screens ---- */}
       {stage === 'onboarding' ? (

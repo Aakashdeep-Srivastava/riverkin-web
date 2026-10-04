@@ -12,8 +12,9 @@ async function clickButton(page: Page, name: string | RegExp) {
 }
 
 test('cold start → onboarding → guest → full loop → every surface', async ({ page }) => {
-  // --- Cold start: learning screens → sign-in. ---
+  // --- Cold start: splash → learning screens → sign-in. ---
   await page.goto('/welcome');
+  await page.getByRole('button', { name: /continue to riverkin/i }).click();
   await clickButton(page, /^Next$/);
   await clickButton(page, /^Next$/);
   await clickButton(page, /get started/i);

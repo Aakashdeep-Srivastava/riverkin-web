@@ -11,7 +11,6 @@ import {
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { apiFetch } from '@/lib/api';
 import { attentionMeta } from '@/components/attention-status';
-import { SimulatedBadge } from '@/components/simulated-badge';
 import { MapPlaceholder } from '@/components/map-placeholder';
 import type { Site } from '@/lib/api-types';
 
@@ -264,10 +263,6 @@ export default function GlobeMap() {
         aria-label="Interactive globe of river sites. A text list of the same sites is below."
         className="h-full w-full"
       />
-      {/* The base map is real; the site markers/data are simulated. */}
-      <div className="pointer-events-none absolute right-2 top-2 z-10">
-        <SimulatedBadge />
-      </div>
     </div>
   );
 }

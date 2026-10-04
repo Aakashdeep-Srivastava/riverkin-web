@@ -2,11 +2,11 @@ import { test, expect, type Page } from '@playwright/test';
 
 const API = 'http://127.0.0.1:8000';
 
-/** Skip onboarding so the sign-in panel shows; splash still plays briefly. */
+/** Advance splash → onboarding → sign-in so the auth panel shows. */
 async function toAuthStage(page: Page) {
-  // Skip the learning screens → go straight to sign-in.
-  await page.addInitScript(() => localStorage.setItem('rk_onboarded', '1'));
   await page.goto('/welcome');
+  await page.getByRole('button', { name: /continue to riverkin/i }).click();
+  await page.getByRole('button', { name: /^Skip$/ }).click();
 }
 
 test('welcome shows guest + Microsoft sign-in (no demo roles)', async ({ page }) => {
