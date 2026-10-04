@@ -45,19 +45,19 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
   return (
     <div className="relative z-10 flex min-h-dvh flex-col px-6 pb-[calc(env(safe-area-inset-bottom)+1.75rem)] pt-[calc(env(safe-area-inset-top)+1.5rem)]">
       <div className="flex justify-end">
-        <button onClick={onDone} className="text-sm font-medium text-white/60 hover:text-white">
+        <button onClick={onDone} className="text-sm font-medium text-ink-muted hover:text-ink">
           Skip
         </button>
       </div>
 
       <div key={i} className="rk-reveal mt-auto">
-        <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 text-white backdrop-blur-md">
+        <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--action-tint)] text-[var(--action)]">
           <Icon className="h-8 w-8" aria-hidden="true" />
         </span>
-        <h1 className="font-display mt-6 text-[clamp(1.6rem,6vw,2rem)] font-semibold leading-[1.1] text-white">
+        <h1 className="font-display mt-6 text-[clamp(1.6rem,6vw,2rem)] font-semibold leading-[1.1] text-ink">
           {slide.title}
         </h1>
-        <p className="mt-3 max-w-sm text-[15px] leading-relaxed text-white/70">{slide.body}</p>
+        <p className="mt-3 max-w-sm text-[15px] leading-relaxed text-ink-muted">{slide.body}</p>
       </div>
 
       {/* Dots + CTA */}
@@ -68,7 +68,7 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
               key={idx}
               aria-current={idx === i}
               className={`h-2 rounded-full transition-all duration-300 ${
-                idx === i ? 'w-6 bg-white' : 'w-2 bg-white/30'
+                idx === i ? 'w-6 bg-[var(--action)]' : 'w-2 bg-unseen'
               }`}
             />
           ))}
