@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { X, Check, CalendarCheck, Database, Sprout, ShieldCheck, MapPin, Sparkles } from 'lucide-react';
 import { buttonClasses } from '@/components/ui/button';
+import { ShareImpact } from '@/components/share-impact';
 import { SimulatedBadge } from '@/components/simulated-badge';
 import { getMockReceipt, type Receipt } from '@/lib/mock-data';
 import { fetchSiteView, type SiteView } from '@/lib/sites-api';
@@ -264,6 +265,7 @@ export default async function ReceiptPage({
         <Link href="/" className={buttonClasses('primary', 'cta')}>
           Back to map
         </Link>
+        <ShareImpact siteName={r.siteName} waterbody={r.waterbody} gapBefore={r.gapBefore} />
         <Link href="/impact" className={buttonClasses('secondary', 'cta')}>
           View your contributions
         </Link>

@@ -7,6 +7,7 @@ import { PhotoFrame } from '@/components/ui/photo-frame';
 import { buttonClasses } from '@/components/ui/button';
 import { getMockSite, getMockSiteDetail, type GapLevel } from '@/lib/mock-data';
 import { fetchSiteView } from '@/lib/sites-api';
+import { EcosystemPanel } from '@/components/site/ecosystem-panel';
 
 const GAP_META: Record<GapLevel, { label: string; accent: string }> = {
   high: { label: 'High', accent: 'var(--urgent)' },
@@ -82,6 +83,15 @@ export default async function SitePage({ params }: { params: { id: string } }) {
             <p className="mt-1 text-sm leading-relaxed text-ink-muted">{detail.reason}</p>
           </div>
         </div>
+
+        {/* Real OneAquaHealth ecosystem baseline (ecology + One Health risk) */}
+        {view ? (
+          <EcosystemPanel
+            ecology={view.ecology}
+            healthRisk={view.healthRisk}
+            attribution={view.attribution}
+          />
+        ) : null}
 
         {/* Timeline link */}
         <Link

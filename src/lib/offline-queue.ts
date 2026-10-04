@@ -46,3 +46,14 @@ export async function pendingCount(): Promise<number> {
     return 0;
   }
 }
+
+/** This device's checks, newest first (powers the Impact screen + identity tier). */
+export async function listChecks(): Promise<QueuedCheck[]> {
+  try {
+    const database = await db();
+    const all = (await database.getAll(STORE)) as QueuedCheck[];
+    return all.sort((a, b) => b.createdAt - a.createdAt);
+  } catch {
+    return [];
+  }
+}

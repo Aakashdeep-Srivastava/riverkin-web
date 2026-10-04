@@ -17,7 +17,12 @@ const LEFT: NavItem[] = [
   { href: '/missions', label: 'Missions', Icon: Target, match: (p) => p.startsWith('/missions') },
 ];
 const RIGHT: NavItem[] = [
-  { href: '/crew', label: 'Community', Icon: Users, match: (p) => p.startsWith('/crew') },
+  {
+    href: '/community',
+    label: 'Community',
+    Icon: Users,
+    match: (p) => p.startsWith('/community') || p.startsWith('/crew'),
+  },
   { href: '/impact', label: 'Impact', Icon: Sprout, match: (p) => p.startsWith('/impact') || p.startsWith('/receipt') },
 ];
 

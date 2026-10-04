@@ -7,6 +7,31 @@ import { apiFetch } from './api';
 import type { AttentionLevel, Site } from './api-types';
 import type { GapLevel, SiteDetail } from './mock-data';
 
+/** Real OneAquaHealth ecology baseline (app/oah.py::ecology_status). */
+export interface EcologyElement {
+  element: string;
+  quality: string | null;
+  richness: number | null;
+}
+export interface Ecology {
+  status: string | null;
+  color: string;
+  worst_element: string | null;
+  elements: EcologyElement[];
+  nitrate: number | null;
+  date: string | null;
+}
+/** Real OAH One Health risk (app/oah.py::health_risk_band). */
+export interface HealthRisk {
+  score: number;
+  band: string;
+  color: string;
+  pathogen: number | null;
+  fecal: number | null;
+  arg: number | null;
+  date: string | null;
+}
+
 /** Shape of app/schemas.py::SiteOut. */
 export interface ApiSite {
   id: string;
@@ -16,11 +41,16 @@ export interface ApiSite {
   country: string | null;
   lat: number | null;
   lng: number | null;
+  altitude_m: number | null;
   days_unseen: number;
   rain_48h_mm: number;
   need_score: number;
   attention: string;
   color: string;
+  ecology: Ecology | null;
+  health_risk: HealthRisk | null;
+  recency_simulated: boolean;
+  data_attribution: string | null;
   simulated: boolean;
 }
 
@@ -86,6 +116,10 @@ export async function fetchTimeline(id: string): Promise<TimelineEntry[] | null>
 export interface SiteView {
   site: Site;
   detail: SiteDetail;
+  ecology: Ecology | null;
+  healthRisk: HealthRisk | null;
+  attribution: string | null;
+  altitudeM: number | null;
 }
 
 /** One site + derived detail (for C2/C3/receipt), or null on failure. */
@@ -101,7 +135,14 @@ export async function fetchSiteView(id: string): Promise<SiteView | null> {
       lastCheckLabel: a.days_unseen === 0 ? 'today' : `${a.days_unseen} days ago`,
       photoCount: 3,
     };
-    return { site: toSite(a), detail };
+    return {
+      site: toSite(a),
+      detail,
+      ecology: a.ecology ?? null,
+      healthRisk: a.health_risk ?? null,
+      attribution: a.data_attribution ?? null,
+      altitudeM: a.altitude_m ?? null,
+    };
   } catch {
     return null;
   }
