@@ -26,6 +26,7 @@ export function ShareImpact({
       : `I just ran a stream check on the ${waterbody} at ${siteName} with RiverKin. Join me in keeping Europe's urban rivers seen.`;
 
   async function onShare() {
+    void import('@/lib/analytics').then((m) => m.track('share_clicked'));
     const url = typeof window !== 'undefined' ? window.location.origin : 'https://riverkin.online';
     const nav = typeof navigator !== 'undefined' ? navigator : undefined;
     try {

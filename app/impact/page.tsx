@@ -26,6 +26,7 @@ export default function ImpactPage() {
   const [identity, setIdentity] = useState<IdentityProgress>(() => identityFor(0));
 
   useEffect(() => {
+    void import('@/lib/analytics').then((m) => m.track('identity_viewed'));
     void fetchMetrics().then((m) => m && setCoverage(m.coverage_fresh_pct));
     void listChecks().then(setChecks);
 

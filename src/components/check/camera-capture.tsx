@@ -57,6 +57,7 @@ export function CameraCapture({
         await videoRef.current.play();
       }
       setStatus('live');
+      void import('@/lib/analytics').then((m) => m.track('camera_opened'));
     } catch {
       // No camera / denied / insecure context → use the file fallback.
       setStatus('error');
@@ -76,6 +77,7 @@ export function CameraCapture({
         const file = new File([blob], `${label.toLowerCase()}.jpg`, { type: 'image/jpeg' });
         stop();
         setStatus('captured');
+        void import('@/lib/analytics').then((m) => m.track('photo_captured', { live: true }));
         onCapture({ file, url: URL.createObjectURL(blob), live: true });
       },
       'image/jpeg',

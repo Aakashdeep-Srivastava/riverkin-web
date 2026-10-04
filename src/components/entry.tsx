@@ -147,7 +147,12 @@ export function Entry({ onEnter }: { onEnter: (role: string) => void }) {
             </div>
 
             <div className="mt-6">
-              <AuthPanel onGuest={() => onEnter('guest')} />
+              <AuthPanel
+                onGuest={() => {
+                  void import('@/lib/analytics').then((m) => m.track('guest_entered'));
+                  onEnter('guest');
+                }}
+              />
             </div>
           </div>
         </>

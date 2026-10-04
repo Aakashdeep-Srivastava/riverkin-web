@@ -190,7 +190,10 @@ function CheckFlow() {
                   label={opt.label}
                   tone={opt.tone}
                   selected={answers[step.q.id] === opt.value}
-                  onClick={() => setAnswers((a) => ({ ...a, [step.q.id]: opt.value }))}
+                  onClick={() => {
+                    track('question_answered', { field: step.q.id });
+                    setAnswers((a) => ({ ...a, [step.q.id]: opt.value }));
+                  }}
                 />
               ))}
             </div>

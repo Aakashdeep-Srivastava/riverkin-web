@@ -83,6 +83,12 @@ export default function VerifyPage() {
   const done = index >= cards.length;
   const card = cards[index];
 
+  // Funnel: entering a verify round.
+  useEffect(() => {
+    track('verification_started');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Funnel: finishing a verify round (after at least one card).
   useEffect(() => {
     if (done && cards.length > 0) track('verification_completed', { cards: cards.length });

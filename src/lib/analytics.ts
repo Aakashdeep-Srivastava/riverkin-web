@@ -57,8 +57,15 @@ export function track(name: string, meta?: Record<string, unknown>): void {
   timer = window.setTimeout(flush, 1500);
 }
 
+let endedThisSession = false;
 if (typeof window !== 'undefined') {
   window.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') flush();
+    if (document.visibilityState === 'hidden') {
+      if (!endedThisSession && startedThisSession) {
+        endedThisSession = true;
+        buffer.push({ session_id: sessionId(), name: 'session_ended', route: window.location.pathname });
+      }
+      flush();
+    }
   });
 }

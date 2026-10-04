@@ -43,6 +43,7 @@ export default function CrewPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    void import('@/lib/analytics').then((m) => m.track('crew_viewed'));
     const id = getRememberedCrewId();
     if (id == null) {
       setLoading(false);

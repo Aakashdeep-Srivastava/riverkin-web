@@ -90,6 +90,7 @@ export async function uploadObservationPhoto(
     } catch {
       /* non-JSON error body */
     }
+    void import('./analytics').then((m) => m.track('photo_rejected', { reason }));
     return { ok: false, reason, message };
   } catch {
     return { ok: false, reason: 'error' };

@@ -26,7 +26,10 @@ export default function CommunityPage() {
   useEffect(() => {
     track('community_opened');
     void fetchStandings().then(setStandings);
-    void fetchChallenges().then((c) => setChallenges(c ?? []));
+    void fetchChallenges().then((c) => {
+      setChallenges(c ?? []);
+      if (c && c.length > 0) track('challenge_viewed', { count: c.length });
+    });
   }, []);
 
   return (

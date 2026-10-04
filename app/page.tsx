@@ -66,6 +66,7 @@ export default function HomePage() {
   useEffect(() => {
     if (hasEntered()) {
       setChecked(true);
+      void import('@/lib/analytics').then((m) => m.track('map_engaged'));
     } else {
       router.replace('/welcome');
     }
