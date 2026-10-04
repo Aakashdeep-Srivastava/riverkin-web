@@ -4,19 +4,30 @@
 // (MapLibre globe tiles/token) + inline styles and blob workers that MapLibre
 // and Next need. Camera + geolocation are allowed for self (field check +
 // geofence); everything else is denied. EU/OWASP hardening.
+//
+// Dev needs 'unsafe-eval' (react-refresh) + ws + the localhost API; production
+// is locked to the Azure API host and drops eval + upgrades to HTTPS.
+const isDev = process.env.NODE_ENV !== 'production';
+const connectSrc = isDev
+  ? "connect-src 'self' data: blob: http://localhost:8000 http://127.0.0.1:8000 ws://localhost:3000 https://atlas.microsoft.com https://*.atlas.microsoft.com"
+  : "connect-src 'self' data: blob: https://*.azurecontainerapps.io https://atlas.microsoft.com https://*.atlas.microsoft.com";
+const scriptSrc = isDev
+  ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+  : "script-src 'self' 'unsafe-inline'";
+
 const csp = [
   "default-src 'self'",
   "base-uri 'self'",
   "object-src 'none'",
   "frame-ancestors 'none'",
   "form-action 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  scriptSrc,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   "worker-src 'self' blob:",
-  "connect-src 'self' https://*.azurecontainerapps.io https://atlas.microsoft.com https://*.atlas.microsoft.com",
-  "upgrade-insecure-requests",
+  connectSrc,
+  ...(isDev ? [] : ['upgrade-insecure-requests']),
 ].join('; ');
 
 const securityHeaders = [

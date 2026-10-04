@@ -46,6 +46,7 @@ export interface ApiReceipt {
   sentinel_line: string;
   state: string;
   date_label: string;
+  points: number;
   photo: ApiReceiptPhoto | null;
 }
 

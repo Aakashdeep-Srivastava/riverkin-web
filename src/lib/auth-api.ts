@@ -33,6 +33,26 @@ export function getToken(): string | null {
   }
 }
 
+/** The signed-in user's permanent River Score (GET /auth/score). */
+export interface RiverScore {
+  score: number;
+  checks: number;
+  verified: number;
+  tier: string;
+  next_tier: string | null;
+  to_next: number;
+}
+
+/** Fetch the server-computed River Score; null for guests (401) or on error. */
+export async function fetchScore(): Promise<RiverScore | null> {
+  const { apiFetch } = await import('./api');
+  try {
+    return await apiFetch<RiverScore>('/api/v1/auth/score');
+  } catch {
+    return null;
+  }
+}
+
 export function getStoredUser(): AuthUser | null {
   if (typeof window === 'undefined') return null;
   try {

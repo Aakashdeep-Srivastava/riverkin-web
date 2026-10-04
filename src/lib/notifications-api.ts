@@ -48,7 +48,8 @@ export function markRead(ids: string[]): void {
 /** Personal, on-device nudge: how your standing is growing (identity, not points). */
 async function personal(): Promise<AppNotification[]> {
   const checks = await listChecks();
-  const id = identityFor(checks.length);
+  const score = checks.reduce((acc, c) => acc + (c.points ?? 0), 0);
+  const id = identityFor(score);
   if (checks.length === 0) {
     return [
       {
@@ -66,11 +67,11 @@ async function personal(): Promise<AppNotification[]> {
   if (id.next) {
     return [
       {
-        id: `tier-${id.tier.key}-${checks.length}`,
+        id: `tier-${id.tier.key}-${score}`,
         kind: 'identity',
         icon: 'compass',
         title: `You're a ${id.tier.name} ✨`,
-        body: `${id.toNext} more ${id.toNext === 1 ? 'check' : 'checks'} to ${id.next.name}. Keep going!`,
+        body: `${id.toNext} more ${id.toNext === 1 ? 'point' : 'points'} to ${id.next.name}. Keep going!`,
         href: '/impact',
         accent: '#0052FF',
         at: new Date().toISOString(),

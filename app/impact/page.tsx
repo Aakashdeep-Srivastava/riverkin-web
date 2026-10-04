@@ -2,37 +2,49 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ChevronRight, Droplets, CalendarCheck, ShieldCheck, Compass } from 'lucide-react';
+import { ChevronRight, Droplets, Waves, ShieldCheck, Compass } from 'lucide-react';
 import { AppBar } from '@/components/app-bar';
 import { StatTile } from '@/components/ui/stat-tile';
 import { SiteFooter } from '@/components/site-footer';
 import { fetchMetrics } from '@/lib/researcher-api';
+import { getToken, fetchScore } from '@/lib/auth-api';
 import { listChecks, type QueuedCheck } from '@/lib/offline-queue';
 import { identityFor, type IdentityProgress } from '@/lib/identity';
 
 /**
- * Impact — your contribution to the shared record, framed by the north-star
- * (coverage freshness) and by identity progression (Observer → River Keeper),
- * never by points or badges. Coverage + verified counts are live from the API;
- * "your checks" are this device's real check history.
+ * Impact — your River Score and standing. The score is the River Value you've
+ * earned (usefulness-weighted, more for sites that needed a look), tied to the
+ * Observer → River Keeper ladder. Signed-in: permanent, server-side. Guests: a
+ * device tally with a nudge to sign in and make it permanent. Never vanity XP.
  */
 export default function ImpactPage() {
   const [coverage, setCoverage] = useState<number | null>(null);
-  const [verified, setVerified] = useState<number | null>(null);
+  const [score, setScore] = useState(0);
   const [checks, setChecks] = useState<QueuedCheck[]>([]);
+  const [verified, setVerified] = useState(0);
+  const [signedIn, setSignedIn] = useState(false);
   const [identity, setIdentity] = useState<IdentityProgress>(() => identityFor(0));
 
   useEffect(() => {
-    void fetchMetrics().then((m) => {
-      if (m) {
-        setCoverage(m.coverage_fresh_pct);
-        setVerified(m.verified_this_month);
+    void fetchMetrics().then((m) => m && setCoverage(m.coverage_fresh_pct));
+    void listChecks().then(setChecks);
+
+    const hasToken = !!getToken();
+    setSignedIn(hasToken);
+    (async () => {
+      const server = hasToken ? await fetchScore() : null;
+      if (server) {
+        setScore(server.score);
+        setVerified(server.verified);
+        setIdentity(identityFor(server.score));
+      } else {
+        // Guest (or offline): tally River points from this device's checks.
+        const local = await listChecks();
+        const sum = local.reduce((acc, c) => acc + (c.points ?? 0), 0);
+        setScore(sum);
+        setIdentity(identityFor(sum));
       }
-    });
-    void listChecks().then((c) => {
-      setChecks(c);
-      setIdentity(identityFor(c.length));
-    });
+    })();
   }, []);
 
   return (
@@ -43,26 +55,29 @@ export default function ImpactPage() {
         <div>
           <h1 className="font-display text-2xl font-semibold text-ink">Your impact</h1>
           <p className="mt-1 text-sm text-ink-muted">
-            Coverage freshness is our north star — the share of OneAquaHealth sites seen recently.
+            Your River Score grows with every useful check — most for the sites that needed a look.
           </p>
         </div>
 
-        {/* Identity progression (goal-gradient, not points) */}
+        {/* River Score + identity progression (goal-gradient, not XP) */}
         <section className="rounded-card border border-unseen bg-surface p-5">
-          <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--action-tint)] text-[var(--action)]">
-              <Compass className="h-6 w-6" aria-hidden="true" />
+          <div className="flex items-center gap-4">
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--action-tint)] text-[var(--action)]">
+              <Compass className="h-7 w-7" aria-hidden="true" />
             </span>
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="text-[12px] font-semibold uppercase tracking-wide text-ink-muted">
-                Your standing
+                River Score
               </p>
-              <p className="font-display text-lg font-semibold leading-tight text-ink">
-                {identity.tier.name}
+              <p className="font-display text-3xl font-bold leading-none text-ink tabular-nums">
+                {score}
               </p>
             </div>
+            <span className="shrink-0 rounded-full bg-[var(--action)] px-3 py-1 text-xs font-bold text-white">
+              {identity.tier.name}
+            </span>
           </div>
-          <p className="mt-2 text-sm text-ink-muted">{identity.tier.blurb}</p>
+          <p className="mt-3 text-sm text-ink-muted">{identity.tier.blurb}</p>
 
           {identity.next ? (
             <div className="mt-4">
@@ -73,15 +88,25 @@ export default function ImpactPage() {
                 />
               </div>
               <p className="mt-2 text-sm font-medium text-ink">
-                {identity.toNext} more {identity.toNext === 1 ? 'check' : 'checks'} to{' '}
+                {identity.toNext} more {identity.toNext === 1 ? 'point' : 'points'} to{' '}
                 {identity.next.name}
               </p>
             </div>
           ) : (
             <p className="mt-4 text-sm font-medium text-[var(--success)]">
-              You’ve reached the highest standing. Thank you for keeping the rivers seen.
+              Highest standing reached. Thank you for keeping the rivers seen.
             </p>
           )}
+
+          {!signedIn ? (
+            <Link
+              href="/welcome"
+              className="mt-4 flex items-center justify-between rounded-xl border border-dashed border-unseen bg-[var(--bg)] px-4 py-3 text-sm font-medium text-ink hover:border-water"
+            >
+              Sign in to make your score permanent across devices
+              <ChevronRight className="h-4 w-4 text-[var(--action)]" aria-hidden="true" />
+            </Link>
+          ) : null}
         </section>
 
         <div className="grid grid-cols-3 gap-3">
@@ -91,13 +116,8 @@ export default function ImpactPage() {
             Icon={Droplets}
             accent="var(--success)"
           />
-          <StatTile value={checks.length} label="Your checks" Icon={CalendarCheck} accent="var(--action)" />
-          <StatTile
-            value={verified == null ? '—' : verified}
-            label="Verified (community)"
-            Icon={ShieldCheck}
-            accent="var(--water)"
-          />
+          <StatTile value={checks.length} label="Your checks" Icon={Waves} accent="var(--action)" />
+          <StatTile value={verified} label="Verified" Icon={ShieldCheck} accent="var(--water)" />
         </div>
 
         <section>
@@ -122,6 +142,11 @@ export default function ImpactPage() {
                         {c.feeling ? ` · felt ${c.feeling}` : ''}
                       </p>
                     </div>
+                    {c.points ? (
+                      <span className="shrink-0 text-sm font-bold tabular-nums text-[var(--action)]">
+                        +{c.points}
+                      </span>
+                    ) : null}
                     <ChevronRight className="h-5 w-5 shrink-0 text-ink-muted" aria-hidden="true" />
                   </Link>
                 </li>
@@ -132,14 +157,14 @@ export default function ImpactPage() {
               href="/missions"
               className="block rounded-card border border-dashed border-unseen bg-surface p-5 text-center text-sm text-ink-muted hover:border-water"
             >
-              No checks yet — find a river that needs you and make your first one count.
+              No checks yet — find a river that needs you and earn your first River points.
             </Link>
           )}
         </section>
 
         <p className="text-[11px] leading-relaxed text-ink-muted">
-          Coverage &amp; verification counts from the live RiverKin API over real OneAquaHealth sites.
-          Your checks are stored on this device.
+          River Score = the River Value of your checks (10·(1+need)·quality), the usefulness-weighted
+          reward — not points per tap. Coverage is live from the RiverKin API over real OneAquaHealth sites.
         </p>
       </div>
 

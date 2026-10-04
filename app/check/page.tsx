@@ -107,6 +107,16 @@ function CheckFlow() {
           uploadObservationPhoto(created.id, captures[kind].file, kind, captures[kind].live),
         ),
       );
+      // Record the check on this device (powers the Impact tally + guest score)
+      // with the River points the server awarded it.
+      await enqueueCheck({
+        siteId,
+        answers,
+        photos: photoKinds,
+        feeling,
+        createdAt: Date.now(),
+        points: created.receipt?.points ?? 0,
+      });
       router.push(`/receipt/${created.id}?site=${encodeURIComponent(siteId)}`);
       return;
     }

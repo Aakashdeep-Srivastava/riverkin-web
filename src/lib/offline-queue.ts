@@ -13,6 +13,8 @@ export interface QueuedCheck {
   photos: string[];
   feeling: string;
   createdAt: number;
+  /** River points (River Value) earned for this check, from the receipt. */
+  points?: number;
 }
 
 const DB_NAME = 'riverkin';

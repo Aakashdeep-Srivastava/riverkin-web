@@ -250,6 +250,7 @@ export interface Receipt {
   sentinelLine: string;
   state: string;
   dateLabel: string;
+  points?: number;
 }
 
 export function getMockReceipt(siteId: string): Receipt {

@@ -52,6 +52,7 @@ function apiToReceipt(a: ApiReceipt): Receipt {
     sentinelLine: a.sentinel_line,
     state: a.state,
     dateLabel: a.date_label,
+    points: a.points,
   };
 }
 
@@ -148,6 +149,12 @@ export default async function ReceiptPage({
           </p>
           <p className="mt-1 text-sm font-semibold text-ink">Monitoring gap closed</p>
           <p className="mt-1 text-xs text-ink-muted">{r.rainContext}</p>
+
+          {r.points ? (
+            <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[var(--gold)]/20 px-3 py-1 text-sm font-bold text-ink">
+              +{r.points} River points
+            </p>
+          ) : null}
 
           {/* Self-drawing river line */}
           <svg viewBox="0 0 280 28" className="mx-auto mt-4 h-7 w-full max-w-[16rem]" aria-hidden="true">

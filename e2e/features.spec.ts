@@ -23,7 +23,7 @@ test('site detail shows the real OAH ecosystem baseline', async ({ page }) => {
 test('impact screen is live with identity progression', async ({ page }) => {
   await page.goto('/impact');
   await expect(page.getByRole('heading', { name: /your impact/i })).toBeVisible();
-  await expect(page.getByText(/your standing/i)).toBeVisible();
+  await expect(page.getByText(/river score/i).first()).toBeVisible();
   // A real tier name from the identity ladder.
   await expect(page.getByText(/observer|explorer|river keeper/i).first()).toBeVisible();
   await expect(page.getByText('Coverage fresh', { exact: true })).toBeVisible();
