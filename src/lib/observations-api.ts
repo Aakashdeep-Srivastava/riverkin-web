@@ -22,6 +22,7 @@ export interface ApiReceiptPhoto {
   relevance: number | null;
   correlation: PhotoFieldCheck[];
   escalated: boolean;
+  photos_count: number;
 }
 
 /** One field cross-checked: the citizen's answer vs the model's read of the photo. */

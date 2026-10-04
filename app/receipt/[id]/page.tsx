@@ -258,9 +258,16 @@ export default async function ReceiptPage({
               {/* Photo cross-check — your answers vs what the model reads in the photo */}
               {photo.correlation && photo.correlation.length > 0 ? (
                 <div className="rounded-xl border border-unseen bg-[var(--bg)] p-3">
-                  <p className="text-sm font-semibold text-ink">Photo cross-check</p>
+                  <p className="text-sm font-semibold text-ink">
+                    Photo cross-check
+                    {photo.photos_count > 1 ? (
+                      <span className="font-normal text-ink-muted">
+                        {' '}· collective read of {photo.photos_count} photos
+                      </span>
+                    ) : null}
+                  </p>
                   <p className="mt-0.5 text-[11px] text-ink-muted">
-                    AI compares your answers with the photo. It only asks — people decide.
+                    GPT-4o-mini compares your answers with {photo.photos_count > 1 ? 'all your photos' : 'the photo'}. It only asks — people decide.
                   </p>
                   <ul className="mt-2 space-y-1.5">
                     {photo.correlation.map((c) => (
