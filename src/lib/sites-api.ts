@@ -55,6 +55,7 @@ export interface ApiSite {
 }
 
 function toSite(a: ApiSite): Site {
+  const band = a.health_risk?.band?.toLowerCase() ?? null;
   return {
     id: a.id,
     name: a.name,
@@ -63,6 +64,10 @@ function toSite(a: ApiSite): Site {
     attention: a.attention as AttentionLevel,
     lat: a.lat ?? 0,
     lng: a.lng ?? 0,
+    city: a.city,
+    needScore: a.need_score,
+    hasEcology: !!a.ecology && (a.ecology.status != null || (a.ecology.elements?.length ?? 0) > 0),
+    pollution: band === 'high' || band === 'moderate' || a.attention === 'urgent',
   };
 }
 

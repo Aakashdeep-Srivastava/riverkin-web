@@ -4,28 +4,32 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Droplet } from 'lucide-react';
 import { hasEntered } from '@/lib/entry-state';
 import { fetchSites } from '@/lib/sites-api';
 import { AppBar } from '@/components/app-bar';
 import { AttentionMap } from '@/components/attention-map';
 import { AttentionStatus } from '@/components/attention-status';
 import { SiteCard } from '@/components/site-card';
-import { SiteStatBar } from '@/components/site-stat-bar';
+import { HomeOverview } from '@/components/home-overview';
 import { ViewToggle, type HomeView } from '@/components/view-toggle';
 import { FilterChips, type SiteFilter } from '@/components/filter-chips';
 import { SiteFooter } from '@/components/site-footer';
-import { buttonClasses } from '@/components/ui/button';
 import { LEVEL_RANK } from '@/lib/attention';
 import { mockSites } from '@/lib/mock-data';
 import type { Site } from '@/lib/api-types';
 
 function matchesFilter(site: Site, filter: SiteFilter): boolean {
   switch (filter) {
-    case 'fresh':
-      return site.attention === 'ok' || site.attention === 'monitoring';
-    case 'attention':
-      return site.attention === 'attention';
+    case 'freshwater':
+      // Every monitored OAH site is an urban freshwater stream.
+      return true;
+    case 'biodiversity':
+      // Sites with real OAH ecology (macroinvertebrate/diatom/fish) data.
+      return !!site.hasEcology;
+    case 'pollution':
+      // A pollution / One Health risk concern is present.
+      return !!site.pollution;
     case 'unresolved':
       return site.attention === 'urgent';
     default:
@@ -99,7 +103,7 @@ export default function HomePage() {
   if (view === 'list') {
     return (
       <main className="mx-auto min-h-dvh max-w-2xl pb-28">
-        <AppBar />
+        <AppBar active="/" />
         {controls}
         {chips}
         <section aria-label="Sites" className="px-4 pt-4">
@@ -122,52 +126,72 @@ export default function HomePage() {
     );
   }
 
-  // Map view — full screen with glass overlays.
+  // Map view — scrollable dashboard: map region on top, cards below.
   return (
-    <main className="relative h-dvh w-full overflow-hidden">
-      <div className="absolute inset-0">
-        <AttentionMap />
+    <main className="relative min-h-dvh bg-bg pb-[calc(env(safe-area-inset-bottom)+6rem)]">
+      {/* Map region. */}
+      <div className="relative h-[56dvh] w-full overflow-hidden">
+        <div className="absolute inset-0">
+          <AttentionMap />
+        </div>
       </div>
 
-      {/* Top overlay: app bar + controls. */}
-      <div className="absolute inset-x-0 top-0 z-20">
-        <AppBar transparent />
+      {/* Top controls — above the map AND the dashboard so the brand menu opens over everything. */}
+      <div className="absolute inset-x-0 top-0 z-40">
+        <AppBar transparent active="/" />
         <div className="flex items-center justify-between px-4 pt-1">
           <ViewToggle value={view} onChange={setView} />
         </div>
         {chips}
       </div>
 
-      {/* Bottom overlay: top-priority site card + stat bar, above the nav. */}
-      <div className="absolute inset-x-0 bottom-0 z-20 space-y-3 px-4 pb-[calc(env(safe-area-inset-bottom)+5.5rem)]">
+      {/* Dashboard content, pulled up to overlap the map. */}
+      <div className="relative z-10 -mt-12 space-y-3 px-4">
         {lead ? (
           <Link
             href={`/sites/${lead.id}`}
-            className="rk-glass rk-reveal block rounded-card p-4 shadow-[var(--rk-shadow-lift)]"
+            className="rk-glass rk-reveal block rounded-card p-3 shadow-[var(--rk-shadow-lift)]"
           >
-            <div className="flex items-center justify-between gap-3">
-              <div className="min-w-0">
+            <div className="flex items-center gap-3">
+              {/* Thumbnail (decorative water tile). */}
+              <span
+                className="flex h-[76px] w-[76px] shrink-0 items-center justify-center rounded-2xl"
+                style={{ background: 'linear-gradient(145deg,#2FA7D9 0%,#1E7BFF 60%,#0E4FA0 100%)' }}
+                aria-hidden="true"
+              >
+                <Droplet className="h-7 w-7 text-white/90" />
+              </span>
+              <div className="min-w-0 flex-1">
                 <AttentionStatus level={lead.attention} />
-                <p className="mt-1 truncate text-lg font-bold text-ink">{lead.name}</p>
-                <p className="truncate text-sm text-ink-muted">
+                <p className="mt-1 truncate text-[20px] font-extrabold text-ink">{lead.name}</p>
+                <p className="truncate text-[13px] text-ink-muted">
                   {lead.waterbody} ·{' '}
                   {lead.daysUnseen === 0 ? 'seen today' : `${lead.daysUnseen} days unseen`}
                 </p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  <span className="rounded-full bg-bg px-2 py-0.5 text-[11px] font-medium text-ink-muted">
+                    Freshwater
+                  </span>
+                  {lead.pollution ? (
+                    <span className="rounded-full bg-bg px-2 py-0.5 text-[11px] font-medium text-ink-muted">
+                      Water Quality
+                    </span>
+                  ) : null}
+                  {lead.hasEcology ? (
+                    <span className="rounded-full bg-bg px-2 py-0.5 text-[11px] font-medium text-ink-muted">
+                      Biodiversity
+                    </span>
+                  ) : null}
+                </div>
               </div>
-              <span className={buttonClasses('primary', 'md')}>
-                View
-                <ChevronRight className="h-4 w-4" aria-hidden="true" />
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-unseen bg-surface">
+                <ChevronRight className="h-5 w-5 text-ink" aria-hidden="true" />
               </span>
             </div>
           </Link>
         ) : null}
 
-        <SiteStatBar
-          sites={counts.sites}
-          attention={counts.attention}
-          flags={counts.flags}
-          recent={counts.recent}
-        />
+        <HomeOverview sites={counts.sites} flags={counts.flags} />
       </div>
     </main>
   );

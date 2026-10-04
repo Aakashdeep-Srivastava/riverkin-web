@@ -1,12 +1,14 @@
+import { Layers, Droplet, Sprout, AlertTriangle, Compass, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type SiteFilter = 'all' | 'fresh' | 'attention' | 'unresolved';
+export type SiteFilter = 'all' | 'freshwater' | 'biodiversity' | 'pollution' | 'unresolved';
 
-export const SITE_FILTERS: { value: SiteFilter; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'fresh', label: 'Fresh' },
-  { value: 'attention', label: 'Attention' },
-  { value: 'unresolved', label: 'Unresolved' },
+export const SITE_FILTERS: { value: SiteFilter; label: string; Icon: LucideIcon }[] = [
+  { value: 'all', label: 'All', Icon: Layers },
+  { value: 'freshwater', label: 'Freshwater', Icon: Droplet },
+  { value: 'biodiversity', label: 'Biodiversity', Icon: Sprout },
+  { value: 'pollution', label: 'Pollution', Icon: AlertTriangle },
+  { value: 'unresolved', label: 'Unresolved', Icon: Compass },
 ];
 
 /** Horizontally scrollable filter chips (pill radius). Controlled. */
@@ -19,22 +21,23 @@ export function FilterChips({
 }) {
   return (
     <div role="tablist" aria-label="Filter sites" className="flex gap-2 overflow-x-auto pb-1">
-      {SITE_FILTERS.map((f) => {
-        const active = f.value === value;
+      {SITE_FILTERS.map(({ value: v, label, Icon }) => {
+        const active = v === value;
         return (
           <button
-            key={f.value}
+            key={v}
             role="tab"
             aria-selected={active}
-            onClick={() => onChange(f.value)}
+            onClick={() => onChange(v)}
             className={cn(
-              'shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-[color,background-color,border-color,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]',
+              'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-[color,background-color,border-color,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]',
               active
                 ? 'border-[var(--action)] bg-[var(--action)] text-white'
                 : 'rk-glass text-ink hover:border-[var(--action)]',
             )}
           >
-            {f.label}
+            <Icon className="h-4 w-4" aria-hidden="true" />
+            {label}
           </button>
         );
       })}

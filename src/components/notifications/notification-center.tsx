@@ -103,7 +103,7 @@ export function NotificationCenter({ transparent = false }: { transparent?: bool
         <button
           type="button"
           onClick={() => go(toast)}
-          className="rk-reveal fixed inset-x-3 top-[calc(env(safe-area-inset-top)+0.5rem)] z-50 mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-unseen bg-surface p-3 text-left shadow-[var(--rk-shadow-lift)]"
+          className="rk-reveal fixed inset-x-3 top-[calc(env(safe-area-inset-top)+4.25rem)] z-40 mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-unseen bg-surface p-3 text-left shadow-[var(--rk-shadow-lift)]"
         >
           <span
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white"

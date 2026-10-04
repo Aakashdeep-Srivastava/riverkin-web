@@ -24,6 +24,13 @@ export interface Site {
   attention: AttentionLevel;
   lat: number;
   lng: number;
+  /** Optional enrichment carried for the home filters (from SiteOut). */
+  city?: string | null;
+  needScore?: number;
+  /** True when the site has real OAH ecology data (biodiversity signal). */
+  hasEcology?: boolean;
+  /** True when a pollution/health-risk concern is present. */
+  pollution?: boolean;
 }
 
 export type AttentionLevel = 'urgent' | 'attention' | 'monitoring' | 'ok';

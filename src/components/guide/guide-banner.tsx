@@ -118,7 +118,7 @@ export function GuideBanner() {
   if (waiting) {
     return (
       <div
-        className="pointer-events-none fixed inset-x-0 top-0 z-[60] px-4 pt-[calc(env(safe-area-inset-top)+0.5rem)]"
+        className="pointer-events-none fixed inset-x-0 top-0 z-[60] px-4 pt-[calc(env(safe-area-inset-top)+4.25rem)]"
         role="dialog"
         aria-label="Guided tour"
       >
