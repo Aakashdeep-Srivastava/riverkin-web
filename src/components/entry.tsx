@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Globe, ChevronDown, Eye, Camera, ShieldCheck, ArrowRight, type LucideIcon } from 'lucide-react';
 import { RiverMark } from '@/components/ui/logo';
@@ -43,8 +43,14 @@ const SLIDES: Slide[] = [
 ];
 
 export function Entry({ onEnter }: { onEnter: (role: string) => void }) {
-  const [stage, setStage] = useState<Stage>(() => (hasOnboarded() ? 'auth' : 'onboarding'));
+  // Resolve the stage AFTER mount so SSR and the first client render match
+  // (reading localStorage during render causes a hydration mismatch).
+  const [stage, setStage] = useState<Stage | null>(null);
   const [slide, setSlide] = useState(0);
+
+  useEffect(() => {
+    setStage(hasOnboarded() ? 'auth' : 'onboarding');
+  }, []);
 
   function finishOnboarding() {
     markOnboarded();
@@ -78,10 +84,10 @@ export function Entry({ onEnter }: { onEnter: (role: string) => void }) {
       {/* Top bar: brand + language. */}
       <header className="relative z-10 flex items-start justify-between px-5 pt-[calc(env(safe-area-inset-top)+1rem)]">
         <div className="rk-reveal flex items-center gap-2.5">
-          <RiverMark className="h-9 w-9 drop-shadow" />
-          <span className="leading-none">
-            <span className="block text-[15px] font-bold tracking-[0.16em] text-[#0e1b38]">RIVERKIN</span>
-            <span className="mt-0.5 block text-[8px] font-semibold uppercase tracking-[0.3em] text-[#1E7BFF]">
+          <RiverMark className="h-10 w-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]" />
+          <span className="leading-none [text-shadow:0_2px_10px_rgba(0,0,0,0.55)]">
+            <span className="block text-[16px] font-bold tracking-[0.16em] text-white">RIVERKIN</span>
+            <span className="mt-0.5 block text-[8px] font-semibold uppercase tracking-[0.3em] text-white/85">
               Rivers connect us
             </span>
           </span>
@@ -140,7 +146,7 @@ export function Entry({ onEnter }: { onEnter: (role: string) => void }) {
             </button>
           </div>
         </div>
-      ) : (
+      ) : stage === 'auth' ? (
         /* ---- Sign-in ---- */
         <div className="relative z-10 mt-auto px-5 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
           <h1
@@ -193,7 +199,7 @@ export function Entry({ onEnter }: { onEnter: (role: string) => void }) {
             .
           </p>
         </div>
-      )}
+      ) : null}
     </main>
   );
 }
