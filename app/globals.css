@@ -311,6 +311,85 @@ button,
   will-change: transform, opacity;
 }
 
+/* Living welcome background — gentle fade-in, a slow cinematic drift (Ken Burns),
+ * a drifting atmospheric haze, and sunlit particles floating up. All cheap,
+ * GPU-friendly, and disabled under prefers-reduced-motion. */
+@keyframes rk-bg-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.rk-bg-fade {
+  animation: rk-bg-fade 1.4s ease both;
+}
+
+@keyframes rk-kenburns {
+  0% {
+    transform: scale(1.06) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: scale(1.12) translate3d(-1.4%, -1%, 0);
+  }
+  100% {
+    transform: scale(1.06) translate3d(0, 0, 0);
+  }
+}
+.rk-kenburns {
+  animation: rk-kenburns 44s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes rk-haze {
+  0% {
+    transform: translate3d(-6%, 0, 0);
+  }
+  100% {
+    transform: translate3d(6%, 0, 0);
+  }
+}
+.rk-haze {
+  animation: rk-haze 36s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes rk-float {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: var(--p-op, 0.55);
+  }
+  88% {
+    opacity: var(--p-op, 0.55);
+  }
+  100% {
+    transform: translate3d(var(--p-x, 10px), -130px, 0);
+    opacity: 0;
+  }
+}
+.rk-mote {
+  position: absolute;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(255, 248, 220, 0.95) 0%, rgba(255, 240, 190, 0) 70%);
+  animation: rk-float var(--p-dur, 14s) linear var(--p-delay, 0s) infinite;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rk-kenburns,
+  .rk-haze,
+  .rk-mote {
+    animation: none;
+  }
+  .rk-mote {
+    opacity: 0;
+  }
+}
+
 /* Live "radar ping" dot for the AI status line. The solid dot sits
  * in the element; the ::after ring expands and fades. */
 .rk-ping {

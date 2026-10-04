@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import { Globe, ChevronDown, Eye, Camera, ShieldCheck, ArrowRight, type LucideIcon } from 'lucide-react';
 import { RiverMark } from '@/components/ui/logo';
@@ -11,6 +11,19 @@ import type { Role } from '@/lib/auth-api';
 export type { Role };
 
 type Stage = 'onboarding' | 'auth';
+
+// Sunlit motes drifting up — concentrated toward the sun (upper-right) + water.
+const MOTES = [
+  { left: '70%', top: '26%', size: 5, dur: 15, delay: 0, x: 16, op: 0.6 },
+  { left: '82%', top: '34%', size: 3, dur: 12, delay: 2, x: 10, op: 0.5 },
+  { left: '60%', top: '40%', size: 4, dur: 17, delay: 4, x: -12, op: 0.45 },
+  { left: '88%', top: '22%', size: 3, dur: 13, delay: 1, x: 8, op: 0.55 },
+  { left: '48%', top: '50%', size: 5, dur: 18, delay: 6, x: 14, op: 0.4 },
+  { left: '30%', top: '62%', size: 4, dur: 16, delay: 3, x: 10, op: 0.5 },
+  { left: '74%', top: '58%', size: 6, dur: 19, delay: 5, x: -14, op: 0.5 },
+  { left: '18%', top: '46%', size: 3, dur: 14, delay: 7, x: 12, op: 0.4 },
+  { left: '92%', top: '48%', size: 4, dur: 15, delay: 2.5, x: -10, op: 0.45 },
+];
 
 interface Slide {
   Icon: LucideIcon;
@@ -66,12 +79,44 @@ export function Entry({ onEnter }: { onEnter: (role: string) => void }) {
 
   return (
     <main className="relative flex min-h-dvh flex-col overflow-hidden bg-[#0a1a30] text-white">
-      {/* Single full-bleed background (kept constant across learning + sign-in). */}
+      {/* Living background: cinematic drift (Ken Burns) on the composite scene. */}
+      <div aria-hidden="true" className="rk-bg-fade absolute inset-0 overflow-hidden">
+        <div
+          className="rk-kenburns h-full w-full bg-cover bg-center"
+          style={{ backgroundImage: 'url(/hero-bg.jpg)' }}
+        />
+      </div>
+      {/* Drifting atmospheric haze over the globe. */}
       <div
         aria-hidden="true"
-        className="rk-bg-in absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: 'url(/hero-bg.jpg)' }}
+        className="rk-haze pointer-events-none absolute inset-x-[-12%] top-0 h-[68%]"
+        style={{
+          background: 'radial-gradient(55% 40% at 50% 32%, rgba(255,255,255,0.1), transparent 72%)',
+          mixBlendMode: 'screen',
+        }}
       />
+      {/* Sunlit particles drifting up. */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        {MOTES.map((m, i) => (
+          <span
+            key={i}
+            className="rk-mote"
+            style={
+              {
+                left: m.left,
+                top: m.top,
+                width: m.size,
+                height: m.size,
+                '--p-dur': `${m.dur}s`,
+                '--p-delay': `${m.delay}s`,
+                '--p-x': `${m.x}px`,
+                '--p-op': m.op,
+              } as CSSProperties
+            }
+          />
+        ))}
+      </div>
+      {/* Readability scrim behind the copy + buttons. */}
       <div
         aria-hidden="true"
         className="absolute inset-0"
