@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import {
   Bell,
   X,
@@ -36,6 +36,7 @@ const ICONS: Record<string, LucideIcon> = {
  */
 export function NotificationCenter({ transparent = false }: { transparent?: boolean }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [items, setItems] = useState<AppNotification[]>([]);
   const [open, setOpen] = useState(false);
   const [unread, setUnread] = useState(0);
@@ -98,8 +99,8 @@ export function NotificationCenter({ transparent = false }: { transparent?: bool
         ) : null}
       </button>
 
-      {/* Celebratory toast */}
-      {toast && !open ? (
+      {/* Celebratory toast — only on the home route so it never covers page content. */}
+      {toast && !open && pathname === '/' ? (
         <button
           type="button"
           onClick={() => go(toast)}

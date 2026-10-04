@@ -36,7 +36,7 @@ API types are generated, never hand-written:
 - 8 px grid, card radius 20, button radius 16, tap targets ≥ 48 px, primary CTA 56 px full width.
 - Bottom nav: Map, Missions, Crew, Me. Researcher view uses a left rail on desktop.
 - AI identity = small radar glyph + status text only. No chatbot avatar, no mascots in core UI.
-- No points counters, XP, badges or leaderboards in the MVP.
+- Visible game mechanics are in scope (Track 5): Level/XP, River Score, Day Streak, goals/missions and a Rewards screen — but every point must trace to real usefulness (the `V = 10·(1+N_s)·Q·M` reward, anti-farming multiplier), never vanity. No *per-person public leaderboard*; community standings stay collective. (Supersedes the earlier "no XP" rule — see PRD §12 Goals, rewards & engagement.)
 - WCAG 2.2 AA: status never by colour alone (colour + icon + label); map sites also in an accessible list.
 
 ## Environment variables
