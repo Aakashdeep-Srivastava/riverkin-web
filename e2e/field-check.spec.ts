@@ -9,7 +9,8 @@ import { capturePhoto } from './helpers';
  * write path end to end.
  */
 
-const SITE = 'CB-01';
+// A real OneAquaHealth site code (Coimbra C1 "Exploratório").
+const SITE = 'C1';
 
 // Skip the one-time globe/welcome gate (localStorage, no account).
 test.beforeEach(async ({ page }: { page: Page }) => {

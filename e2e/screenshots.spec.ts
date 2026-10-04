@@ -27,13 +27,13 @@ test('capture brand screens', async ({ page }) => {
   await page.waitForTimeout(1200);
   await page.screenshot({ path: 'design/shots/c1-home.png' }); // viewport (map is full-screen)
 
-  await page.goto('/sites/CB-01');
+  await page.goto('/sites/C1');
   await shot(page, 'c2-site');
 
-  await page.goto('/missions/CB-01');
+  await page.goto('/missions/C1');
   await shot(page, 'c3-mission');
 
-  await page.goto('/check?site=CB-01');
+  await page.goto('/check?site=C1');
   await shot(page, 'c4-check');
 
   await page.goto('/researcher');

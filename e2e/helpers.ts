@@ -1,6 +1,18 @@
 import { type Page } from '@playwright/test';
 
 /**
+ * Enter the app past the splash/onboarding/sign-in gate (remembered guest), so a
+ * test can navigate straight to a tab. Call before the first page.goto.
+ */
+export async function enterApp(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    localStorage.setItem('rk_entered', '1');
+    localStorage.setItem('rk_onboarded', '1');
+    localStorage.setItem('rk_role', 'guest');
+  });
+}
+
+/**
  * Capture a photo in the field check without a real camera: generate a unique
  * noise JPEG in the browser and hand it to the current step's (hidden) file
  * input. Noise → high Laplacian variance (passes the blur gate); unique each

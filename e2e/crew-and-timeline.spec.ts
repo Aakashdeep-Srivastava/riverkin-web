@@ -27,9 +27,9 @@ test('L2 → L1: create a crew, add a member, adopt a site, see the dashboard', 
   await expect(page.getByText('Scout 3')).toBeVisible();
 
   // Step 3 — adopt a site.
-  await page.getByLabel('OAH site code').fill('CB-01');
+  await page.getByLabel('OAH site code').fill('C1');
   await page.getByRole('button', { name: /adopt site/i }).click();
-  await expect(page.getByText('CB-01')).toBeVisible();
+  await expect(page.getByText('C1')).toBeVisible();
 
   // Go to the L1 dashboard — crew id was remembered locally.
   await page.getByRole('link', { name: /go to crew dashboard/i }).click();
@@ -40,6 +40,6 @@ test('L2 → L1: create a crew, add a member, adopt a site, see the dashboard', 
 });
 
 test('C7: site timeline renders activity', async ({ page }) => {
-  await page.goto('/timeline/CB-01');
+  await page.goto('/timeline/C1');
   await expect(page.getByText(/what changed/i)).toBeVisible();
 });
