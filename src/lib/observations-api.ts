@@ -19,6 +19,18 @@ export interface ApiReceiptPhoto {
   geotag_label: string | null;
   lat: number | null;
   lng: number | null;
+  relevance: number | null;
+  correlation: PhotoFieldCheck[];
+  escalated: boolean;
+}
+
+/** One field cross-checked: the citizen's answer vs the model's read of the photo. */
+export interface PhotoFieldCheck {
+  field: string;
+  citizen: string;
+  photo: string;
+  confidence: number;
+  agrees: boolean | null;
 }
 
 /** Shape of app/schemas.py::ReceiptOut. */

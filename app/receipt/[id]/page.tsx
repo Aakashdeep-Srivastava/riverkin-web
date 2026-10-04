@@ -12,6 +12,15 @@ import {
   type ApiReceiptPhoto,
 } from '@/lib/observations-api';
 
+/** Human labels for the cross-checked field keys. */
+const FIELD_LABELS: Record<string, string> = {
+  'q-water': 'Water appearance',
+  'q-foam': 'Surface foam',
+  'q-litter': 'Litter / debris',
+  'q-flow': 'Flow',
+  'q-pipe': 'Pipe / outfall',
+};
+
 function buildReceipt(view: SiteView): Receipt {
   const { site, detail } = view;
   return {
@@ -238,6 +247,38 @@ export default async function ReceiptPage({
                   {Math.round(photo.ai_generated_likelihood * 100)}% AI-generated estimate · {photo.authenticity_reason}
                 </p>
               </div>
+
+              {/* Photo cross-check — your answers vs what the model reads in the photo */}
+              {photo.correlation && photo.correlation.length > 0 ? (
+                <div className="rounded-xl border border-unseen bg-[var(--bg)] p-3">
+                  <p className="text-sm font-semibold text-ink">Photo cross-check</p>
+                  <p className="mt-0.5 text-[11px] text-ink-muted">
+                    AI compares your answers with the photo. It only asks — people decide.
+                  </p>
+                  <ul className="mt-2 space-y-1.5">
+                    {photo.correlation.map((c) => (
+                      <li key={c.field} className="flex items-center gap-2 text-sm">
+                        <span aria-hidden="true">
+                          {c.agrees === null ? '•' : c.agrees ? '✓' : '⚠️'}
+                        </span>
+                        <span className="flex-1 text-ink">{FIELD_LABELS[c.field] ?? c.field}</span>
+                        <span className="text-ink-muted">
+                          {c.agrees === null
+                            ? 'not assessable'
+                            : c.agrees
+                              ? 'matches your photo'
+                              : 'worth a look'}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  {photo.escalated ? (
+                    <p className="mt-2 rounded-lg bg-[var(--attention)]/15 px-2.5 py-1.5 text-[12px] font-medium text-ink">
+                      Sent to an expert for a closer look — thank you for flagging it.
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
           </div>
         </section>
