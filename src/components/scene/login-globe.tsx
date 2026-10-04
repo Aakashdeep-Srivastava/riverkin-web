@@ -54,15 +54,42 @@ async function fetchMapsToken(): Promise<MapsToken | null> {
   }
 }
 
-/** Connect each site to its 2 nearest neighbours → a web of LineStrings. */
-function buildFlowNetwork(sites: Site[]): GeoJSON.FeatureCollection {
+interface Hub {
+  lng: number;
+  lat: number;
+  count: number;
+}
+
+/**
+ * Collapse the sites into city hubs (all 106 sit in ~5 tight European clusters)
+ * so the network spans the continent instead of forming invisible micro-webs.
+ * Greedy clustering with a ~2° radius cleanly separates the five cities.
+ */
+function buildHubs(sites: Site[]): Hub[] {
   const pts = sites.filter((s) => typeof s.lat === 'number' && typeof s.lng === 'number');
+  const hubs: Hub[] = [];
+  const RADIUS2 = 2 * 2; // squared degrees
+  for (const s of pts) {
+    const near = hubs.find((h) => (h.lng - s.lng) ** 2 + (h.lat - s.lat) ** 2 < RADIUS2);
+    if (near) {
+      // Running centroid.
+      near.lng = (near.lng * near.count + s.lng) / (near.count + 1);
+      near.lat = (near.lat * near.count + s.lat) / (near.count + 1);
+      near.count += 1;
+    } else {
+      hubs.push({ lng: s.lng, lat: s.lat, count: 1 });
+    }
+  }
+  return hubs;
+}
+
+/** Connect each hub to its 2 nearest hubs → a continental web of LineStrings. */
+function buildHubNetwork(hubs: Hub[]): GeoJSON.FeatureCollection {
   const edges = new Set<string>();
   const features: GeoJSON.Feature[] = [];
-
-  for (let i = 0; i < pts.length; i++) {
-    const a = pts[i];
-    const nearest = pts
+  for (let i = 0; i < hubs.length; i++) {
+    const a = hubs[i];
+    const nearest = hubs
       .map((b, j) => ({ j, d: (a.lng - b.lng) ** 2 + (a.lat - b.lat) ** 2 }))
       .filter((x) => x.j !== i)
       .sort((x, y) => x.d - y.d)
@@ -71,7 +98,7 @@ function buildFlowNetwork(sites: Site[]): GeoJSON.FeatureCollection {
       const key = i < j ? `${i}-${j}` : `${j}-${i}`;
       if (edges.has(key)) continue;
       edges.add(key);
-      const b = pts[j];
+      const b = hubs[j];
       features.push({
         type: 'Feature',
         properties: {},
@@ -82,23 +109,11 @@ function buildFlowNetwork(sites: Site[]): GeoJSON.FeatureCollection {
   return { type: 'FeatureCollection', features };
 }
 
-/** Marching-dash patterns → the illusion of flow along each line. */
-const DASH_SEQUENCE: number[][] = [
-  [0, 4, 3],
-  [0.5, 4, 2.5],
-  [1, 4, 2],
-  [1.5, 4, 1.5],
-  [2, 4, 1],
-  [2.5, 4, 0.5],
-  [3, 4, 0],
-  [0, 0.5, 3, 3.5],
-  [0, 1, 3, 3],
-  [0, 1.5, 3, 2.5],
-  [0, 2, 3, 2],
-  [0, 2.5, 3, 1.5],
-  [0, 3, 3, 1],
-  [0, 3.5, 3, 0.5],
-];
+/**
+ * Travelling-pulse dash patterns: [0, leadGap, on, trailGap] with a constant
+ * period, sweeping leadGap 0→period so the bright segments flow downstream.
+ */
+const DASH_SEQUENCE: number[][] = Array.from({ length: 17 }, (_, k) => [0, k, 3, 17 - k]);
 
 export function LoginGlobe() {
   const [unavailable, setUnavailable] = useState(false);
@@ -143,44 +158,56 @@ export function LoginGlobe() {
       }
       if (cancelled || !Array.isArray(sites) || !sites.length) return;
 
-      const network = buildFlowNetwork(sites);
+      const hubs = buildHubs(sites);
+      const network = buildHubNetwork(hubs);
       if (!map.getSource('flow')) {
         map.addSource('flow', { type: 'geojson', data: network });
-        // Soft outer glow.
+        // Soft outer glow — always visible, gives the lines body.
         map.addLayer({
           id: 'flow-glow',
           type: 'line',
           source: 'flow',
           layout: { 'line-cap': 'round', 'line-join': 'round' },
           paint: {
-            'line-color': '#4FD8FF',
-            'line-width': 5,
-            'line-blur': 6,
-            'line-opacity': 0.28,
+            'line-color': '#58d2ff',
+            'line-width': 7,
+            'line-blur': 5,
+            'line-opacity': 0.45,
           },
         });
-        // Bright flowing core (animated dash).
+        // Bright solid core — the connective line is always readable.
         map.addLayer({
           id: 'flow-core',
           type: 'line',
           source: 'flow',
           layout: { 'line-cap': 'round', 'line-join': 'round' },
           paint: {
-            'line-color': '#dff4ff',
-            'line-width': 1.6,
+            'line-color': '#eaf8ff',
+            'line-width': 2,
+            'line-opacity': 0.85,
+          },
+        });
+        // Travelling pulse (animated dash) rides on top → the illusion of flow.
+        map.addLayer({
+          id: 'flow-pulse',
+          type: 'line',
+          source: 'flow',
+          layout: { 'line-cap': 'round', 'line-join': 'round' },
+          paint: {
+            'line-color': '#ffffff',
+            'line-width': 3,
             'line-opacity': 0.9,
-            'line-dasharray': [0, 4, 3],
+            'line-dasharray': [0, 4, 2, 14],
           },
         });
       }
 
-      // Pulsing site nodes (decorative; the home screen has the a11y list).
-      for (const site of sites) {
-        if (typeof site.lat !== 'number' || typeof site.lng !== 'number') continue;
+      // Pulsing city-hub nodes (decorative; the home screen has the a11y list).
+      for (const hub of hubs) {
         const el = document.createElement('div');
         el.className = 'rk-marker';
         el.setAttribute('aria-hidden', 'true');
-        markers.push(new Marker({ element: el }).setLngLat([site.lng, site.lat]).addTo(map));
+        markers.push(new Marker({ element: el }).setLngLat([hub.lng, hub.lat]).addTo(map));
       }
 
       // Animate the dash to simulate downstream flow (skipped if reduced motion).
@@ -192,8 +219,8 @@ export function LoginGlobe() {
           if (time - last > 70) {
             last = time;
             step = (step + 1) % DASH_SEQUENCE.length;
-            const layer = map.getLayer('flow-core');
-            if (layer) map.setPaintProperty('flow-core', 'line-dasharray', DASH_SEQUENCE[step]);
+            const layer = map.getLayer('flow-pulse');
+            if (layer) map.setPaintProperty('flow-pulse', 'line-dasharray', DASH_SEQUENCE[step]);
           }
           flowRaf = requestAnimationFrame(animate);
         };
