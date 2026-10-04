@@ -50,7 +50,7 @@ export function AuthPanel({ onGuest }: { onGuest: () => void }) {
             signInWithMicrosoft();
           }}
           disabled={redirecting}
-          className="flex min-h-tap w-full items-center justify-center gap-2.5 rounded-full border border-unseen bg-surface px-4 py-3.5 text-[15px] font-semibold text-ink shadow-sm transition-transform active:scale-[0.98] disabled:opacity-70"
+          className="flex min-h-tap w-full items-center justify-center gap-2.5 rounded-full border border-unseen bg-surface px-4 py-3.5 text-[14px] font-semibold text-ink shadow-sm transition-transform active:scale-[0.98] disabled:opacity-70"
         >
           {redirecting ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> : <MicrosoftMark />}
           Sign in with Microsoft
@@ -60,7 +60,7 @@ export function AuthPanel({ onGuest }: { onGuest: () => void }) {
 
       <button
         onClick={onGuest}
-        className={`flex min-h-tap w-full items-center justify-center gap-2.5 rounded-full px-4 py-3.5 text-[15px] font-semibold text-white shadow-[0_6px_18px_rgba(10,110,255,0.35)] transition-transform active:scale-[0.98] ${
+        className={`flex min-h-tap w-full items-center justify-center gap-2.5 rounded-full px-4 py-3.5 text-[14px] font-semibold text-white shadow-[0_6px_18px_rgba(10,110,255,0.35)] transition-transform active:scale-[0.98] ${
           msEnabled ? 'mt-3' : ''
         }`}
         style={{ background: 'linear-gradient(90deg, #1E7BFF 0%, #0052FF 100%)' }}
