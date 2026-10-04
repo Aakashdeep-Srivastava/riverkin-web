@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Download } from 'lucide-react';
+import { Download, Bell, BellRing } from 'lucide-react';
+import { enablePush, pushState, pushSupported, type PushState } from '@/lib/push-api';
 
 /** Registers the service worker so RiverKin is installable + offline-capable. */
 export function ServiceWorkerRegister() {
@@ -54,6 +55,46 @@ export function InstallButton({ className = '' }: { className?: string }) {
     >
       <Download className="h-5 w-5" aria-hidden="true" />
       Install RiverKin
+    </button>
+  );
+}
+
+/**
+ * River alerts — opt-in web push for after-rain / coverage nudges. Explicit
+ * button (never auto-prompted), honest copy. Hidden where push isn't supported.
+ */
+export function AlertsButton() {
+  const [state, setState] = useState<PushState>('unsupported');
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (pushSupported()) void pushState().then(setState);
+  }, []);
+
+  if (state === 'unsupported') return null;
+
+  if (state === 'subscribed') {
+    return (
+      <p className="flex items-center justify-center gap-2 rounded-button border border-unseen bg-surface px-4 py-3 text-sm font-semibold text-[var(--success)]">
+        <BellRing className="h-5 w-5" aria-hidden="true" /> River alerts are on
+      </p>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      disabled={busy || state === 'denied'}
+      onClick={async () => {
+        setBusy(true);
+        const ok = await enablePush();
+        setState(ok ? 'subscribed' : (await pushState()));
+        setBusy(false);
+      }}
+      className="flex w-full items-center justify-center gap-2 rounded-button border border-unseen bg-surface px-4 py-3 font-semibold text-ink transition-transform active:scale-[0.98] disabled:opacity-60"
+    >
+      <Bell className="h-5 w-5" aria-hidden="true" />
+      {state === 'denied' ? 'Alerts blocked in browser settings' : 'Get river alerts (after rain)'}
     </button>
   );
 }

@@ -10,7 +10,7 @@ import { SiteFooter } from '@/components/site-footer';
 import { buttonClasses } from '@/components/ui/button';
 import { getStoredUser, signOut, type AuthUser } from '@/lib/auth-api';
 import { TourMenuItem } from '@/components/guide/tour-button';
-import { InstallButton } from '@/components/pwa';
+import { InstallButton, AlertsButton } from '@/components/pwa';
 
 const ROLE_LABEL: Record<string, string> = {
   keeper: 'Keeper · adult volunteer',
@@ -84,6 +84,8 @@ export default function MePage() {
         </div>
 
         <TourMenuItem />
+
+        <AlertsButton />
 
         <InstallButton />
 

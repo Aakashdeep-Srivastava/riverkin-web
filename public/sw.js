@@ -1,9 +1,43 @@
 /* RiverKin service worker — app-shell cache for installability + offline.
  * Deliberately conservative: only same-origin GETs are cached. API calls and
  * Azure Maps are cross-origin and pass straight through (never cache auth/data). */
-const CACHE = 'riverkin-v1';
+const CACHE = 'riverkin-v2';
 
 self.addEventListener('install', () => self.skipWaiting());
+
+// Web Push: show the nudge, and focus/open the app on click.
+self.addEventListener('push', (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = {};
+  }
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'RiverKin', {
+      body: data.body || '',
+      icon: '/icon-192.png',
+      badge: '/favicon-32.png',
+      data: { url: data.url || '/' },
+    }),
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || '/';
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((wins) => {
+      for (const w of wins) {
+        if ('focus' in w) {
+          w.navigate(url);
+          return w.focus();
+        }
+      }
+      return self.clients.openWindow(url);
+    }),
+  );
+});
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
