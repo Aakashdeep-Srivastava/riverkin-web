@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { ArrowRight, Loader2, Compass } from 'lucide-react';
 import { isMicrosoftEnabled, signInWithMicrosoft } from '@/lib/auth-api';
 
@@ -38,23 +39,27 @@ export function AuthPanel({ onGuest }: { onGuest: () => void }) {
   return (
     <div className="rk-reveal" style={{ animationDelay: '220ms' }}>
       {msEnabled ? (
-        <button
+        <motion.button
           onClick={() => {
             setRedirecting(true);
             signInWithMicrosoft();
           }}
           disabled={redirecting}
-          className="flex min-h-tap w-full items-center justify-center gap-2.5 rounded-full border border-unseen bg-surface px-4 py-3.5 text-[14px] font-semibold text-ink shadow-sm transition-transform active:scale-[0.98] disabled:opacity-70"
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.985 }}
+          className="flex min-h-tap w-full items-center justify-center gap-2.5 rounded-full border border-unseen bg-surface px-4 py-3.5 text-[14px] font-semibold text-ink shadow-sm disabled:opacity-70"
         >
           {redirecting ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> : <MicrosoftMark />}
           Sign in with Microsoft
           <ArrowRight className="ml-auto h-5 w-5 text-ink-muted" aria-hidden="true" />
-        </button>
+        </motion.button>
       ) : null}
 
-      <button
+      <motion.button
         onClick={onGuest}
-        className={`flex min-h-tap w-full items-center justify-center gap-2.5 rounded-full px-4 py-3.5 text-[14px] font-semibold text-white shadow-[0_6px_18px_rgba(10,110,255,0.35)] transition-transform active:scale-[0.98] ${
+        whileHover={{ y: -2 }}
+        whileTap={{ scale: 0.985 }}
+        className={`flex min-h-tap w-full items-center justify-center gap-2.5 rounded-full px-4 py-3.5 text-[14px] font-semibold text-white shadow-[0_6px_18px_rgba(10,110,255,0.35)] ${
           msEnabled ? 'mt-3' : ''
         }`}
         style={{ background: 'linear-gradient(90deg, #1E7BFF 0%, #0052FF 100%)' }}
@@ -64,7 +69,7 @@ export function AuthPanel({ onGuest }: { onGuest: () => void }) {
         </span>
         Browse as a guest
         <ArrowRight className="ml-auto h-5 w-5" aria-hidden="true" />
-      </button>
+      </motion.button>
 
       <p className="mt-3.5 text-center text-[12px] leading-relaxed text-white/85 drop-shadow">
         Guests can explore and try a check. Sign in to make your work count toward the shared data.

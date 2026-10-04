@@ -1,29 +1,18 @@
 'use client';
 
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Globe, ChevronDown, Eye, Camera, ShieldCheck, ArrowRight, type LucideIcon } from 'lucide-react';
 import { RiverMark } from '@/components/ui/logo';
 import { AuthPanel } from '@/components/auth-panel';
+import { RiverKinScene } from '@/components/scene/riverkin-scene';
 import { hasOnboarded, markOnboarded } from '@/lib/entry-state';
 import type { Role } from '@/lib/auth-api';
 
 export type { Role };
 
 type Stage = 'onboarding' | 'auth';
-
-// Sunlit motes drifting up — concentrated toward the sun (upper-right) + water.
-const MOTES = [
-  { left: '70%', top: '26%', size: 5, dur: 15, delay: 0, x: 16, op: 0.6 },
-  { left: '82%', top: '34%', size: 3, dur: 12, delay: 2, x: 10, op: 0.5 },
-  { left: '60%', top: '40%', size: 4, dur: 17, delay: 4, x: -12, op: 0.45 },
-  { left: '88%', top: '22%', size: 3, dur: 13, delay: 1, x: 8, op: 0.55 },
-  { left: '48%', top: '50%', size: 5, dur: 18, delay: 6, x: 14, op: 0.4 },
-  { left: '30%', top: '62%', size: 4, dur: 16, delay: 3, x: 10, op: 0.5 },
-  { left: '74%', top: '58%', size: 6, dur: 19, delay: 5, x: -14, op: 0.5 },
-  { left: '18%', top: '46%', size: 3, dur: 14, delay: 7, x: 12, op: 0.4 },
-  { left: '92%', top: '48%', size: 4, dur: 15, delay: 2.5, x: -10, op: 0.45 },
-];
 
 interface Slide {
   Icon: LucideIcon;
@@ -79,52 +68,8 @@ export function Entry({ onEnter }: { onEnter: (role: string) => void }) {
 
   return (
     <main className="relative flex min-h-dvh flex-col overflow-hidden bg-[#0a1a30] text-white">
-      {/* Living background: cinematic drift (Ken Burns) on the composite scene. */}
-      <div aria-hidden="true" className="rk-bg-fade absolute inset-0 overflow-hidden">
-        <div
-          className="rk-kenburns h-full w-full bg-cover bg-center"
-          style={{ backgroundImage: 'url(/hero-bg.jpg)' }}
-        />
-      </div>
-      {/* Drifting atmospheric haze over the globe. */}
-      <div
-        aria-hidden="true"
-        className="rk-haze pointer-events-none absolute inset-x-[-12%] top-0 h-[68%]"
-        style={{
-          background: 'radial-gradient(55% 40% at 50% 32%, rgba(255,255,255,0.1), transparent 72%)',
-          mixBlendMode: 'screen',
-        }}
-      />
-      {/* Sunlit particles drifting up. */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-        {MOTES.map((m, i) => (
-          <span
-            key={i}
-            className="rk-mote"
-            style={
-              {
-                left: m.left,
-                top: m.top,
-                width: m.size,
-                height: m.size,
-                '--p-dur': `${m.dur}s`,
-                '--p-delay': `${m.delay}s`,
-                '--p-x': `${m.x}px`,
-                '--p-op': m.op,
-              } as CSSProperties
-            }
-          />
-        ))}
-      </div>
-      {/* Readability scrim behind the copy + buttons. */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0"
-        style={{
-          background:
-            'linear-gradient(180deg, rgba(5,16,33,0) 38%, rgba(5,16,33,0.35) 62%, rgba(5,16,33,0.66) 100%)',
-        }}
-      />
+      {/* Layered cinematic background: geography + Remotion atmosphere + blend. */}
+      <RiverKinScene />
 
       {/* Top bar: brand + language. */}
       <header className="relative z-10 flex items-start justify-between px-5 pt-[calc(env(safe-area-inset-top)+1rem)]">
@@ -194,16 +139,18 @@ export function Entry({ onEnter }: { onEnter: (role: string) => void }) {
       ) : stage === 'auth' ? (
         /* ---- Sign-in ---- */
         <div className="relative z-10 mt-auto px-5 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
-          <h1
-            className="rk-reveal text-[clamp(1.6rem,7.5vw,2.1rem)] font-extrabold leading-[1.1] tracking-tight drop-shadow-[0_2px_14px_rgba(0,0,0,0.5)]"
-            style={{ animationDelay: '80ms' }}
+          <motion.h1
+            className="text-[clamp(1.6rem,7.5vw,2.1rem)] font-extrabold leading-[1.1] tracking-tight drop-shadow-[0_2px_14px_rgba(0,0,0,0.5)]"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, ease: 'easeOut', delay: 0.08 }}
           >
             Find where
             <br />
             <span className="text-[#4ea6ff]">the river</span>
             <br />
             needs you.
-          </h1>
+          </motion.h1>
 
           <svg aria-hidden="true" viewBox="0 0 200 20" className="mt-1.5 h-3 w-32 overflow-visible" fill="none">
             <path
@@ -216,21 +163,28 @@ export function Entry({ onEnter }: { onEnter: (role: string) => void }) {
             />
           </svg>
 
-          <p
-            className="rk-reveal mt-3 max-w-xs text-[13px] leading-relaxed text-white/90 drop-shadow"
-            style={{ animationDelay: '200ms' }}
+          <motion.p
+            className="mt-3 max-w-xs text-[13px] leading-relaxed text-white/90 drop-shadow"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
           >
             106 urban streams across five European cities, ranked by what needs a look today.
-          </p>
+          </motion.p>
 
-          <div className="rk-rise mt-7">
+          <motion.div
+            className="mt-7"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut', delay: 0.34 }}
+          >
             <AuthPanel
               onGuest={() => {
                 void import('@/lib/analytics').then((m) => m.track('guest_entered'));
                 onEnter('guest');
               }}
             />
-          </div>
+          </motion.div>
 
           <p className="mt-4 text-center text-[11px] leading-relaxed text-white/80 drop-shadow">
             By continuing you agree to our{' '}
