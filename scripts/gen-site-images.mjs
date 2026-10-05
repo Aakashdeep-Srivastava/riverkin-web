@@ -5,7 +5,7 @@
  * data — baking it once beats rendering it live on every view (which bills an
  * Azure Maps transaction and ships a ~1.3 MB PNG each time). This script fetches
  * each site's image once via the deployed /maps/static endpoint, re-encodes it to
- * a compact JPEG, and writes public/sites/<id>.jpg. Those are then served from
+ * a compact JPEG, and writes public/site-images/<id>.jpg. Those are then served from
  * our own origin: $0 ongoing Maps cost, ~10x smaller, same-site (no CORP).
  *
  * Run manually when the site list or the desired look changes:
@@ -26,7 +26,9 @@ const REQ_W = 900;
 const REQ_H = 450;
 const JPEG_QUALITY = 72;
 
-const outDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'sites');
+// NOT public/sites — that path is owned by the /sites/[id] route, which would
+// intercept the image requests. Use a dedicated static folder.
+const outDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'site-images');
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 

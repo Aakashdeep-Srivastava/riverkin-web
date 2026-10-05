@@ -78,7 +78,9 @@ export function BrandMenu({ transparent = false, active = '/' }: { transparent?:
             : 'flex items-center gap-2 rounded-full px-1 py-1'
         }
       >
-        <RiverMark className="h-7 w-7" />
+        <span className="inline-flex items-center justify-center rounded-lg bg-white p-1 shadow-sm">
+          <RiverMark className="h-6 w-6" />
+        </span>
         <span className="text-lg font-bold tracking-tight text-ink">RiverKin</span>
         <ChevronDown
           className={`h-4 w-4 text-ink-muted transition-transform ${open ? 'rotate-180' : ''}`}

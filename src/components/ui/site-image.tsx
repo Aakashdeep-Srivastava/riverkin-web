@@ -15,10 +15,11 @@ const RATIO: Record<Aspect, string> = {
 
 /**
  * A site's real satellite image. Served as a pre-baked, same-origin JPEG
- * (public/sites/<id>.jpg, generated once by `npm run gen:site-images`) rather
- * than rendered live — so there's no per-view Azure Maps cost, no cross-origin
- * CORP concern, and the file is ~10x smaller than the live PNG. Falls back to the
- * illustrative <PhotoFrame /> if the baked image is missing or fails to load.
+ * (public/site-images/<id>.jpg, generated once by `npm run gen:site-images`)
+ * rather than rendered live — so there's no per-view Azure Maps cost, no
+ * cross-origin CORP concern, and the file is ~10x smaller than the live PNG.
+ * Falls back to the illustrative <PhotoFrame /> if the baked image is missing
+ * or fails to load.
  */
 export function SiteImage({
   siteId,
@@ -38,7 +39,8 @@ export function SiteImage({
     return <PhotoFrame aspect={aspect} label={label} className={className} />;
   }
 
-  const src = `/sites/${encodeURIComponent(siteId)}.jpg`;
+  // Served from /site-images (NOT /sites — that path is the site-detail route).
+  const src = `/site-images/${encodeURIComponent(siteId)}.jpg`;
 
   return (
     <div

@@ -86,7 +86,9 @@ export function Entry({ onEnter }: { onEnter: (role: string) => void }) {
       {stage && stage !== 'splash' ? (
       <header className="relative z-10 flex items-start justify-between px-5 pt-[calc(env(safe-area-inset-top)+1rem)]">
         <div className="rk-reveal flex items-center gap-2.5">
-          <RiverMark className="h-10 w-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]" />
+          <span className="inline-flex items-center justify-center rounded-xl bg-white p-1.5 shadow-[0_2px_10px_rgba(0,0,0,0.3)]">
+            <RiverMark className="h-8 w-8" />
+          </span>
           <span className="leading-none [text-shadow:0_2px_10px_rgba(0,0,0,0.55)]">
             <span className="block text-[16px] font-bold tracking-[0.16em] text-white">RIVERKIN</span>
             <span className="mt-0.5 block text-[8px] font-semibold uppercase tracking-[0.3em] text-white/85">
@@ -117,7 +119,9 @@ export function Entry({ onEnter }: { onEnter: (role: string) => void }) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.9, ease: 'easeOut' }}
           >
-            <RiverMark className="mx-auto h-24 w-24 drop-shadow-[0_8px_28px_rgba(0,0,0,0.5)]" />
+            <span className="mx-auto inline-flex items-center justify-center rounded-[28px] bg-white p-4 shadow-[0_10px_34px_rgba(0,0,0,0.4)]">
+              <RiverMark className="h-24 w-24" />
+            </span>
           </motion.div>
           <motion.h1
             initial={{ opacity: 0, y: 14 }}
