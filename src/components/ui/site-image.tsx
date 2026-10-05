@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { API_BASE_URL } from '@/lib/api';
 import { PhotoFrame } from '@/components/ui/photo-frame';
 
 type Aspect = 'video' | 'square' | 'tall' | 'wide';
@@ -14,53 +13,32 @@ const RATIO: Record<Aspect, string> = {
   wide: 'aspect-[2/1]',
 };
 
-// Pixel dimensions requested from the static-map endpoint, matched to the frame
-// so the satellite image isn't over- or under-sampled.
-const PX: Record<Aspect, { w: number; h: number }> = {
-  video: { w: 800, h: 500 },
-  square: { w: 560, h: 560 },
-  tall: { w: 540, h: 720 },
-  wide: { w: 960, h: 480 },
-};
-
 /**
- * A real satellite image of a site's actual coordinates (Azure Maps static image
- * proxied by the API so no token reaches the browser). Falls back to the
- * illustrative <PhotoFrame /> when coordinates are missing, the API URL is unset,
- * or the image fails to load — so the page never shows a broken image.
+ * A site's real satellite image. Served as a pre-baked, same-origin JPEG
+ * (public/sites/<id>.jpg, generated once by `npm run gen:site-images`) rather
+ * than rendered live — so there's no per-view Azure Maps cost, no cross-origin
+ * CORP concern, and the file is ~10x smaller than the live PNG. Falls back to the
+ * illustrative <PhotoFrame /> if the baked image is missing or fails to load.
  */
 export function SiteImage({
-  lat,
-  lng,
+  siteId,
   label,
   aspect = 'wide',
-  zoom = 15,
   className,
 }: {
-  lat?: number | null;
-  lng?: number | null;
+  siteId?: string;
   label?: string;
   aspect?: Aspect;
-  zoom?: number;
   className?: string;
 }) {
   const [failed, setFailed] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  const usable =
-    !failed &&
-    API_BASE_URL &&
-    typeof lat === 'number' &&
-    typeof lng === 'number';
-
-  if (!usable) {
+  if (failed || !siteId) {
     return <PhotoFrame aspect={aspect} label={label} className={className} />;
   }
 
-  const { w, h } = PX[aspect];
-  const src =
-    `${API_BASE_URL}/api/v1/maps/static` +
-    `?lat=${lat}&lng=${lng}&zoom=${zoom}&w=${w}&h=${h}`;
+  const src = `/sites/${encodeURIComponent(siteId)}.jpg`;
 
   return (
     <div

@@ -37,9 +37,7 @@ export default async function SitePage({ params }: { params: { id: string } }) {
       {/* Hero */}
       <div className="relative">
         <SiteImage
-          lat={site.lat}
-          lng={site.lng}
-          zoom={15}
+          siteId={site.id}
           aspect="wide"
           label={`${site.name}, ${detail.city}`}
           className="rounded-none md:rounded-b-card"
