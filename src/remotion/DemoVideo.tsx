@@ -7,6 +7,7 @@
  */
 import {
   AbsoluteFill,
+  Audio,
   Img,
   Sequence,
   interpolate,
@@ -26,14 +27,15 @@ type Scene =
   | { kind: 'feature'; img: string; eyebrow: string; title: string; sub: string; dur: number }
   | { kind: 'close'; title: string; sub: string; dur: number };
 
+// Per-scene durations are matched to the narration-clip lengths (public/demo/vo/sN.mp3).
 const SCENES: Scene[] = [
-  { kind: 'brand', title: 'RiverKin', sub: 'Citizen science for Europe’s urban rivers', dur: 150 },
+  { kind: 'brand', title: 'RiverKin', sub: 'Citizen science for Europe’s urban rivers', dur: 168 },
   {
     kind: 'text',
     eyebrow: 'THE PROBLEM',
     title: '106 urban streams.\nBarely monitored.',
     sub: 'Experts are few. Citizens are everywhere.',
-    dur: 180,
+    dur: 200,
   },
   {
     kind: 'feature',
@@ -41,7 +43,7 @@ const SCENES: Scene[] = [
     eyebrow: '01 · OPEN',
     title: 'Open to a living map',
     sub: 'Guest-first — no account to start',
-    dur: 210,
+    dur: 175,
   },
   {
     kind: 'feature',
@@ -49,7 +51,7 @@ const SCENES: Scene[] = [
     eyebrow: '02 · NOTICE',
     title: 'Find where the river needs you',
     sub: '106 real OneAquaHealth sites, ranked by need · live data',
-    dur: 300,
+    dur: 205,
   },
   {
     kind: 'feature',
@@ -57,7 +59,7 @@ const SCENES: Scene[] = [
     eyebrow: '03 · NAVIGATE',
     title: 'One app, every screen',
     sub: 'Map · Missions · Learn · Community · Rewards · Impact',
-    dur: 210,
+    dur: 231,
   },
   {
     kind: 'feature',
@@ -65,7 +67,7 @@ const SCENES: Scene[] = [
     eyebrow: '04 · ACT',
     title: 'A five-minute field check',
     sub: 'One question per screen · live camera · works offline',
-    dur: 270,
+    dur: 208,
   },
   {
     kind: 'feature',
@@ -73,7 +75,7 @@ const SCENES: Scene[] = [
     eyebrow: '05 · AI + IMPACT',
     title: 'The AI reads it. You decide.',
     sub: 'GPT-4o-mini vision → FHIR R4 research data · the gap is closed',
-    dur: 330,
+    dur: 438,
   },
   {
     kind: 'feature',
@@ -81,7 +83,7 @@ const SCENES: Scene[] = [
     eyebrow: '06 · RETURN',
     title: 'Join challenges. Bring your crew.',
     sub: 'Run for the River · no account needed',
-    dur: 270,
+    dur: 200,
   },
   {
     kind: 'feature',
@@ -89,9 +91,9 @@ const SCENES: Scene[] = [
     eyebrow: '07 · GROW',
     title: 'Share a card. Scan to join.',
     sub: 'Pseudonymous referrals · a real growth loop',
-    dur: 240,
+    dur: 214,
   },
-  { kind: 'close', title: 'Find where the river needs you.', sub: 'riverkin.online', dur: 210 },
+  { kind: 'close', title: 'Find where the river needs you.', sub: 'riverkin.online', dur: 239 },
 ];
 
 export const DEMO_TOTAL = SCENES.reduce((n, s) => n + s.dur, 0);
@@ -284,6 +286,7 @@ export const DemoVideo: React.FC = () => {
         return (
           <Sequence key={i} from={from} durationInFrames={scene.dur}>
             <SceneView scene={scene} />
+            <Audio src={staticFile(`demo/vo/s${i}.mp3`)} />
           </Sequence>
         );
       })}
