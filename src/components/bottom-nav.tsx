@@ -53,6 +53,9 @@ export function BottomNav() {
   // Me). Pushed detail + flow screens have their own back button and CTA.
   const hideNav =
     pathname === '/welcome' ||
+    pathname === '/register' ||
+    pathname === '/login' ||
+    pathname.startsWith('/auth') ||
     pathname.startsWith('/check') ||
     pathname.startsWith('/verify') ||
     pathname.startsWith('/sites/') ||
