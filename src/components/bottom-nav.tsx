@@ -75,7 +75,7 @@ export function BottomNav() {
         ))}
         <li className="flex items-center justify-center px-1">
           <Link
-            href="/missions"
+            href="/check"
             aria-label="Start a check"
             className="-mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--action)] text-white shadow-[var(--rk-shadow-lift)] ring-4 ring-surface transition-transform active:scale-95"
           >

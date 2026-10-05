@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, Loader2, Compass } from 'lucide-react';
+import { ArrowRight, Loader2, Compass, Mail } from 'lucide-react';
 import { isMicrosoftEnabled, signInWithMicrosoft } from '@/lib/auth-api';
 
 /** Microsoft's four-square mark. */
@@ -71,8 +72,22 @@ export function AuthPanel({ onGuest }: { onGuest: () => void }) {
         <ArrowRight className="ml-auto h-5 w-5" aria-hidden="true" />
       </motion.button>
 
+      <Link
+        href="/register"
+        className="mt-3 flex min-h-tap w-full items-center justify-center gap-2.5 rounded-full border border-unseen bg-surface px-4 py-3.5 text-[14px] font-semibold text-ink shadow-sm"
+      >
+        <Mail className="h-5 w-5 text-ink-muted" aria-hidden="true" />
+        Create an account
+        <ArrowRight className="ml-auto h-5 w-5 text-ink-muted" aria-hidden="true" />
+      </Link>
+
       <p className="mt-3.5 text-center text-[12px] leading-relaxed text-white/85 drop-shadow">
         Guests can explore and try a check. Sign in to make your work count toward the shared data.
+        <br />
+        Already have an account?{' '}
+        <Link href="/login" className="font-semibold text-white underline underline-offset-2">
+          Sign in
+        </Link>
       </p>
     </div>
   );

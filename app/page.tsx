@@ -85,9 +85,26 @@ export default function HomePage() {
 
   const lead = visible[0];
 
-  // While deciding whether to show the entry screen, render nothing (avoids a
-  // flash of the map before redirecting first-time visitors to /welcome).
-  if (!checked) return null;
+  // While deciding whether to show the entry screen, paint an instant static
+  // shell (header + map/card skeletons) instead of a blank screen. Returning
+  // visitors see chrome immediately and it fills in; first-time visitors are
+  // redirected to /welcome a beat later.
+  if (!checked) {
+    return (
+      <main className="relative min-h-dvh bg-bg pb-[calc(env(safe-area-inset-bottom)+6rem)]">
+        <div className="relative h-[68dvh] w-full overflow-hidden">
+          <div className="absolute inset-0 animate-pulse bg-[color-mix(in_srgb,var(--water)_12%,var(--surface))]" />
+        </div>
+        <div className="absolute inset-x-0 top-0 z-40">
+          <AppBar transparent active="/" />
+        </div>
+        <div className="relative z-10 -mt-8 space-y-2.5 px-4" aria-hidden="true">
+          <div className="h-[72px] animate-pulse rounded-card bg-surface shadow-[var(--rk-shadow-lift)]" />
+          <div className="h-24 animate-pulse rounded-card bg-surface" />
+        </div>
+      </main>
+    );
+  }
 
   const controls = (
     <div className="flex items-center justify-between gap-2 px-4 pt-1">
@@ -132,7 +149,7 @@ export default function HomePage() {
       {/* Map region — large so the map dominates the first view. */}
       <div className="relative h-[68dvh] w-full overflow-hidden">
         <div className="absolute inset-0">
-          <AttentionMap />
+          <AttentionMap sites={baseSites} />
         </div>
       </div>
 

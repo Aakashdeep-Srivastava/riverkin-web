@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { MapPlaceholder } from '@/components/map-placeholder';
+import type { Site } from '@/lib/api-types';
 
 /**
  * Client boundary for the C1 attention map.
@@ -19,6 +20,6 @@ const GlobeMap = dynamic(() => import('@/components/globe-map'), {
   loading: () => <MapPlaceholder />,
 });
 
-export function AttentionMap() {
-  return <GlobeMap />;
+export function AttentionMap({ sites }: { sites?: Site[] }) {
+  return <GlobeMap sites={sites} />;
 }

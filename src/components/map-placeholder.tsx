@@ -1,7 +1,6 @@
 'use client';
 
 import { MapPin } from 'lucide-react';
-import FluidOrb from '@/components/ui/fluid-orb';
 
 /**
  * Styled stand-in for the full-screen MapLibre attention map.
@@ -22,13 +21,15 @@ export function MapPlaceholder() {
       aria-label="Map of river sites (simulated placeholder). A text list of the same sites is shown below."
       className="relative flex h-full min-h-[14rem] w-full items-center justify-center overflow-hidden bg-[color-mix(in_srgb,var(--water)_10%,var(--surface))]"
     >
-      {/* Ambient water orb (decorative). */}
+      {/* Ambient water glow (decorative, CSS-only — no WebGL on the critical path). */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-60"
-      >
-        <FluidOrb size={320} color="#12A4D9" className="max-w-[90%]" />
-      </div>
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(60% 55% at 50% 45%, color-mix(in srgb, var(--water) 45%, transparent) 0%, transparent 70%)',
+        }}
+      />
 
       {/* Faint grid to read as a map surface. */}
       <div

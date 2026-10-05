@@ -30,6 +30,10 @@ export function RiverKinScene() {
   const [mounted, setMounted] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [liveGlobe, setLiveGlobe] = useState(false);
+  // The Remotion atmosphere is heavy (a looping GPU-composited player). Defer it
+  // to browser idle time so the hero copy + background paint first and the screen
+  // feels instant; the cinematic layer fades in a beat later.
+  const [atmosphereReady, setAtmosphereReady] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -42,7 +46,16 @@ export function RiverKinScene() {
     const params = new URLSearchParams(window.location.search);
     setLiveGlobe(params.get('live') === 'globe');
 
-    return () => mq.removeEventListener('change', onChange);
+    const hasIdle = typeof window.requestIdleCallback === 'function';
+    const idle = hasIdle
+      ? window.requestIdleCallback(() => setAtmosphereReady(true), { timeout: 2000 })
+      : window.setTimeout(() => setAtmosphereReady(true), 800);
+
+    return () => {
+      mq.removeEventListener('change', onChange);
+      if (hasIdle) window.cancelIdleCallback(idle as number);
+      else window.clearTimeout(idle as number);
+    };
   }, []);
 
   return (
@@ -59,8 +72,8 @@ export function RiverKinScene() {
         />
       )}
 
-      {/* --- Cinematic atmosphere layer (Remotion) --- */}
-      {mounted && !reducedMotion ? (
+      {/* --- Cinematic atmosphere layer (Remotion, deferred to idle) --- */}
+      {mounted && atmosphereReady && !reducedMotion ? (
         <div className="absolute inset-0 opacity-90">
           <AtmospherePlayer />
         </div>

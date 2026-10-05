@@ -1,8 +1,8 @@
-import Link from 'next/link';
 import { BrandMenu } from '@/components/brand-menu';
 import { TourButton } from '@/components/guide/tour-button';
 import { NotificationCenter } from '@/components/notifications/notification-center';
 import { SiteSearch } from '@/components/site-search';
+import { AccountAvatar } from '@/components/account-avatar';
 
 /**
  * Top app bar for the citizen surface: wave mark + wordmark, search, and the
@@ -22,13 +22,7 @@ export function AppBar({ transparent = false, active = '/' }: { transparent?: bo
         <TourButton transparent={transparent} />
         <NotificationCenter transparent={transparent} />
         <SiteSearch transparent={transparent} />
-        <Link
-          href="/me"
-          aria-label="Your account"
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--action)] text-sm font-bold text-white"
-        >
-          K
-        </Link>
+        <AccountAvatar />
       </div>
     </header>
   );

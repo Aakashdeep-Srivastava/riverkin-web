@@ -51,12 +51,23 @@ const AZURE_HYBRID_URL =
 /** Re-fetch the token once we are within this window (ms) of its expiry. */
 const REFRESH_LEAD_MS = 120_000;
 
+/**
+ * Module-level token cache. Leaving and re-entering the Explore tab remounts this
+ * component; without this the map would re-fetch a maps token every time. A token
+ * that is still comfortably valid is reused so re-mounts skip the round-trip.
+ */
+let cachedToken: MapsToken | null = null;
+
 async function fetchMapsToken(): Promise<MapsToken | null> {
+  if (cachedToken && cachedToken.expiresOn * 1000 - Date.now() > REFRESH_LEAD_MS) {
+    return cachedToken;
+  }
   try {
     const data = await apiFetch<MapsToken>('/api/v1/maps/token');
     if (!data || typeof data.token !== 'string' || typeof data.clientId !== 'string') {
       return null;
     }
+    cachedToken = data;
     return data;
   } catch {
     // 503 "maps token unavailable", network error, or NEXT_PUBLIC_API_URL unset.
@@ -64,11 +75,16 @@ async function fetchMapsToken(): Promise<MapsToken | null> {
   }
 }
 
-export default function GlobeMap() {
+export default function GlobeMap({ sites }: { sites?: Site[] }) {
   const [unavailable, setUnavailable] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MaplibreMap | null>(null);
   const tokenRef = useRef<MapsToken | null>(null);
+  // Latest sites from the parent's shared query cache. Kept in a ref so the
+  // one-shot init effect can read the freshest list at map-load time without
+  // re-running — and without the map issuing its own duplicate /sites request.
+  const sitesRef = useRef<Site[] | undefined>(sites);
+  sitesRef.current = sites;
 
   useEffect(() => {
     let cancelled = false;
@@ -98,12 +114,17 @@ export default function GlobeMap() {
     };
 
     const addSiteMarkers = async (map: MaplibreMap) => {
-      let sites: Site[] = [];
-      try {
-        sites = await apiFetch<Site[]>('/api/v1/sites');
-      } catch {
-        // No sites available → show the globe with no markers (don't crash).
-        return;
+      // Prefer the sites the parent already loaded (shared React Query cache) so
+      // we don't fire a second request for the same data. Only fall back to a
+      // fetch if the parent passed nothing (e.g. the map is used standalone).
+      let sites: Site[] = sitesRef.current ?? [];
+      if (sites.length === 0) {
+        try {
+          sites = await apiFetch<Site[]>('/api/v1/sites');
+        } catch {
+          // No sites available → show the globe with no markers (don't crash).
+          return;
+        }
       }
       if (cancelled || !Array.isArray(sites)) return;
       for (const site of sites) {
