@@ -129,8 +129,8 @@ export default function HomePage() {
   // Map view — scrollable dashboard: map region on top, cards below.
   return (
     <main className="relative min-h-dvh bg-bg pb-[calc(env(safe-area-inset-bottom)+6rem)]">
-      {/* Map region. */}
-      <div className="relative h-[56dvh] w-full overflow-hidden">
+      {/* Map region — large so the map dominates the first view. */}
+      <div className="relative h-[68dvh] w-full overflow-hidden">
         <div className="absolute inset-0">
           <AttentionMap />
         </div>
@@ -145,47 +145,32 @@ export default function HomePage() {
         {chips}
       </div>
 
-      {/* Dashboard content, pulled up to overlap the map. */}
-      <div className="relative z-10 -mt-12 space-y-3 px-4">
+      {/* Dashboard content, pulled up to overlap the map. Compact so the map stays dominant. */}
+      <div className="relative z-10 -mt-8 space-y-2.5 px-4">
         {lead ? (
           <Link
             href={`/sites/${lead.id}`}
-            className="rk-glass rk-reveal block rounded-card p-3 shadow-[var(--rk-shadow-lift)]"
+            className="rk-glass rk-reveal block rounded-card p-2.5 shadow-[var(--rk-shadow-lift)]"
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5">
               {/* Thumbnail (decorative water tile). */}
               <span
-                className="flex h-[76px] w-[76px] shrink-0 items-center justify-center rounded-2xl"
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
                 style={{ background: 'linear-gradient(145deg,#2FA7D9 0%,#1E7BFF 60%,#0E4FA0 100%)' }}
                 aria-hidden="true"
               >
-                <Droplet className="h-7 w-7 text-white/90" />
+                <Droplet className="h-5 w-5 text-white/90" />
               </span>
               <div className="min-w-0 flex-1">
                 <AttentionStatus level={lead.attention} />
-                <p className="mt-1 truncate text-[20px] font-extrabold text-ink">{lead.name}</p>
-                <p className="truncate text-[13px] text-ink-muted">
+                <p className="truncate text-[16px] font-extrabold leading-tight text-ink">{lead.name}</p>
+                <p className="truncate text-[12px] text-ink-muted">
                   {lead.waterbody} ·{' '}
                   {lead.daysUnseen === 0 ? 'seen today' : `${lead.daysUnseen} days unseen`}
                 </p>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  <span className="rounded-full bg-bg px-2 py-0.5 text-[11px] font-medium text-ink-muted">
-                    Freshwater
-                  </span>
-                  {lead.pollution ? (
-                    <span className="rounded-full bg-bg px-2 py-0.5 text-[11px] font-medium text-ink-muted">
-                      Water Quality
-                    </span>
-                  ) : null}
-                  {lead.hasEcology ? (
-                    <span className="rounded-full bg-bg px-2 py-0.5 text-[11px] font-medium text-ink-muted">
-                      Biodiversity
-                    </span>
-                  ) : null}
-                </div>
               </div>
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-unseen bg-surface">
-                <ChevronRight className="h-5 w-5 text-ink" aria-hidden="true" />
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-unseen bg-surface">
+                <ChevronRight className="h-4 w-4 text-ink" aria-hidden="true" />
               </span>
             </div>
           </Link>

@@ -43,8 +43,8 @@ function LevelRing({ fraction, level }: { fraction: number; level: number }) {
   const r = 26;
   const c = 2 * Math.PI * r;
   return (
-    <div className="relative h-16 w-16 shrink-0">
-      <svg viewBox="0 0 64 64" className="h-16 w-16 -rotate-90">
+    <div className="relative h-14 w-14 shrink-0">
+      <svg viewBox="0 0 64 64" className="h-14 w-14 -rotate-90">
         <circle cx="32" cy="32" r={r} fill="none" stroke="var(--unseen)" strokeWidth="5" />
         <circle
           cx="32"
@@ -108,8 +108,8 @@ export function HomeOverview({ sites, flags }: { sites: number; flags: number })
   return (
     <div className="space-y-3">
       {/* KPI card */}
-      <div className="rk-glass rk-reveal rounded-card p-3.5 shadow-[var(--rk-shadow-lift)]">
-        <div className="flex items-center gap-3">
+      <div className="rk-glass rk-reveal rounded-card p-2.5 shadow-[var(--rk-shadow-lift)]">
+        <div className="flex items-center gap-2.5">
           <LevelRing fraction={identity.fraction} level={level} />
           <div className="min-w-0">
             <p className="text-[17px] font-extrabold leading-tight text-ink">Level {level}</p>
@@ -137,8 +137,8 @@ export function HomeOverview({ sites, flags }: { sites: number; flags: number })
             </Link>
           </div>
           <Link
-            href={`/missions/${lead.id}`}
-            className="rk-glass flex items-center gap-3 rounded-card p-3 shadow-[var(--rk-shadow-lift)]"
+            href={`/missions/${lead.siteId}`}
+            className="rk-glass flex items-center gap-3 rounded-card p-2.5 shadow-[var(--rk-shadow-lift)]"
           >
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--action)]/12">
               <Binoculars className="h-5 w-5 text-[var(--action)]" aria-hidden="true" />
