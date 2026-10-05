@@ -76,9 +76,32 @@ export default function MePage() {
       <div className="relative">
         <div
           aria-hidden="true"
-          className="h-28 w-full"
+          className="relative h-28 w-full overflow-hidden"
           style={{ background: 'linear-gradient(135deg,#1E7BFF 0%,#0E4FA0 58%,#7A1F3D 150%)' }}
-        />
+        >
+          {/* Soft light sheen catching the top-right. */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'radial-gradient(120% 140% at 85% -20%, rgba(255,255,255,0.30) 0%, transparent 55%)',
+            }}
+          />
+          {/* Flowing river current — gives the band texture instead of flat colour. */}
+          <svg
+            viewBox="0 0 400 120"
+            preserveAspectRatio="none"
+            className="absolute inset-0 h-full w-full opacity-35"
+          >
+            <path d="M0 58 C70 42 120 80 200 62 S330 42 400 62" fill="none" stroke="white" strokeWidth="1.5" opacity="0.5" />
+            <path d="M0 78 C70 58 120 98 200 78 S330 58 400 78" fill="none" stroke="white" strokeWidth="2.5" />
+            <path d="M0 96 C70 76 120 116 200 96 S330 76 400 96" fill="none" stroke="white" strokeWidth="2" opacity="0.7" />
+          </svg>
+          {/* Wordmark so the header reads as RiverKin's. */}
+          <span className="absolute right-4 top-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/75">
+            RiverKin
+          </span>
+        </div>
         <div className="px-5">
           <div className="-mt-11 flex items-end justify-between gap-3">
             <span className="flex h-[88px] w-[88px] shrink-0 items-center justify-center rounded-full bg-[var(--action)] text-[36px] font-bold text-white shadow-[var(--rk-shadow-lift)] ring-4 ring-surface">
