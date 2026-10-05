@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Heart, MoreHorizontal, CalendarClock, CloudRain, Gauge, Info, ArrowRight } from 'lucide-react';
+import { ArrowLeft, MoreHorizontal, CalendarClock, CloudRain, Gauge, Info, ArrowRight } from 'lucide-react';
 import { AttentionStatus } from '@/components/attention-status';
 import { StatTile } from '@/components/ui/stat-tile';
 import { PhotoFrame } from '@/components/ui/photo-frame';
@@ -9,6 +9,7 @@ import { buttonClasses } from '@/components/ui/button';
 import { getMockSite, getMockSiteDetail, type GapLevel } from '@/lib/mock-data';
 import { fetchSiteView } from '@/lib/sites-api';
 import { EcosystemPanel } from '@/components/site/ecosystem-panel';
+import { SaveSiteButton } from '@/components/site/save-site-button';
 import { TrackView } from '@/components/track-view';
 
 const GAP_META: Record<GapLevel, { label: string; accent: string }> = {
@@ -52,9 +53,7 @@ export default async function SitePage({ params }: { params: { id: string } }) {
             <ArrowLeft className="h-5 w-5" aria-hidden="true" />
           </Link>
           <div className="flex gap-2">
-            <button aria-label="Save site" className="rk-glass flex h-10 w-10 items-center justify-center rounded-full text-ink">
-              <Heart className="h-5 w-5" aria-hidden="true" />
-            </button>
+            <SaveSiteButton siteId={site.id} />
             <button aria-label="More" className="rk-glass flex h-10 w-10 items-center justify-center rounded-full text-ink">
               <MoreHorizontal className="h-5 w-5" aria-hidden="true" />
             </button>
