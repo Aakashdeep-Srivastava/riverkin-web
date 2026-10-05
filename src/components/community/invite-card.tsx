@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Link2, Copy, Check, Share2, MessageCircle, Instagram, Twitter } from 'lucide-react';
 import { joinLink } from '@/lib/community';
+import { SharePosterButton } from '@/components/community/share-poster-button';
 
 const MESSAGE =
   'Join me on RiverKin — run, walk or cycle and help keep our rivers seen. No account needed:';
@@ -96,6 +97,17 @@ export function InviteCard() {
             </button>
           ),
         )}
+      </div>
+
+      <div className="mt-3">
+        <SharePosterButton
+          title="Run for the River"
+          subtitle="Find freshwater sites along your route and help keep the river seen."
+          joinUrl={link || 'https://riverkin.online'}
+          bg="/ch-biodiversity.jpg"
+          accent="#1E7BFF"
+          label="Create a share card"
+        />
       </div>
     </div>
   );

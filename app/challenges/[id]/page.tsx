@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  ArrowLeft, Share2, MapPin, CalendarDays, Users, Clock, ChevronRight, Star, ShieldCheck,
+  ArrowLeft, MapPin, CalendarDays, Users, Clock, ChevronRight, Star, ShieldCheck,
   Bird, Bug, Fish, Sprout, Shell, Trash2, Pipette, Waves, Droplets, Droplet, CloudRain,
   Thermometer, Wind, Map as MapIcon, Footprints, Camera, FileText, UploadCloud, Leaf,
   type LucideIcon,
 } from 'lucide-react';
-import { getChallengeById, getProfile, joinChallenge, type Challenge } from '@/lib/community';
+import { getChallengeById, getProfile, joinChallenge, joinLink, type Challenge } from '@/lib/community';
 import { CHALLENGE_DETAILS, type IconKey } from '@/lib/challenge-content';
+import { SharePosterButton } from '@/components/community/share-poster-button';
 import { markEntered, hasEntered } from '@/lib/entry-state';
 
 const ICON: Record<IconKey, LucideIcon> = {
@@ -83,14 +84,14 @@ export default function ChallengeDetailPage() {
           <button type="button" onClick={() => router.back()} aria-label="Back" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-ink shadow">
             <ArrowLeft className="h-5 w-5" aria-hidden="true" />
           </button>
-          <button
-            type="button"
-            aria-label="Share"
-            onClick={() => { if (navigator.share) void navigator.share({ title: challenge.title, url: window.location.href }); }}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-ink shadow"
-          >
-            <Share2 className="h-5 w-5" aria-hidden="true" />
-          </button>
+          <SharePosterButton
+            variant="chip"
+            title={challenge.title}
+            subtitle={challenge.blurb}
+            joinUrl={joinLink()}
+            bg={detail.bg}
+            accent={accent}
+          />
         </div>
 
         <div className="relative mt-[26dvh] text-white">

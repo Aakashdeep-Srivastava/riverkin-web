@@ -45,7 +45,7 @@ const COMMON_STEPS: StepItem[] = [
 
 export const CHALLENGE_DETAILS: Record<string, ChallengeDetail> = {
   'spot-report-pollution': {
-    bg: '/ch-pollution.png',
+    bg: '/ch-pollution.jpg',
     accent: '#E5724D',
     progressNoun: 'reports',
     why: 'Litter, plastic, sewage and other visible pollution harm aquatic life and people’s health. Your reports help identify pollution hotspots so communities and authorities can act.',
@@ -70,7 +70,7 @@ export const CHALLENGE_DETAILS: Record<string, ChallengeDetail> = {
   },
 
   'after-rain-check': {
-    bg: '/ch-rain.png',
+    bg: '/ch-rain.jpg',
     accent: '#1E7BFF',
     progressNoun: 'checks',
     why: 'Heavy rain flushes pollutants, sewage overflow and sediment into rivers. Checks right after rainfall catch changes fast and support early warnings for the whole community.',
@@ -90,7 +90,7 @@ export const CHALLENGE_DETAILS: Record<string, ChallengeDetail> = {
   },
 
   'biodiversity-walk': {
-    bg: '/ch-biodiversity.png',
+    bg: '/ch-biodiversity.jpg',
     accent: '#2FA36B',
     progressNoun: 'sites',
     why: 'Rivers and lakes are home to incredible biodiversity. Your observations help track the health of aquatic ecosystems and support real research.',
