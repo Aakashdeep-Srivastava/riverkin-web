@@ -98,6 +98,44 @@ export async function uploadObservationPhoto(
   }
 }
 
+/** A real, stateless vision read for the live camera scan (no observation yet). */
+export interface PhotoAnalysis {
+  ok: boolean;
+  reason?: string;
+  message?: string;
+  summary?: string;
+  tags?: string[];
+  relevance?: number;
+  ai_generated_likelihood?: number;
+  authenticity?: number; // 0–100
+  authenticity_reason?: string;
+  evidence_region?: { x: number; y: number; w: number; h: number } | null;
+  used_model?: boolean;
+  model?: string;
+}
+
+/**
+ * Analyse one photo without creating an observation — drives the camera-step scan
+ * overlay with the *real* model read (pollution tags, AI-generation likelihood,
+ * authenticity). The authoritative score still runs on submit.
+ */
+export async function analyzePhoto(file: File, capturedLive: boolean): Promise<PhotoAnalysis | null> {
+  if (!API_BASE_URL) return null;
+  const form = new FormData();
+  form.append('file', file, file.name || 'scan.jpg');
+  form.append('captured_live', String(capturedLive));
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/v1/observations/analyze`, {
+      method: 'POST',
+      body: form,
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as PhotoAnalysis;
+  } catch {
+    return null;
+  }
+}
+
 /** Absolute URL for a receipt photo path returned by the API. */
 export function photoUrl(path: string): string {
   return path.startsWith('http') ? path : `${API_BASE_URL}${path}`;

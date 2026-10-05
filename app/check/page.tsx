@@ -53,16 +53,18 @@ function CheckFlow() {
   const [geo, setGeo] = useState<{ lat: number; lng: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // Capture the device location once, for the geofence check only (raw GPS is
-  // used server-side then discarded — the photo geotag uses the site location).
-  useEffect(() => {
+  // Location is OPTIONAL and consent-based: nothing is read until the viewer taps
+  // "Add GPS location" in the camera step (GDPR-friendly; also lets a demo far
+  // from the European sites simply skip it). Used only for the geofence check —
+  // raw GPS is discarded server-side; the photo geotag uses the site location.
+  function addLocation() {
     if (typeof navigator === 'undefined' || !navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       (pos) => setGeo({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
       () => setGeo(null),
       { enableHighAccuracy: true, timeout: 8000, maximumAge: 60_000 },
     );
-  }, []);
+  }
 
   // Funnel: reaching the field check = mission started.
   useEffect(() => {
@@ -224,6 +226,8 @@ function CheckFlow() {
               label={step.c.label}
               hint={step.c.hint}
               capture={captures[step.c.id] ?? null}
+              geo={geo}
+              onAddLocation={addLocation}
               onCapture={(c) => setCaptures((prev) => ({ ...prev, [step.c.id]: c }))}
               onRetake={() =>
                 setCaptures((prev) => {

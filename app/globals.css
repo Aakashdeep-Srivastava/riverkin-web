@@ -586,3 +586,44 @@ button,
     stroke-dashoffset: var(--rk-circ, 0);
   }
 }
+
+/* Photo analysis: a scan line sweeping top→bottom over the captured image, and a
+ * faint grid pulse, while the vision model reads it. Neutralized under the global
+ * prefers-reduced-motion rule above. */
+@keyframes rk-scan {
+  0% {
+    transform: translateY(-40%);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(440%);
+    opacity: 0;
+  }
+}
+
+/* The line is 25% of the frame tall; translating 0→440% of itself sweeps the
+ * whole frame regardless of its pixel height. */
+.rk-scan-line {
+  height: 25%;
+  animation: rk-scan 1.5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+@keyframes rk-scan-grid {
+  0%,
+  100% {
+    opacity: 0.12;
+  }
+  50% {
+    opacity: 0.28;
+  }
+}
+
+.rk-scan-grid {
+  animation: rk-scan-grid 1.5s ease-in-out infinite;
+}

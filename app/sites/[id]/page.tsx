@@ -32,7 +32,7 @@ export default async function SitePage({ params }: { params: { id: string } }) {
   const gap = GAP_META[detail.gapLevel];
 
   return (
-    <main className="mx-auto min-h-dvh max-w-2xl pb-28">
+    <main className="mx-auto min-h-dvh max-w-2xl pb-36">
       <TrackView name="site_viewed" meta={{ id: params.id }} />
       {/* Hero */}
       <div className="relative">
@@ -70,16 +70,36 @@ export default async function SitePage({ params }: { params: { id: string } }) {
           </p>
         </div>
 
-        {/* Three hero numbers */}
-        <div className="grid grid-cols-3 gap-3">
+        {/* Three KPIs — each links to the metric's underlying data (the timeline). */}
+        <div className="grid grid-cols-3 gap-2.5">
           <StatTile
             value={site.daysUnseen}
             label="Days since check"
             Icon={CalendarClock}
             accent={site.daysUnseen > 14 ? 'var(--urgent)' : undefined}
+            href={`/timeline/${site.id}`}
+            trend={site.daysUnseen > 14 ? 'up' : site.daysUnseen <= 3 ? 'down' : 'flat'}
+            trendLabel="Check history"
           />
-          <StatTile value={detail.rain48h} unit="mm" label="Rain last 48 h" Icon={CloudRain} accent="var(--water)" />
-          <StatTile value={gap.label} label="Data gap" Icon={Gauge} accent={gap.accent} />
+          <StatTile
+            value={detail.rain48h}
+            unit="mm"
+            label="Rain last 48 h"
+            Icon={CloudRain}
+            accent="var(--water)"
+            href={`/timeline/${site.id}`}
+            trend={detail.rain48h >= 10 ? 'up' : 'flat'}
+            trendLabel="Open-Meteo"
+          />
+          <StatTile
+            value={gap.label}
+            label="Data gap"
+            Icon={Gauge}
+            accent={gap.accent}
+            href={`/timeline/${site.id}`}
+            trend={detail.gapLevel === 'high' ? 'up' : detail.gapLevel === 'low' ? 'down' : 'flat'}
+            trendLabel="Ecosystem data"
+          />
         </div>
 
         {/* Why this site */}
