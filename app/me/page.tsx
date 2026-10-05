@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { LogOut, Mail, UserCircle, FileText, ChevronRight } from 'lucide-react';
+import { LogOut, Mail, UserCircle, FileText, ChevronRight, Waves, CheckCircle2, Sparkles } from 'lucide-react';
 import { AppBar } from '@/components/app-bar';
 import { SiteFooter } from '@/components/site-footer';
-import { getStoredUser, signOut, type AuthUser } from '@/lib/auth-api';
+import { getStoredUser, signOut, fetchScore, type AuthUser, type RiverScore } from '@/lib/auth-api';
 import { TourMenuItem } from '@/components/guide/tour-button';
 import { InstallButton, AlertsButton } from '@/components/pwa';
 
@@ -40,9 +40,17 @@ function Radar() {
 export default function MePage() {
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [score, setScore] = useState<RiverScore | null>(null);
 
   useEffect(() => {
     setUser(getStoredUser());
+    let active = true;
+    void fetchScore().then((s) => {
+      if (active) setScore(s);
+    });
+    return () => {
+      active = false;
+    };
   }, []);
 
   function handleSignOut() {
@@ -58,17 +66,84 @@ export default function MePage() {
 
   const name = user?.display_name ?? 'Kari';
   const role = user ? ROLE_LABEL[user.role] ?? 'River keeper' : 'River keeper';
+  const initial = name.trim().charAt(0).toUpperCase() || 'K';
 
   return (
     <main className="mx-auto min-h-dvh max-w-2xl pb-28">
       <AppBar active="/me" />
 
-      {/* Identity hero */}
-      <div className="px-5 pt-5">
-        <h1 className="text-[34px] font-extrabold leading-none tracking-tight text-ink">{name}</h1>
-        <p className="mt-1.5 text-[16px] text-ink-muted">{role}</p>
-        <p className="mt-0.5 text-[14px] text-ink-muted">Explore · Observe · Protect</p>
+      {/* Identity hero — brand banner + avatar give the top presence (was bare text) */}
+      <div className="relative">
+        <div
+          aria-hidden="true"
+          className="h-28 w-full"
+          style={{ background: 'linear-gradient(135deg,#1E7BFF 0%,#0E4FA0 58%,#7A1F3D 150%)' }}
+        />
+        <div className="px-5">
+          <div className="-mt-11 flex items-end justify-between gap-3">
+            <span className="flex h-[88px] w-[88px] shrink-0 items-center justify-center rounded-full bg-[var(--action)] text-[36px] font-bold text-white shadow-[var(--rk-shadow-lift)] ring-4 ring-surface">
+              {initial}
+            </span>
+            <span className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-unseen bg-surface px-3 py-1 text-[12px] font-semibold text-ink shadow-sm">
+              <Sparkles className="h-3.5 w-3.5 text-[var(--attention)]" aria-hidden="true" />
+              {role}
+            </span>
+          </div>
+          <h1 className="mt-3 text-[30px] font-extrabold leading-[1.05] tracking-tight text-ink">{name}</h1>
+          <p className="mt-1 text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
+            Explore · Observe · Protect
+          </p>
+        </div>
       </div>
+
+      {/* River Score — real, server-computed (points trace to usefulness, per PRD) */}
+      {score ? (
+        <div className="rk-reveal mx-4 mt-5 overflow-hidden rounded-card border border-unseen bg-surface shadow-[var(--rk-shadow)]">
+          <div className="flex items-center justify-between p-4 pb-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-muted">River Score</p>
+              <p className="mt-0.5 text-[40px] font-extrabold leading-none tabular-nums text-ink">{score.score}</p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--action-tint)] px-3 py-1.5 text-[13px] font-bold capitalize text-[var(--action)]">
+              <Waves className="h-4 w-4" aria-hidden="true" />
+              {score.tier}
+            </span>
+          </div>
+          {score.next_tier ? (
+            <p className="px-4 pb-1 text-[12px] text-ink-muted">
+              <span className="font-semibold tabular-nums text-ink">{score.to_next}</span> to {score.next_tier}
+            </p>
+          ) : null}
+          <div className="grid grid-cols-2 border-t border-unseen">
+            <div className="flex items-center gap-2.5 p-4">
+              <FileText className="h-5 w-5 shrink-0 text-[var(--action)]" aria-hidden="true" />
+              <div>
+                <p className="text-[18px] font-bold leading-none tabular-nums text-ink">{score.checks}</p>
+                <p className="mt-0.5 text-[12px] text-ink-muted">Checks</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2.5 border-l border-unseen p-4">
+              <CheckCircle2 className="h-5 w-5 shrink-0 text-success" aria-hidden="true" />
+              <div>
+                <p className="text-[18px] font-bold leading-none tabular-nums text-ink">{score.verified}</p>
+                <p className="mt-0.5 text-[12px] text-ink-muted">Verified</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : user ? null : (
+        <Link
+          href="/register"
+          className="mx-4 mt-5 flex items-center gap-3 rounded-card border border-dashed border-[var(--action)] bg-[var(--action-tint)] p-4 transition-transform active:scale-[0.99]"
+        >
+          <Sparkles className="h-5 w-5 shrink-0 text-[var(--action)]" aria-hidden="true" />
+          <div className="min-w-0 flex-1">
+            <p className="font-bold text-ink">Start your River Score</p>
+            <p className="text-[13px] text-ink-muted">Create an account to make your checks count.</p>
+          </div>
+          <ChevronRight className="h-5 w-5 shrink-0 text-[var(--action)]" aria-hidden="true" />
+        </Link>
+      )}
 
       <section className="space-y-3 px-4 pt-6">
         {/* Account / demo session */}

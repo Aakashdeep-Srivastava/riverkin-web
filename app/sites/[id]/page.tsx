@@ -4,6 +4,7 @@ import { ArrowLeft, Heart, MoreHorizontal, CalendarClock, CloudRain, Gauge, Info
 import { AttentionStatus } from '@/components/attention-status';
 import { StatTile } from '@/components/ui/stat-tile';
 import { PhotoFrame } from '@/components/ui/photo-frame';
+import { SiteImage } from '@/components/ui/site-image';
 import { buttonClasses } from '@/components/ui/button';
 import { getMockSite, getMockSiteDetail, type GapLevel } from '@/lib/mock-data';
 import { fetchSiteView } from '@/lib/sites-api';
@@ -34,7 +35,14 @@ export default async function SitePage({ params }: { params: { id: string } }) {
       <TrackView name="site_viewed" meta={{ id: params.id }} />
       {/* Hero */}
       <div className="relative">
-        <PhotoFrame aspect="wide" label={`${site.name}, ${detail.city}`} className="rounded-none md:rounded-b-card" />
+        <SiteImage
+          lat={site.lat}
+          lng={site.lng}
+          zoom={15}
+          aspect="wide"
+          label={`${site.name}, ${detail.city}`}
+          className="rounded-none md:rounded-b-card"
+        />
         <div className="absolute inset-x-0 top-0 flex items-center justify-between px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)]">
           <Link
             href="/"
