@@ -50,6 +50,7 @@ export interface ApiReceipt {
   state: string;
   date_label: string;
   points: number;
+  geo_ok: boolean;
   photo: ApiReceiptPhoto | null;
 }
 

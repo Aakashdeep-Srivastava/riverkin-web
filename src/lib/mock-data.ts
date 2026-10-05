@@ -251,6 +251,8 @@ export interface Receipt {
   state: string;
   dateLabel: string;
   points?: number;
+  /** Was the visitor confirmed within the site radius (GPS)? */
+  geoOk?: boolean;
 }
 
 export function getMockReceipt(siteId: string): Receipt {

@@ -1,9 +1,8 @@
 import Link from 'next/link';
-import { X, Check, CalendarCheck, Database, Sprout, ShieldCheck, MapPin, Sparkles } from 'lucide-react';
+import { X, Check, CalendarCheck, Database, Sprout, ShieldCheck, MapPin, MapPinOff, Sparkles, Camera } from 'lucide-react';
 import { buttonClasses } from '@/components/ui/button';
 import { ShareImpact } from '@/components/share-impact';
 import { TrackView } from '@/components/track-view';
-import { SimulatedBadge } from '@/components/simulated-badge';
 import { getMockReceipt, type Receipt } from '@/lib/mock-data';
 import { fetchSiteView, type SiteView } from '@/lib/sites-api';
 import {
@@ -30,12 +29,19 @@ function buildReceipt(view: SiteView): Receipt {
     city: detail.city,
     gapBefore: site.daysUnseen,
     gapAfter: 0,
-    rainContext: `First verified check after ${detail.rain48h} mm of rain`,
-    verifierCount: 3,
-    fhirId: 'a91f',
-    sentinelLine: 'Sombra: "Plant cover was high on the left bank, so I\'m content."',
+    rainContext: `After ${detail.rain48h} mm of rain in the last 48 h`,
+    verifierCount: 0,
+    fhirId: '—',
+    sentinelLine: '',
     state: 'In peer verification',
-    dateLabel: '3 Oct 2026 · 14:23',
+    dateLabel: new Date().toLocaleString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+    geoOk: false,
   };
 }
 
@@ -54,6 +60,7 @@ function apiToReceipt(a: ApiReceipt): Receipt {
     state: a.state,
     dateLabel: a.date_label,
     points: a.points,
+    geoOk: a.geo_ok,
   };
 }
 
@@ -70,8 +77,15 @@ export default async function ReceiptPage({
   searchParams,
 }: {
   params: { id: string };
-  searchParams: { site?: string };
+  searchParams: { site?: string; retake?: string; reason?: string };
 }) {
+  const retakeCount = Number(searchParams.retake) || 0;
+  const RETAKE_TEXT: Record<string, string> = {
+    retake_photo: 'was too blurry to read',
+    unreadable_image: 'could not be read',
+    duplicate_photo: 'looked like a repeat of a recent photo',
+    error: 'could not be uploaded',
+  };
   const isObservationId = /^\d+$/.test(params.id);
   let r: Receipt;
   let photo: ApiReceiptPhoto | null = null;
@@ -127,11 +141,30 @@ export default async function ReceiptPage({
         </p>
       </div>
 
+      {/* Wrong/blurry photo feedback (the AI gate caught it) */}
+      {retakeCount > 0 ? (
+        <div className="mt-5 flex items-start gap-2.5 rounded-card border border-[var(--attention)]/40 bg-[var(--attention)]/10 p-3.5">
+          <Camera className="mt-0.5 h-5 w-5 shrink-0 text-[var(--attention)]" aria-hidden="true" />
+          <p className="text-[13px] leading-relaxed text-ink">
+            {retakeCount} photo{retakeCount > 1 ? 's' : ''} {RETAKE_TEXT[searchParams.reason ?? 'error'] ?? 'could not be used'} — your check still counts.
+            For a stronger result, add a clear, steady photo taken from the bank.
+          </p>
+        </div>
+      ) : null}
+
       {/* Collectible receipt card */}
       <div className="relative mt-7 overflow-hidden rounded-card border border-unseen bg-surface shadow-[var(--rk-shadow)]">
         <div className="flex items-center justify-between border-b border-dashed border-unseen px-5 py-3">
           <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-ink-muted">River Receipt</p>
-          <SimulatedBadge />
+          {r.geoOk ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--success)]/15 px-2.5 py-1 text-[11px] font-semibold text-[var(--success)]">
+              <MapPin className="h-3.5 w-3.5" aria-hidden="true" /> Location verified
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-full bg-bg px-2.5 py-1 text-[11px] font-semibold text-ink-muted">
+              <MapPinOff className="h-3.5 w-3.5" aria-hidden="true" /> Location not verified
+            </span>
+          )}
         </div>
 
         <div className="px-5 py-5 text-center">
@@ -173,13 +206,18 @@ export default async function ReceiptPage({
 
           <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--action-tint)] px-3 py-1 text-xs font-semibold text-[var(--action)]">
             <Database className="h-3.5 w-3.5" aria-hidden="true" />
-            Verified by {r.verifierCount} guardians · FHIR Observation {r.fhirId}
+            {r.verifierCount > 0
+              ? `Verified by ${r.verifierCount} ${r.verifierCount === 1 ? 'guardian' : 'guardians'}`
+              : 'Awaiting peer verification'}
+            {r.fhirId && r.fhirId !== '—' ? ` · FHIR Observation ${r.fhirId}` : ''}
           </p>
         </div>
 
-        <div className="border-t border-dashed border-unseen px-5 py-3">
-          <p className="text-xs italic leading-relaxed text-ink-muted">{r.sentinelLine}</p>
-        </div>
+        {r.sentinelLine ? (
+          <div className="border-t border-dashed border-unseen px-5 py-3">
+            <p className="text-xs italic leading-relaxed text-ink-muted">{r.sentinelLine}</p>
+          </div>
+        ) : null}
       </div>
 
       {/* Captured photo — geotag, vision analysis, capture authenticity */}

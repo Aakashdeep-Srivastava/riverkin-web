@@ -108,13 +108,15 @@ function CheckFlow() {
 
     if (created) {
       // Upload each captured photo to the new observation (blur/dedup gates +
-      // vision analysis + authenticity run server-side). Best-effort: a rejected
-      // photo doesn't lose the check — the receipt shows whatever succeeded.
-      await Promise.all(
+      // GPT-4o-mini vision + authenticity run server-side). A rejected photo
+      // (too blurry / duplicate / unreadable) doesn't lose the check — we tell
+      // the user on the receipt so they can add a clearer one.
+      const results = await Promise.all(
         photoKinds.map((kind) =>
           uploadObservationPhoto(created.id, captures[kind].file, kind, captures[kind].live),
         ),
       );
+      const rejected = results.filter((x) => !x.ok);
       // Record the check on this device (powers the Impact tally + guest score)
       // with the River points the server awarded it.
       await enqueueCheck({
@@ -125,7 +127,12 @@ function CheckFlow() {
         createdAt: Date.now(),
         points: created.receipt?.points ?? 0,
       });
-      router.push(`/receipt/${created.id}?site=${encodeURIComponent(siteId)}`);
+      const q = new URLSearchParams({ site: siteId });
+      if (rejected.length) {
+        q.set('retake', String(rejected.length));
+        if (rejected[0].reason) q.set('reason', rejected[0].reason);
+      }
+      router.push(`/receipt/${created.id}?${q.toString()}`);
       return;
     }
 
