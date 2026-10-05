@@ -9,6 +9,7 @@ import { SiteFooter } from '@/components/site-footer';
 import { getStoredUser, signOut, fetchScore, type AuthUser, type RiverScore } from '@/lib/auth-api';
 import { TourMenuItem } from '@/components/guide/tour-button';
 import { InstallButton, AlertsButton } from '@/components/pwa';
+import { StravaCard } from '@/components/strava-card';
 
 const ROLE_LABEL: Record<string, string> = {
   keeper: 'River keeper',
@@ -199,6 +200,9 @@ export default function MePage() {
           </div>
           <Radar />
         </div>
+
+        {/* Strava linking (hidden until configured on the server) */}
+        <StravaCard />
 
         {/* Guided tour (already card-styled) */}
         <TourMenuItem />
