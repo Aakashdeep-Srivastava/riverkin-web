@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Users, ArrowRight, Trophy } from 'lucide-react';
+import { Users, ArrowRight, Trophy, Footprints } from 'lucide-react';
 import { AppBar } from '@/components/app-bar';
 import { SiteFooter } from '@/components/site-footer';
 import { ChallengeList } from '@/components/community/challenge-list';
@@ -43,6 +43,22 @@ export default function CommunityPage() {
             Five cities keeping their rivers seen — together.
           </p>
         </div>
+
+        {/* Challenges hub entry */}
+        <Link
+          href="/challenges"
+          className="flex items-center gap-3 overflow-hidden rounded-card p-4 text-white shadow-[var(--rk-shadow-lift)]"
+          style={{ background: 'linear-gradient(135deg, #0E4FA0 0%, #0A2A52 100%)' }}
+        >
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15">
+            <Footprints className="h-6 w-6" aria-hidden="true" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[16px] font-extrabold leading-tight">Challenges</p>
+            <p className="text-[13px] text-white/85">Run for the River &amp; more — join as a guest, bring your crew.</p>
+          </div>
+          <ArrowRight className="h-5 w-5 shrink-0" aria-hidden="true" />
+        </Link>
 
         {/* This-period challenges */}
         {challenges.length > 0 ? (

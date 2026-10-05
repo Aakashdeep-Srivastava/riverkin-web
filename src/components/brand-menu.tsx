@@ -9,6 +9,7 @@ import {
   Target,
   GraduationCap,
   Users,
+  Footprints,
   Star,
   BarChart3,
   Settings,
@@ -29,6 +30,7 @@ const NAV: Item[] = [
   { href: '/missions', label: 'Missions', Icon: Target },
   { href: '/learn', label: 'Learn', Icon: GraduationCap },
   { href: '/community', label: 'Community', Icon: Users },
+  { href: '/challenges', label: 'Challenges', Icon: Footprints },
   { href: '/rewards', label: 'Rewards', Icon: Star },
   { href: '/impact', label: 'Impact', Icon: BarChart3 },
 ];
