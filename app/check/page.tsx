@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, ShieldAlert, Send } from 'lucide-react';
@@ -52,6 +52,23 @@ function CheckFlow() {
   const [feeling, setFeeling] = useState<string>('');
   const [geo, setGeo] = useState<{ lat: number; lng: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Free every captured photo's object URL when leaving the flow (submit or
+  // back) so repeated captures across a session don't leak memory.
+  const capturesRef = useRef(captures);
+  capturesRef.current = captures;
+  useEffect(
+    () => () => {
+      for (const c of Object.values(capturesRef.current)) {
+        try {
+          URL.revokeObjectURL(c.url);
+        } catch {
+          /* already revoked */
+        }
+      }
+    },
+    [],
+  );
 
   // Location is OPTIONAL and consent-based: nothing is read until the viewer taps
   // "Add GPS location" in the camera step (GDPR-friendly; also lets a demo far

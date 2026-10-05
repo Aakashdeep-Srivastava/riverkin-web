@@ -124,15 +124,22 @@ export async function analyzePhoto(file: File, capturedLive: boolean): Promise<P
   const form = new FormData();
   form.append('file', file, file.name || 'scan.jpg');
   form.append('captured_live', String(capturedLive));
+  // Never let the scan overlay hang on a cold/slow model — abort after 10s and
+  // let the caller fall back (keep the photo, skip the result card).
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 10_000);
   try {
     const res = await fetch(`${API_BASE_URL}/api/v1/observations/analyze`, {
       method: 'POST',
       body: form,
+      signal: ctrl.signal,
     });
     if (!res.ok) return null;
     return (await res.json()) as PhotoAnalysis;
   } catch {
     return null;
+  } finally {
+    clearTimeout(timer);
   }
 }
 

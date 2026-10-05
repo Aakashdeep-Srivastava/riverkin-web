@@ -109,8 +109,8 @@ function ResultCard({ a }: { a: PhotoAnalysis }) {
       ) : null}
 
       <p className="text-[11px] text-ink-muted">
-        {a.used_model ? `Analysed by ${a.model}` : 'Heuristic analysis (model offline)'} · AI asks, humans
-        decide.
+        {a.used_model ? `Analysed by ${a.model ?? 'the vision model'}` : 'Heuristic analysis (model offline)'} ·
+        AI asks, humans decide.
       </p>
     </div>
   );
@@ -171,9 +171,19 @@ export function CameraCapture({
     streamRef.current = null;
   }
 
-  useEffect(() => stop, []);
+  // Track mount so an in-flight analysis never setState after unmount. A
+  // persistent ref (not a per-effect flag) keeps the result applying correctly
+  // even under React StrictMode's dev double-invoke. Also stops the camera stream.
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      stop();
+    };
+  }, []);
 
-  // Run the real scan the moment a photo is captured (once per capture).
+  // Run the real scan the moment a photo is captured (once per capture.url).
   useEffect(() => {
     if (!capture) {
       analyzedRef.current = null;
@@ -183,15 +193,17 @@ export function CameraCapture({
     }
     if (analyzedRef.current === capture.url) return;
     analyzedRef.current = capture.url;
-    let active = true;
+    const url = capture.url;
     setAnalysis(null);
     setPhase('scanning');
     cueScanStart();
     haptic(12);
     void analyzePhoto(capture.file, capture.live).then((res) => {
-      if (!active) return;
+      // Ignore if unmounted or the capture changed (retake) while in flight.
+      if (!mountedRef.current || analyzedRef.current !== url) return;
       if (!res) {
-        // Analysis unavailable (offline / API down) — keep the photo, skip the card.
+        // Analysis unavailable (offline / slow / API down) — keep the photo and
+        // skip the result card; the check stays submittable.
         setPhase('done');
         setAnalysis(null);
         return;
@@ -208,9 +220,6 @@ export function CameraCapture({
       cueAnalysisDone(!aiFlag);
       haptic(aiFlag ? [20, 40, 20] : 16);
     });
-    return () => {
-      active = false;
-    };
   }, [capture]);
 
   async function startCamera() {
@@ -256,11 +265,20 @@ export function CameraCapture({
   function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    stop();
     setStatus('captured');
     onCapture({ file, url: URL.createObjectURL(file), live: false });
   }
 
   function retake() {
+    // Free the previous capture's object URL before discarding it (no leak).
+    if (capture) {
+      try {
+        URL.revokeObjectURL(capture.url);
+      } catch {
+        /* already revoked */
+      }
+    }
     setStatus('idle');
     onRetake();
   }
@@ -270,8 +288,19 @@ export function CameraCapture({
 
   // Captured — preview + live scan/result, retake, and the optional GPS control.
   if (capture) {
+    const aiFlagged = (analysis?.ai_generated_likelihood ?? 0) >= AI_FLAG;
     return (
       <div className="space-y-3">
+        {/* Screen-reader status for the scan (the overlay/result are visual). */}
+        <p role="status" aria-live="polite" className="sr-only">
+          {phase === 'scanning'
+            ? 'Analyzing photo…'
+            : phase === 'retake'
+              ? analysis?.message ?? 'Photo needs retaking'
+              : phase === 'done' && analysis && analysis.ok !== false
+                ? `Analysis complete. ${aiFlagged ? 'Possible AI-generated image' : 'Looks genuine'}. Authenticity ${analysis.authenticity ?? 0} percent.`
+                : ''}
+        </p>
         <div className={frameClasses}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={capture.url} alt={`${label} capture`} className="h-full w-full object-cover" />

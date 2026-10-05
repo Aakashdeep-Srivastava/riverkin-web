@@ -5,7 +5,6 @@
  * disconnecting go through apiFetch, which attaches the bearer token.
  */
 import { apiFetch, API_BASE_URL } from './api';
-import { getToken } from './auth-api';
 
 export interface StravaStatus {
   enabled: boolean;
@@ -62,9 +61,21 @@ export async function disconnectStrava(): Promise<void> {
   }
 }
 
-/** Absolute URL that starts the Strava OAuth redirect, or null for guests. */
-export function stravaConnectUrl(): string | null {
-  const token = getToken();
-  if (!token || !API_BASE_URL) return null;
-  return `${API_BASE_URL}/api/v1/strava/connect?token=${encodeURIComponent(token)}`;
+/**
+ * Start the Strava OAuth redirect. Fetches a short-lived, single-purpose connect
+ * ticket (so the session JWT never rides in a URL), then navigates to /connect.
+ * Returns false if a ticket couldn't be minted (e.g. not signed in).
+ */
+export async function beginStravaConnect(): Promise<boolean> {
+  if (!API_BASE_URL || typeof window === 'undefined') return false;
+  let ticket: string | null = null;
+  try {
+    const r = await apiFetch<{ ticket: string }>('/api/v1/strava/connect-ticket');
+    ticket = r.ticket ?? null;
+  } catch {
+    return false;
+  }
+  if (!ticket) return false;
+  window.location.href = `${API_BASE_URL}/api/v1/strava/connect?ticket=${encodeURIComponent(ticket)}`;
+  return true;
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Activity, ChevronRight, Loader2, MapPin, Unlink } from 'lucide-react';
 import {
@@ -8,7 +8,7 @@ import {
   fetchStravaStatus,
   fetchPatrols,
   disconnectStrava,
-  stravaConnectUrl,
+  beginStravaConnect,
   type StravaStatus,
   type Patrol,
 } from '@/lib/strava-api';
@@ -38,8 +38,10 @@ export function StravaCard() {
   const [patrols, setPatrols] = useState<Patrol[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
+    mountedRef.current = true;
     let active = true;
     void (async () => {
       const on = await fetchStravaConfig();
@@ -58,6 +60,7 @@ export function StravaCard() {
     })();
     return () => {
       active = false;
+      mountedRef.current = false;
     };
   }, []);
 
@@ -77,6 +80,7 @@ export function StravaCard() {
     async function handleDisconnect() {
       setBusy(true);
       await disconnectStrava();
+      if (!mountedRef.current) return;
       setStatus({ enabled: true, connected: false, athlete_name: null });
       setPatrols(null);
       setBusy(false);
@@ -122,13 +126,19 @@ export function StravaCard() {
     );
   }
 
-  // Signed in but not linked yet.
-  const connectUrl = stravaConnectUrl();
-  if (connectUrl) {
+  // Signed in but not linked yet → start the ticket-based OAuth connect.
+  if (status) {
     return (
-      <a
-        href={connectUrl}
-        className="flex items-center gap-3 rounded-card border border-unseen bg-surface p-4 transition-transform active:scale-[0.99]"
+      <button
+        type="button"
+        disabled={busy}
+        onClick={async () => {
+          setBusy(true);
+          const ok = await beginStravaConnect();
+          // On success the browser navigates away; only reset if it didn't.
+          if (!ok && mountedRef.current) setBusy(false);
+        }}
+        className="flex w-full items-center gap-3 rounded-card border border-unseen bg-surface p-4 text-left transition-transform active:scale-[0.99] disabled:opacity-70"
       >
         {StravaMark}
         <div className="min-w-0 flex-1">
@@ -136,7 +146,7 @@ export function StravaCard() {
           <p className="text-[13px] text-ink-muted">Turn your riverside runs and walks into patrols.</p>
         </div>
         <ChevronRight className="h-5 w-5 shrink-0 text-ink-muted" aria-hidden="true" />
-      </a>
+      </button>
     );
   }
 
