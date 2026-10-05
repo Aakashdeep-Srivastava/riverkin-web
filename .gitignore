@@ -34,3 +34,6 @@ playwright-report/
 
 # Rendered marketing video exports (large binaries, not deployed)
 design/marketing/
+
+# Demo-video source screenshots (used only by the Remotion render, not the app)
+public/demo/
