@@ -40,11 +40,15 @@ export function LocationPrompt() {
     }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         try {
-          localStorage.setItem(
-            COORD_KEY,
-            JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-          );
+          localStorage.setItem(COORD_KEY, JSON.stringify(loc));
+        } catch {
+          /* ignore */
+        }
+        // Let the map recentre on the viewer's region immediately (no reload).
+        try {
+          window.dispatchEvent(new CustomEvent('rk-location', { detail: loc }));
         } catch {
           /* ignore */
         }

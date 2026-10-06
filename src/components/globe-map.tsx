@@ -75,6 +75,54 @@ async function fetchMapsToken(): Promise<MapsToken | null> {
   }
 }
 
+/** Europe-wide default: the five OneAquaHealth cities span Oslo → Coimbra. */
+const DEFAULT_VIEW: { center: [number, number]; zoom: number } = { center: [7, 48], zoom: 3.6 };
+
+function _userLoc(): { lat: number; lng: number } | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem('rk_loc');
+    const v = raw ? (JSON.parse(raw) as { lat: number; lng: number }) : null;
+    return v && typeof v.lat === 'number' && typeof v.lng === 'number' ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+function _km(aLat: number, aLng: number, bLat: number, bLng: number): number {
+  const R = 6371;
+  const dLat = ((bLat - aLat) * Math.PI) / 180;
+  const dLng = ((bLng - aLng) * Math.PI) / 180;
+  const la1 = (aLat * Math.PI) / 180;
+  const la2 = (bLat * Math.PI) / 180;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+/**
+ * Location-aware opening view: if the viewer has shared their location and a site
+ * sits within ~1000 km, open centred on that nearest site (their region) at a
+ * regional zoom; otherwise fall back to the Europe-wide default — so a viewer far
+ * from any site (e.g. demoing from India) still sees a populated map, not ocean.
+ */
+function _initialView(sites: Site[], loc: { lat: number; lng: number } | null) {
+  if (!loc) return DEFAULT_VIEW;
+  let best = Infinity;
+  let nearest: Site | null = null;
+  for (const s of sites) {
+    if (typeof s.lat !== 'number' || typeof s.lng !== 'number') continue;
+    const d = _km(loc.lat, loc.lng, s.lat, s.lng);
+    if (d < best) {
+      best = d;
+      nearest = s;
+    }
+  }
+  if (nearest && best <= 1000) {
+    return { center: [nearest.lng, nearest.lat] as [number, number], zoom: 8 };
+  }
+  return DEFAULT_VIEW;
+}
+
 export default function GlobeMap({ sites }: { sites?: Site[] }) {
   const [unavailable, setUnavailable] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -90,6 +138,18 @@ export default function GlobeMap({ sites }: { sites?: Site[] }) {
     let cancelled = false;
     let refreshTimer: ReturnType<typeof setTimeout> | undefined;
     const markers: Marker[] = [];
+
+    // When the viewer grants location mid-session (LocationPrompt), fly to their
+    // region instead of waiting for a reload.
+    const onLocation = (e: Event) => {
+      const loc = (e as CustomEvent).detail as { lat: number; lng: number } | undefined;
+      if (!loc || !mapRef.current) return;
+      const v = _initialView(sitesRef.current ?? [], loc);
+      if (v !== DEFAULT_VIEW) {
+        mapRef.current.flyTo({ center: v.center, zoom: v.zoom, duration: 1200 });
+      }
+    };
+    window.addEventListener('rk-location', onLocation);
 
     const scheduleRefresh = () => {
       const tok = tokenRef.current;
@@ -177,12 +237,13 @@ export default function GlobeMap({ sites }: { sites?: Site[] }) {
         ],
       };
 
+      // Open on the viewer's region when we know it and a site is nearby.
+      const view = _initialView(sitesRef.current ?? [], _userLoc());
       const map = new MaplibreMap({
         container,
         style,
-        // Europe-wide: the five OneAquaHealth cities span Oslo → Coimbra.
-        center: [7, 48],
-        zoom: 3.6,
+        center: view.center,
+        zoom: view.zoom,
         attributionControl: false,
         // Always read the *current* (possibly refreshed) token from the ref.
         transformRequest: (url: string): RequestParameters | undefined => {
@@ -265,6 +326,7 @@ export default function GlobeMap({ sites }: { sites?: Site[] }) {
 
     return () => {
       cancelled = true;
+      window.removeEventListener('rk-location', onLocation);
       if (refreshTimer) clearTimeout(refreshTimer);
       for (const marker of markers) marker.remove();
       mapRef.current?.remove();
