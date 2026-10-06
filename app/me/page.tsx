@@ -119,62 +119,33 @@ export default function MePage() {
     <main className="mx-auto min-h-dvh max-w-2xl pb-28">
       <AppBar active="/me" />
 
-      {/* Identity hero — a "guardian pass": banner + ID-badge avatar beside the
-          name so nothing overlaps awkwardly. */}
-      <div className="relative">
-        <div
-          aria-hidden="true"
-          className="relative h-28 w-full overflow-hidden"
-          style={{ background: 'linear-gradient(135deg,#1E7BFF 0%,#0E4FA0 58%,#7A1F3D 150%)' }}
-        >
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                'radial-gradient(120% 140% at 85% -20%, rgba(255,255,255,0.30) 0%, transparent 55%)',
-            }}
-          />
-          <svg viewBox="0 0 400 120" preserveAspectRatio="none" className="absolute inset-0 h-full w-full opacity-35">
-            <path d="M0 58 C70 42 120 80 200 62 S330 42 400 62" fill="none" stroke="white" strokeWidth="1.5" opacity="0.5" />
-            <path d="M0 78 C70 58 120 98 200 78 S330 58 400 78" fill="none" stroke="white" strokeWidth="2.5" />
-            <path d="M0 96 C70 76 120 116 200 96 S330 76 400 96" fill="none" stroke="white" strokeWidth="2" opacity="0.7" />
-          </svg>
-          {/* HUD corner brackets — the app's console/scanner motif. */}
-          <span className="absolute left-3 top-3 h-4 w-4 border-l-2 border-t-2 border-white/55" />
-          <span className="absolute right-3 bottom-3 h-4 w-4 border-b-2 border-r-2 border-white/40" />
-          <span className="absolute right-4 top-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/80">
-            RiverKin
+      {/* Identity header — clean, no banner band. */}
+      <div className="px-5 pt-5">
+        <div className="flex items-center gap-4">
+          <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[var(--action)] text-[28px] font-bold text-white shadow-[var(--rk-shadow)]">
+            {initial}
           </span>
-        </div>
-
-        <div className="px-5">
-          <div className="-mt-10 flex items-end gap-4">
-            {/* ID-badge avatar (rounded square, not a circle). */}
-            <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-[var(--action)] text-[32px] font-bold text-white shadow-[var(--rk-shadow-lift)] ring-4 ring-surface">
-              {initial}
-            </span>
-            <div className="min-w-0 flex-1 pb-0.5">
-              <h1 className="font-display text-[clamp(1.35rem,6vw,1.75rem)] font-semibold leading-[1.05] text-ink">
-                {name}
-              </h1>
-              <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                <span className="inline-flex items-center gap-1 rounded-full border border-unseen bg-surface px-2.5 py-0.5 text-[12px] font-semibold text-ink">
-                  <Sparkles className="h-3 w-3 text-[var(--attention)]" aria-hidden="true" />
-                  {role}
+          <div className="min-w-0 flex-1">
+            <h1 className="font-display text-[clamp(1.4rem,6.5vw,1.85rem)] font-semibold leading-[1.05] text-ink">
+              {name}
+            </h1>
+            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+              <span className="inline-flex items-center gap-1 rounded-full border border-unseen bg-surface px-2.5 py-0.5 text-[12px] font-semibold text-ink">
+                <Sparkles className="h-3 w-3 text-[var(--attention)]" aria-hidden="true" />
+                {role}
+              </span>
+              {score ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-[var(--action-tint)] px-2.5 py-0.5 text-[12px] font-bold capitalize text-[var(--action)]">
+                  <Waves className="h-3 w-3" aria-hidden="true" />
+                  {score.tier}
                 </span>
-                {score ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[var(--action-tint)] px-2.5 py-0.5 text-[12px] font-bold capitalize text-[var(--action)]">
-                    <Waves className="h-3 w-3" aria-hidden="true" />
-                    {score.tier}
-                  </span>
-                ) : null}
-              </div>
+              ) : null}
             </div>
           </div>
-          <p className="mt-3 text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
-            Explore · Observe · Protect
-          </p>
         </div>
+        <p className="mt-3 text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
+          Explore · Observe · Protect
+        </p>
       </div>
 
       {/* River Score — real, server-computed (points trace to usefulness, per PRD) */}
