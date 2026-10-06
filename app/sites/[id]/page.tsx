@@ -147,10 +147,12 @@ export default async function SitePage({ params }: { params: { id: string } }) {
 
       {/* Sticky CTA */}
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-unseen bg-surface px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3">
-        <Link href={`/missions/${site.id}`} className={`mx-auto block max-w-2xl ${buttonClasses('primary', 'cta')}`}>
-          Go check it
-          <ArrowRight className="h-5 w-5" aria-hidden="true" />
-        </Link>
+        <div className="mx-auto max-w-md">
+          <Link href={`/missions/${site.id}`} className={buttonClasses('primary', 'cta')}>
+            Go check it
+            <ArrowRight className="h-5 w-5" aria-hidden="true" />
+          </Link>
+        </div>
       </div>
     </main>
   );

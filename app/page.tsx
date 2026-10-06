@@ -189,8 +189,9 @@ export default function HomePage() {
         <ViewToggle value={view} onChange={setView} orientation="vertical" />
       </div>
 
-      {/* Dashboard, pulled up to overlap the map — collapsible to reveal the full map. */}
-      <div className="relative z-10 -mt-8 px-4 pb-[calc(env(safe-area-inset-bottom)+5.5rem)]">
+      {/* Dashboard, pulled up to overlap the map — collapsible to reveal the full map.
+          Centered + width-capped so it reads as a column on wide screens, not a full-bleed bar. */}
+      <div className="relative z-10 mx-auto -mt-8 w-full max-w-xl px-4 pb-[calc(env(safe-area-inset-bottom)+5.5rem)]">
         <div className="flex justify-center">
           <button
             type="button"

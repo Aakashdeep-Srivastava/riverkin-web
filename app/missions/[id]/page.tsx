@@ -128,10 +128,12 @@ export default async function MissionBriefPage({ params }: { params: { id: strin
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-unseen bg-surface px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3">
-        <Link href={`/check?site=${site.id}`} className={`mx-auto block max-w-2xl ${buttonClasses('primary', 'cta')}`}>
-          Start mission
-          <ArrowRight className="h-5 w-5" aria-hidden="true" />
-        </Link>
+        <div className="mx-auto max-w-md">
+          <Link href={`/check?site=${site.id}`} className={buttonClasses('primary', 'cta')}>
+            Start mission
+            <ArrowRight className="h-5 w-5" aria-hidden="true" />
+          </Link>
+        </div>
       </div>
     </main>
   );

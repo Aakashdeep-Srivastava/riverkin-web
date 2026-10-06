@@ -50,10 +50,15 @@ export function SiteImage({
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
+        // A cached image can finish loading before React attaches onLoad, so the
+        // ref also flips `loaded` when the element is already complete — otherwise
+        // the fade-in sticks at opacity-0 and the hero stays blank.
+        ref={(el) => {
+          if (el?.complete && el.naturalWidth > 0) setLoaded(true);
+        }}
         src={src}
         alt=""
         aria-hidden="true"
-        loading="lazy"
         onError={() => setFailed(true)}
         onLoad={() => setLoaded(true)}
         className={cn(
