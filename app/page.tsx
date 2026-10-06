@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { ChevronRight, ChevronDown, Droplet } from 'lucide-react';
+import { ChevronDown, ArrowRight } from 'lucide-react';
 import { hasEntered } from '@/lib/entry-state';
 import { fetchSites } from '@/lib/sites-api';
 import { AppBar } from '@/components/app-bar';
@@ -217,32 +217,32 @@ export default function HomePage() {
             <div className="mt-2 space-y-2.5">
               <LocationPrompt />
             {lead ? (
-              <Link
-                href={`/sites/${lead.id}`}
-                className="rk-glass rk-reveal block rounded-card p-2.5 shadow-[var(--rk-shadow-lift)]"
-              >
-                <div className="flex items-center gap-2.5">
-                  {/* Thumbnail (decorative water tile). */}
-                  <span
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
-                    style={{ background: 'linear-gradient(145deg,#2FA7D9 0%,#1E7BFF 60%,#0E4FA0 100%)' }}
-                    aria-hidden="true"
-                  >
-                    <Droplet className="h-5 w-5 text-white/90" />
+              <div className="rk-glass rk-reveal rounded-card p-4 shadow-[var(--rk-shadow-lift)]">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
+                    Needs a look first
                   </span>
-                  <div className="min-w-0 flex-1">
-                    <AttentionStatus level={lead.attention} />
-                    <p className="truncate text-[16px] font-extrabold leading-tight text-ink">{lead.name}</p>
-                    <p className="truncate text-[12px] text-ink-muted">
-                      {lead.waterbody} ·{' '}
-                      {lead.daysUnseen === 0 ? 'seen today' : `${lead.daysUnseen} days unseen`}
-                    </p>
-                  </div>
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-unseen bg-surface">
-                    <ChevronRight className="h-4 w-4 text-ink" aria-hidden="true" />
-                  </span>
+                  <AttentionStatus level={lead.attention} />
                 </div>
-              </Link>
+                <Link href={`/sites/${lead.id}`} className="mt-2 block">
+                  <h2 className="font-display text-[clamp(1.45rem,6vw,1.85rem)] font-semibold leading-[1.05] text-ink">
+                    {lead.name}
+                  </h2>
+                  <p className="mt-1 text-[13px] text-ink-muted">
+                    {lead.waterbody} ·{' '}
+                    <span className="font-semibold text-ink">
+                      {lead.daysUnseen === 0 ? 'seen today' : `${lead.daysUnseen} days unseen`}
+                    </span>
+                  </p>
+                </Link>
+                <Link
+                  href={`/check?site=${lead.id}`}
+                  className="mt-3.5 flex w-full items-center justify-center gap-2 rounded-button bg-[var(--cta)] px-5 py-3 text-[15px] font-semibold text-white shadow-[var(--rk-shadow)] transition-transform active:scale-[0.98]"
+                >
+                  Check this river
+                  <ArrowRight className="h-5 w-5" aria-hidden="true" />
+                </Link>
+              </div>
             ) : null}
 
               <HomeOverview sites={counts.sites} flags={counts.flags} />

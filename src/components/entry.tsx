@@ -195,8 +195,7 @@ export function Entry({ onEnter }: { onEnter: (role: string) => void }) {
             </div>
             <button
               onClick={nextSlide}
-              className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-[15px] font-semibold text-white shadow-[0_6px_18px_rgba(10,110,255,0.4)] transition-transform active:scale-95"
-              style={{ background: 'linear-gradient(90deg, #1E7BFF 0%, #0052FF 100%)' }}
+              className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-[15px] font-semibold text-[#0a1a30] transition-transform active:scale-95"
             >
               {slide >= SLIDES.length - 1 ? 'Get started' : 'Next'}
               <ArrowRight className="h-5 w-5" aria-hidden="true" />

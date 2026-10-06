@@ -60,10 +60,9 @@ export function AuthPanel({ onGuest }: { onGuest: () => void }) {
         onClick={onGuest}
         whileHover={{ y: -2 }}
         whileTap={{ scale: 0.985 }}
-        className={`flex min-h-tap w-full items-center justify-center gap-2.5 rounded-full px-4 py-3.5 text-[14px] font-semibold text-white shadow-[0_6px_18px_rgba(10,110,255,0.35)] ${
+        className={`flex min-h-tap w-full items-center justify-center gap-2.5 rounded-full bg-[var(--cta)] px-4 py-3.5 text-[14px] font-semibold text-white shadow-[var(--rk-shadow)] ${
           msEnabled ? 'mt-3' : ''
         }`}
-        style={{ background: 'linear-gradient(90deg, #1E7BFF 0%, #0052FF 100%)' }}
       >
         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/25">
           <Compass className="h-4 w-4" aria-hidden="true" />
