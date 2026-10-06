@@ -24,6 +24,9 @@ import { getStoredUser, signOut, fetchScore, type AuthUser, type RiverScore } fr
 import { TourMenuItem } from '@/components/guide/tour-button';
 import { InstallButton, AlertsButton } from '@/components/pwa';
 import { StravaCard } from '@/components/strava-card';
+import { ActivitiesCard, type ActivityItemType } from '@/components/activities-card';
+import { listChecks, type QueuedCheck } from '@/lib/offline-queue';
+import { Droplet } from 'lucide-react';
 
 const ROLE_LABEL: Record<string, string> = {
   keeper: 'River keeper',
@@ -84,16 +87,30 @@ function Radar() {
  * cards for the demo session, recent contributions, guided tour, river alerts
  * and leaving the demo. Data & credits in the footer.
  */
+function relTime(ms: number): string {
+  const s = Math.max(0, Math.round((Date.now() - ms) / 1000));
+  if (s < 60) return 'just now';
+  const m = Math.round(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.round(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.round(h / 24)}d ago`;
+}
+
 export default function MePage() {
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [score, setScore] = useState<RiverScore | null>(null);
+  const [checks, setChecks] = useState<QueuedCheck[]>([]);
 
   useEffect(() => {
     setUser(getStoredUser());
     let active = true;
     void fetchScore().then((s) => {
       if (active) setScore(s);
+    });
+    void listChecks().then((c) => {
+      if (active) setChecks(c);
     });
     return () => {
       active = false;
@@ -196,6 +213,37 @@ export default function MePage() {
           <ChevronRight className="h-5 w-5 shrink-0 text-[var(--action)]" aria-hidden="true" />
         </Link>
       )}
+
+      {/* Recent activity — collapsible activities card (your on-device checks). */}
+      <section className="px-4 pt-6">
+        <h2 className="mb-2.5 text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
+          Recent activity
+        </h2>
+        <ActivitiesCard
+          headerIcon={<Droplet className="h-6 w-6 text-[var(--action)]" aria-hidden="true" />}
+          title="Your river checks"
+          subtitle={checks.length ? `${checks.length} on this device` : 'No checks yet'}
+          activities={
+            checks.length
+              ? checks.slice(0, 6).map(
+                  (c): ActivityItemType => ({
+                    icon: <Droplet className="h-5 w-5 text-[var(--action)]" aria-hidden="true" />,
+                    title: 'River check',
+                    desc: c.points ? `+${c.points} River points` : 'Logged on this device',
+                    time: relTime(c.createdAt),
+                  }),
+                )
+              : [
+                  {
+                    icon: <Droplet className="h-5 w-5 text-[var(--action)]" aria-hidden="true" />,
+                    title: 'No checks yet',
+                    desc: 'Tap + to start your first river check',
+                    time: '',
+                  },
+                ]
+          }
+        />
+      </section>
 
       {/* Feature hub — reach the rest of the app from here. */}
       <section className="px-4 pt-6">
