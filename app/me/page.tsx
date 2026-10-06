@@ -3,7 +3,21 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { LogOut, Mail, UserCircle, FileText, ChevronRight, Waves, CheckCircle2, Sparkles } from 'lucide-react';
+import {
+  LogOut,
+  Mail,
+  UserCircle,
+  FileText,
+  ChevronRight,
+  Waves,
+  CheckCircle2,
+  Sparkles,
+  Trophy,
+  Gift,
+  Users,
+  GraduationCap,
+  type LucideIcon,
+} from 'lucide-react';
 import { AppBar } from '@/components/app-bar';
 import { SiteFooter } from '@/components/site-footer';
 import { getStoredUser, signOut, fetchScore, type AuthUser, type RiverScore } from '@/lib/auth-api';
@@ -16,6 +30,38 @@ const ROLE_LABEL: Record<string, string> = {
   crew_lead: 'Crew Lead',
   researcher: 'Researcher',
 };
+
+/** Feature shortcuts surfaced on the account page so the whole app is reachable. */
+const HUB: { href: string; label: string; sub: string; Icon: LucideIcon; color: string }[] = [
+  { href: '/challenges', label: 'Challenges', sub: 'Join the push', Icon: Trophy, color: 'var(--gold)' },
+  { href: '/rewards', label: 'Rewards', sub: 'Your perks', Icon: Gift, color: 'var(--maroon)' },
+  { href: '/crew', label: 'Crew', sub: 'Patrol together', Icon: Users, color: 'var(--action)' },
+  { href: '/learn', label: 'Learn', sub: 'How it works', Icon: GraduationCap, color: 'var(--water)' },
+];
+
+function ActionTile({ href, label, sub, Icon, color }: (typeof HUB)[number]) {
+  return (
+    <Link
+      href={href}
+      className="group flex items-center gap-3 rounded-card border border-unseen bg-surface p-3.5 transition-colors hover:border-[var(--action)] active:scale-[0.98]"
+    >
+      <span
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+        style={{ background: `color-mix(in srgb, ${color} 14%, var(--surface))`, color }}
+      >
+        <Icon className="h-5 w-5" aria-hidden="true" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[14px] font-bold leading-tight text-ink">{label}</p>
+        <p className="text-[12px] text-ink-muted">{sub}</p>
+      </div>
+      <ChevronRight
+        className="h-4 w-4 shrink-0 text-ink-muted transition-transform group-hover:translate-x-0.5"
+        aria-hidden="true"
+      />
+    </Link>
+  );
+}
 
 /** A small decorative "contribution radar" — concentric rings with site dots. */
 function Radar() {
@@ -73,14 +119,14 @@ export default function MePage() {
     <main className="mx-auto min-h-dvh max-w-2xl pb-28">
       <AppBar active="/me" />
 
-      {/* Identity hero — brand banner + avatar give the top presence (was bare text) */}
+      {/* Identity hero — a "guardian pass": banner + ID-badge avatar beside the
+          name so nothing overlaps awkwardly. */}
       <div className="relative">
         <div
           aria-hidden="true"
           className="relative h-28 w-full overflow-hidden"
           style={{ background: 'linear-gradient(135deg,#1E7BFF 0%,#0E4FA0 58%,#7A1F3D 150%)' }}
         >
-          {/* Soft light sheen catching the top-right. */}
           <div
             className="absolute inset-0"
             style={{
@@ -88,33 +134,44 @@ export default function MePage() {
                 'radial-gradient(120% 140% at 85% -20%, rgba(255,255,255,0.30) 0%, transparent 55%)',
             }}
           />
-          {/* Flowing river current — gives the band texture instead of flat colour. */}
-          <svg
-            viewBox="0 0 400 120"
-            preserveAspectRatio="none"
-            className="absolute inset-0 h-full w-full opacity-35"
-          >
+          <svg viewBox="0 0 400 120" preserveAspectRatio="none" className="absolute inset-0 h-full w-full opacity-35">
             <path d="M0 58 C70 42 120 80 200 62 S330 42 400 62" fill="none" stroke="white" strokeWidth="1.5" opacity="0.5" />
             <path d="M0 78 C70 58 120 98 200 78 S330 58 400 78" fill="none" stroke="white" strokeWidth="2.5" />
             <path d="M0 96 C70 76 120 116 200 96 S330 76 400 96" fill="none" stroke="white" strokeWidth="2" opacity="0.7" />
           </svg>
-          {/* Wordmark so the header reads as RiverKin's. */}
-          <span className="absolute right-4 top-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/75">
+          {/* HUD corner brackets — the app's console/scanner motif. */}
+          <span className="absolute left-3 top-3 h-4 w-4 border-l-2 border-t-2 border-white/55" />
+          <span className="absolute right-3 bottom-3 h-4 w-4 border-b-2 border-r-2 border-white/40" />
+          <span className="absolute right-4 top-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/80">
             RiverKin
           </span>
         </div>
+
         <div className="px-5">
-          <div className="-mt-11 flex items-end justify-between gap-3">
-            <span className="flex h-[88px] w-[88px] shrink-0 items-center justify-center rounded-full bg-[var(--action)] text-[36px] font-bold text-white shadow-[var(--rk-shadow-lift)] ring-4 ring-surface">
+          <div className="-mt-10 flex items-end gap-4">
+            {/* ID-badge avatar (rounded square, not a circle). */}
+            <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-[var(--action)] text-[32px] font-bold text-white shadow-[var(--rk-shadow-lift)] ring-4 ring-surface">
               {initial}
             </span>
-            <span className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-unseen bg-surface px-3 py-1 text-[12px] font-semibold text-ink shadow-sm">
-              <Sparkles className="h-3.5 w-3.5 text-[var(--attention)]" aria-hidden="true" />
-              {role}
-            </span>
+            <div className="min-w-0 flex-1 pb-0.5">
+              <h1 className="font-display text-[clamp(1.35rem,6vw,1.75rem)] font-semibold leading-[1.05] text-ink">
+                {name}
+              </h1>
+              <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                <span className="inline-flex items-center gap-1 rounded-full border border-unseen bg-surface px-2.5 py-0.5 text-[12px] font-semibold text-ink">
+                  <Sparkles className="h-3 w-3 text-[var(--attention)]" aria-hidden="true" />
+                  {role}
+                </span>
+                {score ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[var(--action-tint)] px-2.5 py-0.5 text-[12px] font-bold capitalize text-[var(--action)]">
+                    <Waves className="h-3 w-3" aria-hidden="true" />
+                    {score.tier}
+                  </span>
+                ) : null}
+              </div>
+            </div>
           </div>
-          <h1 className="mt-3 text-[30px] font-extrabold leading-[1.05] tracking-tight text-ink">{name}</h1>
-          <p className="mt-1 text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
+          <p className="mt-3 text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
             Explore · Observe · Protect
           </p>
         </div>
@@ -169,7 +226,19 @@ export default function MePage() {
         </Link>
       )}
 
-      <section className="space-y-3 px-4 pt-6">
+      {/* Feature hub — reach the rest of the app from here. */}
+      <section className="px-4 pt-6">
+        <h2 className="mb-2.5 text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
+          Explore more
+        </h2>
+        <div className="grid grid-cols-2 gap-2.5">
+          {HUB.map((item) => (
+            <ActionTile key={item.href} {...item} />
+          ))}
+        </div>
+      </section>
+
+      <section className="space-y-3 px-4 pt-5">
         {/* Account / demo session */}
         <div className="flex items-center gap-3 rounded-card border border-unseen bg-surface p-4">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--action-tint)] text-[var(--action)]">

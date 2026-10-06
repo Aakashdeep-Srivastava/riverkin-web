@@ -64,7 +64,7 @@ export function StravaCard() {
     };
   }, []);
 
-  if (!enabled || loading) return null;
+  if (loading) return null;
 
   const StravaMark = (
     <span
@@ -74,6 +74,23 @@ export function StravaCard() {
       <Activity className="h-5 w-5" style={{ color: STRAVA_ORANGE }} aria-hidden="true" />
     </span>
   );
+
+  // Not configured on the server yet — still show the entry so people know it's
+  // coming, but make clear it isn't live (honest, not a dead button).
+  if (!enabled) {
+    return (
+      <div className="flex items-center gap-3 rounded-card border border-unseen bg-surface p-4">
+        {StravaMark}
+        <div className="min-w-0 flex-1">
+          <p className="font-bold text-ink">Connect a running watch</p>
+          <p className="text-[13px] text-ink-muted">Strava — turn your riverside runs into patrols.</p>
+        </div>
+        <span className="shrink-0 rounded-full bg-[var(--action-tint)] px-2.5 py-1 text-[11px] font-semibold text-[var(--action)]">
+          Coming soon
+        </span>
+      </div>
+    );
+  }
 
   // Connected: show the athlete + recent patrols.
   if (status?.connected) {
