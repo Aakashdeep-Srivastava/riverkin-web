@@ -167,11 +167,12 @@ export default function HomePage() {
     );
   }
 
-  // Map view — scrollable dashboard: map region on top, cards below.
+  // Map view — flex column so the map grows to fill whatever the dashboard
+  // releases: collapsing the cards expands the map to (near) full screen.
   return (
-    <main className="relative min-h-dvh bg-bg pb-[calc(env(safe-area-inset-bottom)+6rem)]">
-      {/* Map region — large so the map dominates the first view. */}
-      <div className="relative h-[68dvh] w-full overflow-hidden">
+    <main className="relative flex min-h-dvh flex-col bg-bg">
+      {/* Map region — flex-1 so it fills the space the dashboard isn't using. */}
+      <div className="relative min-h-[42dvh] w-full flex-1 overflow-hidden">
         <div className="absolute inset-0">
           <AttentionMap sites={baseSites} />
         </div>
@@ -189,7 +190,7 @@ export default function HomePage() {
       </div>
 
       {/* Dashboard, pulled up to overlap the map — collapsible to reveal the full map. */}
-      <div className="relative z-10 -mt-8 px-4">
+      <div className="relative z-10 -mt-8 px-4 pb-[calc(env(safe-area-inset-bottom)+5.5rem)]">
         <div className="flex justify-center">
           <button
             type="button"
