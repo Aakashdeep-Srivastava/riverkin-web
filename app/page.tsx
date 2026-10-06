@@ -205,9 +205,16 @@ export default function HomePage() {
           </button>
         </div>
 
-        {!collapsed ? (
-          <div className="mt-2 space-y-2.5">
-            <LocationPrompt />
+        {/* Smooth fold: animate grid rows 1fr↔0fr (variable height, no JS measuring). */}
+        <div
+          className="grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]"
+          style={{ gridTemplateRows: collapsed ? '0fr' : '1fr' }}
+        >
+          <div
+            className={`overflow-hidden transition-opacity duration-300 ${collapsed ? 'opacity-0' : 'opacity-100'}`}
+          >
+            <div className="mt-2 space-y-2.5">
+              <LocationPrompt />
             {lead ? (
               <Link
                 href={`/sites/${lead.id}`}
@@ -237,9 +244,10 @@ export default function HomePage() {
               </Link>
             ) : null}
 
-            <HomeOverview sites={counts.sites} flags={counts.flags} />
+              <HomeOverview sites={counts.sites} flags={counts.flags} />
+            </div>
           </div>
-        ) : null}
+        </div>
       </div>
     </main>
   );
