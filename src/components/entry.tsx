@@ -31,7 +31,7 @@ const SLIDES: Slide[] = [
     Icon: Eye,
     eyebrow: 'Notice',
     title: 'Every river is telling a story.',
-    body: '106 urban streams across five European cities need someone to notice what’s changing — the foam, the flow, the life returning. Today, that someone is you.',
+    body: '120+ urban streams across Europe and Australia need someone to notice what’s changing — the foam, the flow, the life returning. Today, that someone is you.',
   },
   {
     Icon: Camera,
@@ -235,7 +235,7 @@ export function Entry({ onEnter }: { onEnter: (role: string) => void }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
           >
-            106 urban streams across five European cities, ranked by what needs a look today.
+            120+ urban streams across Europe and Australia, ranked by what needs a look today.
           </motion.p>
 
           <motion.div

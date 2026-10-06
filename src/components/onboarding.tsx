@@ -13,7 +13,7 @@ const SLIDES: Slide[] = [
   {
     Icon: Waves,
     title: 'Find where the river needs you',
-    body: 'A living map of 106 urban streams across five European cities, ranked by how much each needs a fresh look.',
+    body: 'A living map of 120+ urban streams across Europe and Australia, ranked by how much each needs a fresh look.',
   },
   {
     Icon: ClipboardCheck,
