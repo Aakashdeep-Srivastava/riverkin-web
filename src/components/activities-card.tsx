@@ -24,24 +24,18 @@ const ActivityItem: FC<ActivityItemType> = ({ icon, title, desc, time }) => {
       layout
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
-      className="flex cursor-pointer items-center gap-3 px-3 py-3 transition-colors hover:bg-neutral-50 sm:gap-4 sm:px-5 dark:hover:bg-neutral-800/50"
+      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[var(--bg)]"
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-100/50 bg-gradient-to-b from-[#f4f4f7]/90 to-[#E9EAF0]/90 text-gray-400 sm:h-12 sm:w-12 dark:border-neutral-700 dark:from-neutral-800 dark:to-neutral-900 dark:text-neutral-500">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-unseen bg-[var(--action-tint)]">
         {icon}
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[15px] leading-tight font-bold text-[#3E3E43] sm:text-[17px] dark:text-neutral-200">
-          {title}
-        </p>
-        <p className="truncate text-[13px] text-[#909092] sm:text-[15px] dark:text-neutral-500">
-          {desc}
-        </p>
+        <p className="truncate text-[15px] font-semibold leading-tight text-ink">{title}</p>
+        <p className="truncate text-[13px] text-ink-muted">{desc}</p>
       </div>
 
-      <span className="pt-1 text-[11px] whitespace-nowrap text-[#9F9FA1] sm:text-[13px] dark:text-neutral-600">
-        {time}
-      </span>
+      <span className="whitespace-nowrap pt-1 text-[12px] text-ink-muted">{time}</span>
     </motion.div>
   );
 };
@@ -66,11 +60,11 @@ export const ActivitiesCard: FC<ActivitiesCardProps> = ({
     <MotionConfig transition={{ type: 'spring', bounce: 0, duration: 0.6 }}>
       <motion.div
         layout
-        className="w-full overflow-hidden rounded-xl border-2 border-[#e7e6e6]/60 bg-[#FEFEFE] shadow-lg sm:rounded-[20px] dark:border-neutral-800 dark:bg-neutral-900"
+        className="w-full overflow-hidden rounded-card border border-unseen bg-surface shadow-[var(--rk-shadow)]"
       >
         <motion.button
           onClick={() => setOpen(!open)}
-          className="flex w-full items-center justify-between gap-2 px-3 py-2 transition-colors sm:gap-3 sm:px-4 sm:py-3.5"
+          className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-[var(--bg)]"
         >
           <div className="flex min-w-0 flex-1 items-center gap-3 text-left sm:gap-4">
             <motion.div
@@ -82,18 +76,15 @@ export const ActivitiesCard: FC<ActivitiesCardProps> = ({
                 width: open ? (isMobile ? 36 : 48) : isMobile ? 48 : 60,
                 height: open ? (isMobile ? 36 : 48) : isMobile ? 48 : 60,
               }}
-              className="relative flex shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-100/50 bg-gradient-to-b from-[#f4f4f7] via-[#efeef2] to-[#E9EAF0] shadow-sm sm:rounded-xl dark:border-neutral-700 dark:from-neutral-700 dark:via-neutral-800 dark:to-neutral-900"
+              className="relative flex shrink-0 items-center justify-center overflow-hidden rounded-xl border border-unseen bg-[var(--action-tint)]"
             >
-              <motion.span className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_1px_1px_2px_rgba(255,255,255,0.8),_inset_-1px_-1px_2px_rgba(165,172,190,0.2)] dark:shadow-[inset_1px_1px_1px_rgba(255,255,255,0.1),inset_-1px_-1px_3px_rgba(0,0,0,0.6)]" />
-              <motion.div animate={{ scale: open ? 0.7 : 1 }}>
-                {headerIcon}
-              </motion.div>
+              <motion.div animate={{ scale: open ? 0.7 : 1 }}>{headerIcon}</motion.div>
             </motion.div>
 
             <div className="flex min-w-0 flex-1 flex-col justify-center">
               <motion.p
                 layout
-                className="truncate text-[16px] font-bold tracking-tight text-neutral-900 sm:text-[17px] dark:text-neutral-100"
+                className="truncate text-[16px] font-bold tracking-tight text-ink"
               >
                 {title}
               </motion.p>
@@ -102,11 +93,8 @@ export const ActivitiesCard: FC<ActivitiesCardProps> = ({
                   <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{
-                      duration: 0.3,
-                      ease: 'easeOut',
-                    }}
-                    className="truncate text-[14px] tracking-tight text-[#BFBFC2] sm:text-[15px] dark:text-neutral-500"
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    className="truncate text-[14px] text-ink-muted"
                   >
                     {subtitle}
                   </motion.p>
@@ -117,9 +105,9 @@ export const ActivitiesCard: FC<ActivitiesCardProps> = ({
 
           <motion.div
             animate={{ rotate: open ? 180 : 0 }}
-            className="flex size-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#9C97A8]/70 to-[#7A7596]/70 shadow-xs dark:from-neutral-700 dark:to-neutral-800"
+            className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[var(--action-tint)]"
           >
-            <ChevronUpIcon className="size-5 text-white" />
+            <ChevronUpIcon className="size-4 text-[var(--action)]" />
           </motion.div>
         </motion.button>
 
@@ -129,7 +117,7 @@ export const ActivitiesCard: FC<ActivitiesCardProps> = ({
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="border-t-2 border-[#e7e6e6]/60 dark:border-neutral-800"
+              className="border-t border-unseen"
             >
               <div className="py-2">
                 {activities.map((item, i) => (
