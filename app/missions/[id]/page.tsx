@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Clock, Eye, Camera, ShieldCheck, ShieldAlert, ArrowRight } from 'lucide-react';
 import { StepIndicator } from '@/components/ui/step-indicator';
-import { PhotoFrame } from '@/components/ui/photo-frame';
+import { SiteImage } from '@/components/ui/site-image';
 import { buttonClasses } from '@/components/ui/button';
 import {
   getMockSite,
@@ -89,7 +89,7 @@ export default async function MissionBriefPage({ params }: { params: { id: strin
           </p>
         </div>
 
-        <PhotoFrame aspect="wide" label={`${site.name}, ${detail.city}`} />
+        <SiteImage siteId={site.id} aspect="wide" label={`${site.name}, ${detail.city}`} />
 
         <div className="flex items-center gap-2 rounded-card border border-unseen bg-surface px-4 py-3 text-sm">
           <Clock className="h-4 w-4 text-[var(--action)]" aria-hidden="true" />
