@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Activity, ChevronRight, Loader2, MapPin, Unlink } from 'lucide-react';
+import { ActivitiesCard, type ActivityItemType } from '@/components/activities-card';
 import {
   fetchStravaConfig,
   fetchStravaStatus,
@@ -102,43 +103,44 @@ export function StravaCard() {
       setPatrols(null);
       setBusy(false);
     }
-    const list = (patrols ?? []).slice(0, 5);
+    const list = (patrols ?? []).slice(0, 6);
+    const items: ActivityItemType[] = list.map((p) => ({
+      icon: <MapPin className="h-5 w-5" style={{ color: STRAVA_ORANGE }} aria-hidden="true" />,
+      title: p.name ?? p.type ?? 'Activity',
+      desc: `${km(p.distance_m)}${p.type ? ` · ${p.type}` : ''}`,
+      time: shortDate(p.start_date),
+    }));
     return (
-      <div className="rounded-card border border-unseen bg-surface p-4">
-        <div className="flex items-center gap-3">
-          {StravaMark}
-          <div className="min-w-0 flex-1">
-            <p className="font-bold text-ink">Strava connected</p>
-            <p className="truncate text-[13px] text-ink-muted">
-              {status.athlete_name ?? 'Your activities count as patrols'}
-            </p>
-          </div>
-          <button
-            onClick={handleDisconnect}
-            disabled={busy}
-            className="flex items-center gap-1.5 rounded-full border border-unseen px-3 py-1.5 text-[13px] font-semibold text-ink-muted transition-colors hover:text-[var(--urgent)] disabled:opacity-60"
-          >
-            {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Unlink className="h-4 w-4" aria-hidden="true" />}
-            Disconnect
-          </button>
-        </div>
-
-        {list.length > 0 ? (
-          <ul className="mt-3 space-y-1.5 border-t border-unseen pt-3">
-            {list.map((p) => (
-              <li key={p.id} className="flex items-center gap-2.5 text-[13px]">
-                <MapPin className="h-4 w-4 shrink-0 text-[var(--action)]" aria-hidden="true" />
-                <span className="min-w-0 flex-1 truncate text-ink">{p.name ?? p.type ?? 'Activity'}</span>
-                <span className="shrink-0 font-semibold tabular-nums text-ink">{km(p.distance_m)}</span>
-                <span className="shrink-0 text-ink-muted">{shortDate(p.start_date)}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="mt-3 border-t border-unseen pt-3 text-[13px] text-ink-muted">
-            No recent activities yet — your next run along a river shows up here.
-          </p>
-        )}
+      <div className="space-y-2.5">
+        <ActivitiesCard
+          headerIcon={<Activity className="h-6 w-6" style={{ color: STRAVA_ORANGE }} aria-hidden="true" />}
+          title="Your patrols"
+          subtitle={
+            items.length
+              ? `${status.athlete_name ?? 'Strava'} · ${items.length} recent`
+              : `${status.athlete_name ?? 'Strava'} · no runs yet`
+          }
+          activities={
+            items.length
+              ? items
+              : [
+                  {
+                    icon: <Activity className="h-5 w-5" style={{ color: STRAVA_ORANGE }} aria-hidden="true" />,
+                    title: 'No patrols yet',
+                    desc: 'Your next riverside run shows up here',
+                    time: '',
+                  },
+                ]
+          }
+        />
+        <button
+          onClick={handleDisconnect}
+          disabled={busy}
+          className="flex items-center gap-1.5 rounded-full border border-unseen px-3 py-1.5 text-[13px] font-semibold text-ink-muted transition-colors hover:text-[var(--urgent)] disabled:opacity-60"
+        >
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Unlink className="h-4 w-4" aria-hidden="true" />}
+          Disconnect Strava
+        </button>
       </div>
     );
   }
