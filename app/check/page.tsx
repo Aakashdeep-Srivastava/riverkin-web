@@ -49,6 +49,8 @@ function CheckFlow() {
   const [i, setI] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [captures, setCaptures] = useState<Record<string, Capture>>({});
+  // Per-step photo verdict from the scan: false = off-topic/blurry (block Next).
+  const [photoOk, setPhotoOk] = useState<Record<string, boolean>>({});
   const [feeling, setFeeling] = useState<string>('');
   const [geo, setGeo] = useState<{ lat: number; lng: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -93,11 +95,15 @@ function CheckFlow() {
   const isLast = i === flow.length - 1;
   const questionCount = fieldQuestions.length;
 
+  // A captured photo blocks advancing only if the scan said it's off-topic/blurry
+  // (photoOk === false); unknown/ok lets the user proceed.
+  const photoBlocked =
+    step.kind === 'camera' && Boolean(captures[step.c.id]) && photoOk[step.c.id] === false;
   const canAdvance =
     step.kind === 'question'
       ? Boolean(answers[step.q.id])
       : step.kind === 'camera'
-        ? step.c.optional || Boolean(captures[step.c.id])
+        ? (step.c.optional || Boolean(captures[step.c.id])) && !photoBlocked
         : Boolean(feeling);
 
   const pipeAlert =
@@ -245,15 +251,35 @@ function CheckFlow() {
               capture={captures[step.c.id] ?? null}
               geo={geo}
               onAddLocation={addLocation}
-              onCapture={(c) => setCaptures((prev) => ({ ...prev, [step.c.id]: c }))}
-              onRetake={() =>
+              onVerdict={(ok) => setPhotoOk((prev) => ({ ...prev, [step.c.id]: ok }))}
+              onCapture={(c) => {
+                setCaptures((prev) => ({ ...prev, [step.c.id]: c }));
+                // Reset the verdict until the new photo is scanned.
+                setPhotoOk((prev) => {
+                  const next = { ...prev };
+                  delete next[step.c.id];
+                  return next;
+                });
+              }}
+              onRetake={() => {
                 setCaptures((prev) => {
                   const next = { ...prev };
                   delete next[step.c.id];
                   return next;
-                })
-              }
+                });
+                setPhotoOk((prev) => {
+                  const next = { ...prev };
+                  delete next[step.c.id];
+                  return next;
+                });
+              }}
             />
+            {photoBlocked ? (
+              <p className="flex items-center gap-1.5 text-[13px] font-medium text-[var(--urgent)]">
+                <ShieldAlert className="h-4 w-4 shrink-0" aria-hidden="true" />
+                That photo isn’t of the river — retake with the water in frame to continue.
+              </p>
+            ) : null}
           </div>
         ) : (
           <div className="space-y-4">

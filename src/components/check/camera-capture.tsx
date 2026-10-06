@@ -22,6 +22,20 @@ export interface Geo {
 
 const AI_FLAG = 0.6; // ai_generated_likelihood at/above this = "possibly AI-generated"
 
+// The model reliably tags off-topic photos (a laptop, a room, a screen) with
+// these; the numeric `relevance` is noisy, the tags are not. If any appears the
+// photo is not of a river/stream and must be retaken.
+const NEG_TAGS = new Set([
+  'not_river', 'not_stream', 'not_water', 'unrelated', 'off_topic', 'offtopic',
+  'indoor', 'screen', 'person', 'selfie',
+]);
+
+/** Does the analysis read as an actual river/stream scene (not a laptop, room, …)? */
+function isRiverRelevant(a: PhotoAnalysis): boolean {
+  const tags = (a.tags ?? []).map((t) => t.toLowerCase().trim());
+  return !tags.some((t) => NEG_TAGS.has(t));
+}
+
 /** Corner HUD brackets + a sweeping scan line, shown while the model reads the photo. */
 function ScanOverlay() {
   const corner = 'absolute h-5 w-5 border-white/85';
@@ -59,21 +73,33 @@ function ScanOverlay() {
 function ResultCard({ a }: { a: PhotoAnalysis }) {
   const ai = a.ai_generated_likelihood ?? 0;
   const aiFlag = ai >= AI_FLAG;
+  const relevant = isRiverRelevant(a);
   const auth = a.authenticity ?? null;
   const tags = (a.tags ?? []).slice(0, 4);
+
+  // Verdict priority: is it a river at all? → is it a real photo? → all good.
+  const bad = !relevant || aiFlag;
+  const title = !relevant
+    ? 'Not a river or stream photo'
+    : aiFlag
+      ? 'Possible AI-generated image'
+      : 'Looks like a genuine river photo';
+  const note = !relevant ? 'Point the camera at the water and bank, then retake.' : null;
+
   return (
     <div className="rk-reveal space-y-3 rounded-card border border-unseen bg-surface p-3.5">
       <div className="flex items-center gap-2">
-        {aiFlag ? (
+        {bad ? (
           <AlertTriangle className="h-5 w-5 shrink-0 text-[var(--urgent)]" aria-hidden="true" />
         ) : (
           <ShieldCheck className="h-5 w-5 shrink-0 text-success" aria-hidden="true" />
         )}
-        <p className="text-[14px] font-bold text-ink">
-          {aiFlag ? 'Possible AI-generated image' : 'Looks like a genuine photo'}
+        <p className="text-[14px] font-bold" style={{ color: bad ? 'var(--urgent)' : 'var(--ink)' }}>
+          {title}
         </p>
       </div>
 
+      {note ? <p className="text-[13px] font-medium text-[var(--urgent)]">{note}</p> : null}
       {a.summary ? <p className="text-[13px] leading-relaxed text-ink-muted">{a.summary}</p> : null}
 
       {tags.length ? (
@@ -101,7 +127,7 @@ function ResultCard({ a }: { a: PhotoAnalysis }) {
               className="rk-meter-fill h-full rounded-full"
               style={{
                 width: `${auth}%`,
-                background: aiFlag ? 'var(--urgent)' : 'var(--success)',
+                background: bad ? 'var(--urgent)' : 'var(--success)',
               }}
             />
           </div>
@@ -149,6 +175,7 @@ export function CameraCapture({
   onRetake,
   geo = null,
   onAddLocation,
+  onVerdict,
 }: {
   label: string;
   hint: string;
@@ -157,6 +184,9 @@ export function CameraCapture({
   onRetake: () => void;
   geo?: Geo | null;
   onAddLocation?: () => void;
+  /** Called with whether the captured photo is a usable river photo. false =
+   *  off-topic/blurry (parent should block advancing); true = ok or unknown. */
+  onVerdict?: (ok: boolean) => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -203,23 +233,33 @@ export function CameraCapture({
       if (!mountedRef.current || analyzedRef.current !== url) return;
       if (!res) {
         // Analysis unavailable (offline / slow / API down) — keep the photo and
-        // skip the result card; the check stays submittable.
+        // skip the result card; the check stays submittable (can't tell).
         setPhase('done');
         setAnalysis(null);
+        onVerdict?.(true);
         return;
       }
       setAnalysis(res);
       if (res.ok === false) {
+        // Blurry / unreadable — must retake.
         setPhase('retake');
         cueAnalysisDone(false);
         haptic([20, 40, 20]);
+        onVerdict?.(false);
         return;
       }
       setPhase('done');
+      const relevant = isRiverRelevant(res);
       const aiFlag = (res.ai_generated_likelihood ?? 0) >= AI_FLAG;
-      cueAnalysisDone(!aiFlag);
-      haptic(aiFlag ? [20, 40, 20] : 16);
+      const good = relevant && !aiFlag;
+      cueAnalysisDone(good);
+      haptic(good ? 16 : [20, 40, 20]);
+      // Block advancing on an off-topic photo (a laptop, a room…); an AI-flag is
+      // a warning the verifiers handle, so it doesn't hard-block.
+      onVerdict?.(relevant);
     });
+    // onVerdict is an inline prop; adding it would re-run analysis every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [capture]);
 
   async function startCamera() {
@@ -284,7 +324,7 @@ export function CameraCapture({
   }
 
   const frameClasses =
-    'relative aspect-video w-full overflow-hidden rounded-card border border-unseen bg-[#0b1626]';
+    'relative aspect-[4/5] w-full overflow-hidden rounded-card border border-unseen bg-[#0b1626]';
 
   // Captured — preview + live scan/result, retake, and the optional GPS control.
   if (capture) {
