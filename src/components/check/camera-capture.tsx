@@ -417,11 +417,13 @@ export function CameraCapture({
 
       {onAddLocation ? <LocationRow geo={geo} onAdd={onAddLocation} /> : null}
 
+      {/* Gallery / file picker for the Upload button. No `capture` attribute —
+          that would force the camera and hide the photo library; the browser's
+          own picker handles the gallery-access permission prompt. */}
       <input
         ref={fileRef}
         type="file"
         accept="image/*"
-        capture="environment"
         onChange={onFile}
         className="hidden"
       />
