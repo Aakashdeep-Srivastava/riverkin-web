@@ -627,3 +627,13 @@ button,
 .rk-scan-grid {
   animation: rk-scan-grid 1.5s ease-in-out infinite;
 }
+
+/* Hide the scrollbar on horizontal swipe rows (filter chips) — still scrollable
+ * by touch/trackpad, just no visible bar. */
+.rk-no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* old Edge */
+}
+.rk-no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome / Safari */
+}

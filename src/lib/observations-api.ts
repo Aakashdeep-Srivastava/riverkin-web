@@ -119,15 +119,47 @@ export interface PhotoAnalysis {
  * overlay with the *real* model read (pollution tags, AI-generation likelihood,
  * authenticity). The authoritative score still runs on submit.
  */
+/** Downscale a photo to ≤1280px before analysis — faster upload + vision call,
+ *  and avoids timeouts on large phone photos. Falls back to the original. */
+async function downscaleForScan(file: File, maxDim = 1280): Promise<Blob> {
+  if (typeof document === 'undefined' || typeof createImageBitmap === 'undefined') return file;
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
+    if (scale >= 1) {
+      bitmap.close?.();
+      return file;
+    }
+    const w = Math.round(bitmap.width * scale);
+    const h = Math.round(bitmap.height * scale);
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      bitmap.close?.();
+      return file;
+    }
+    ctx.drawImage(bitmap, 0, 0, w, h);
+    bitmap.close?.();
+    return await new Promise<Blob>((resolve) =>
+      canvas.toBlob((b) => resolve(b ?? file), 'image/jpeg', 0.85),
+    );
+  } catch {
+    return file;
+  }
+}
+
 export async function analyzePhoto(file: File, capturedLive: boolean): Promise<PhotoAnalysis | null> {
   if (!API_BASE_URL) return null;
+  const blob = await downscaleForScan(file);
   const form = new FormData();
-  form.append('file', file, file.name || 'scan.jpg');
+  form.append('file', blob, 'scan.jpg');
   form.append('captured_live', String(capturedLive));
-  // Never let the scan overlay hang on a cold/slow model — abort after 10s and
-  // let the caller fall back (keep the photo, skip the result card).
+  // The real GPT-4o-mini read takes a few seconds; allow up to 25s (the server
+  // caps its own call at 20s) before aborting and letting the caller fall back.
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 10_000);
+  const timer = setTimeout(() => ctrl.abort(), 25_000);
   try {
     const res = await fetch(`${API_BASE_URL}/api/v1/observations/analyze`, {
       method: 'POST',

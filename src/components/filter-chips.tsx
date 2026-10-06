@@ -20,7 +20,7 @@ export function FilterChips({
   onChange: (v: SiteFilter) => void;
 }) {
   return (
-    <div role="tablist" aria-label="Filter sites" className="flex gap-2 overflow-x-auto pb-1">
+    <div role="tablist" aria-label="Filter sites" className="rk-no-scrollbar flex gap-2 overflow-x-auto pb-1">
       {SITE_FILTERS.map(({ value: v, label, Icon }) => {
         const active = v === value;
         return (
