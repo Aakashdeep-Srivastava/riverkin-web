@@ -4,10 +4,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { ChevronRight, Droplet } from 'lucide-react';
+import { ChevronRight, ChevronDown, Droplet } from 'lucide-react';
 import { hasEntered } from '@/lib/entry-state';
 import { fetchSites } from '@/lib/sites-api';
 import { AppBar } from '@/components/app-bar';
+import { LocationPrompt } from '@/components/location-prompt';
 import { AttentionMap } from '@/components/attention-map';
 import { AttentionStatus } from '@/components/attention-status';
 import { SiteCard } from '@/components/site-card';
@@ -45,8 +46,31 @@ export default function HomePage() {
   const router = useRouter();
   const [view, setView] = useState<HomeView>('map');
   const [filter, setFilter] = useState<SiteFilter>('all');
+  // Dashboard cards (priority, level, active mission) can collapse to reveal the
+  // full map. Remembered on-device.
+  const [collapsed, setCollapsed] = useState(false);
   // Entry gate: first visit opens on the globe/login screen (remembered).
   const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    try {
+      setCollapsed(localStorage.getItem('rk_dash_collapsed') === '1');
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  function toggleCollapsed() {
+    setCollapsed((c) => {
+      const next = !c;
+      try {
+        localStorage.setItem('rk_dash_collapsed', next ? '1' : '0');
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  }
 
   // Live data from the API; falls back to bundled mock sites if unreachable.
   const { data: liveSites } = useQuery({
@@ -153,47 +177,69 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Top controls — above the map AND the dashboard so the brand menu opens over everything. */}
+      {/* Top chrome: brand bar + filters sit together near the top. */}
       <div className="absolute inset-x-0 top-0 z-40">
         <AppBar transparent active="/" />
-        <div className="flex items-center justify-between px-4 pt-1">
-          <ViewToggle value={view} onChange={setView} />
-        </div>
         {chips}
       </div>
 
-      {/* Dashboard content, pulled up to overlap the map. Compact so the map stays dominant. */}
-      <div className="relative z-10 -mt-8 space-y-2.5 px-4">
-        {lead ? (
-          <Link
-            href={`/sites/${lead.id}`}
-            className="rk-glass rk-reveal block rounded-card p-2.5 shadow-[var(--rk-shadow-lift)]"
-          >
-            <div className="flex items-center gap-2.5">
-              {/* Thumbnail (decorative water tile). */}
-              <span
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
-                style={{ background: 'linear-gradient(145deg,#2FA7D9 0%,#1E7BFF 60%,#0E4FA0 100%)' }}
-                aria-hidden="true"
-              >
-                <Droplet className="h-5 w-5 text-white/90" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <AttentionStatus level={lead.attention} />
-                <p className="truncate text-[16px] font-extrabold leading-tight text-ink">{lead.name}</p>
-                <p className="truncate text-[12px] text-ink-muted">
-                  {lead.waterbody} ·{' '}
-                  {lead.daysUnseen === 0 ? 'seen today' : `${lead.daysUnseen} days unseen`}
-                </p>
-              </div>
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-unseen bg-surface">
-                <ChevronRight className="h-4 w-4 text-ink" aria-hidden="true" />
-              </span>
-            </div>
-          </Link>
-        ) : null}
+      {/* Floating Map/List toggle — small vertical control on the right of the map. */}
+      <div className="absolute right-3 top-[28%] z-30">
+        <ViewToggle value={view} onChange={setView} orientation="vertical" />
+      </div>
 
-        <HomeOverview sites={counts.sites} flags={counts.flags} />
+      {/* Dashboard, pulled up to overlap the map — collapsible to reveal the full map. */}
+      <div className="relative z-10 -mt-8 px-4">
+        <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={toggleCollapsed}
+            aria-expanded={!collapsed}
+            className="rk-glass inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12px] font-semibold text-ink shadow-[var(--rk-shadow)]"
+          >
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${collapsed ? '' : 'rotate-180'}`}
+              aria-hidden="true"
+            />
+            {collapsed ? 'Show dashboard' : 'Hide'}
+          </button>
+        </div>
+
+        {!collapsed ? (
+          <div className="mt-2 space-y-2.5">
+            <LocationPrompt />
+            {lead ? (
+              <Link
+                href={`/sites/${lead.id}`}
+                className="rk-glass rk-reveal block rounded-card p-2.5 shadow-[var(--rk-shadow-lift)]"
+              >
+                <div className="flex items-center gap-2.5">
+                  {/* Thumbnail (decorative water tile). */}
+                  <span
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
+                    style={{ background: 'linear-gradient(145deg,#2FA7D9 0%,#1E7BFF 60%,#0E4FA0 100%)' }}
+                    aria-hidden="true"
+                  >
+                    <Droplet className="h-5 w-5 text-white/90" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <AttentionStatus level={lead.attention} />
+                    <p className="truncate text-[16px] font-extrabold leading-tight text-ink">{lead.name}</p>
+                    <p className="truncate text-[12px] text-ink-muted">
+                      {lead.waterbody} ·{' '}
+                      {lead.daysUnseen === 0 ? 'seen today' : `${lead.daysUnseen} days unseen`}
+                    </p>
+                  </div>
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-unseen bg-surface">
+                    <ChevronRight className="h-4 w-4 text-ink" aria-hidden="true" />
+                  </span>
+                </div>
+              </Link>
+            ) : null}
+
+            <HomeOverview sites={counts.sites} flags={counts.flags} />
+          </div>
+        ) : null}
       </div>
     </main>
   );
