@@ -119,16 +119,25 @@ export function NotificationCenter({ transparent = false }: { transparent?: bool
         </button>
       ) : null}
 
-      {/* Bottom-sheet panel */}
+      {/* Bottom-sheet panel — above the nav (z-[60]); fixed header, scrolling list. */}
       {open ? (
-        <div className="fixed inset-0 z-50">
+        <div className="fixed inset-0 z-[60]">
           <div
-            className="absolute inset-0 bg-black/30"
+            className="absolute inset-0 bg-black/40"
             onClick={() => setOpen(false)}
             aria-hidden="true"
           />
-          <div className="rk-reveal absolute inset-x-0 bottom-0 max-h-[80vh] overflow-y-auto rounded-t-3xl border-t border-unseen bg-surface pb-[calc(env(safe-area-inset-bottom)+1rem)]">
-            <div className="sticky top-0 flex items-center justify-between border-b border-unseen bg-surface px-5 py-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Notifications"
+            className="rk-rise absolute inset-x-0 bottom-0 flex max-h-[85dvh] min-h-[50dvh] flex-col rounded-t-3xl border-t border-unseen bg-surface shadow-[var(--rk-shadow-lift)]"
+          >
+            {/* Grab handle */}
+            <div className="flex justify-center pt-2.5" aria-hidden="true">
+              <span className="h-1.5 w-10 rounded-full bg-unseen" />
+            </div>
+            <div className="flex shrink-0 items-center justify-between border-b border-unseen px-5 py-3.5">
               <h2 className="font-display text-lg font-semibold text-ink">Notifications</h2>
               <button
                 type="button"
@@ -140,37 +149,39 @@ export function NotificationCenter({ transparent = false }: { transparent?: bool
               </button>
             </div>
 
-            {items.length > 0 ? (
-              <ul className="divide-y divide-unseen px-2">
-                {items.map((n) => (
-                  <li key={n.id}>
-                    <button
-                      type="button"
-                      onClick={() => go(n)}
-                      className="flex w-full items-center gap-3 px-3 py-4 text-left transition-colors hover:bg-[var(--bg)]"
-                    >
-                      <span
-                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
-                        style={{
-                          background: `color-mix(in srgb, ${n.accent} 16%, transparent)`,
-                          color: n.accent,
-                        }}
+            <div className="flex-1 overflow-y-auto overscroll-contain pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
+              {items.length > 0 ? (
+                <ul className="divide-y divide-unseen px-2">
+                  {items.map((n) => (
+                    <li key={n.id}>
+                      <button
+                        type="button"
+                        onClick={() => go(n)}
+                        className="flex w-full items-center gap-3 px-3 py-4 text-left transition-colors hover:bg-[var(--bg)]"
                       >
-                        <Icon name={n.icon} />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-sm font-semibold text-ink">{n.title}</span>
-                        <span className="block text-sm leading-snug text-ink-muted">{n.body}</span>
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="px-5 py-10 text-center text-sm text-ink-muted">
-                You’re all caught up. 🌱
-              </p>
-            )}
+                        <span
+                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
+                          style={{
+                            background: `color-mix(in srgb, ${n.accent} 16%, transparent)`,
+                            color: n.accent,
+                          }}
+                        >
+                          <Icon name={n.icon} />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-semibold text-ink">{n.title}</span>
+                          <span className="block text-sm leading-snug text-ink-muted">{n.body}</span>
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="px-5 py-10 text-center text-sm text-ink-muted">
+                  You’re all caught up. 🌱
+                </p>
+              )}
+            </div>
           </div>
         </div>
       ) : null}
