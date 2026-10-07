@@ -1,0 +1,19 @@
+{
+  "nav": {
+    "explore": "Explore",
+    "missions": "Missions",
+    "community": "Community",
+    "impact": "Impact",
+    "startCheck": "Start a check"
+  },
+  "footer": {
+    "credits": "Sites © OneAquaHealth · Weather © Open-Meteo · Biodiversity via GBIF · Discharge via GloFAS/Open-Meteo · Map © Azure Maps/TomTom · Rivers © OpenStreetMap",
+    "language": "Language"
+  },
+  "common": {
+    "loading": "Loading…",
+    "retry": "Try again",
+    "signIn": "Sign in",
+    "back": "Back"
+  }
+}

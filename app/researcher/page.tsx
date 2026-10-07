@@ -1,22 +1,19 @@
-import { Radar, ListChecks, TriangleAlert, Droplets, ShieldCheck, Gauge } from 'lucide-react';
+import { Radar, ListChecks, TriangleAlert, ShieldCheck, Gauge } from 'lucide-react';
 import { SimulatedBadge } from '@/components/simulated-badge';
 import { SiteFooter } from '@/components/site-footer';
 import { mockSites } from '@/lib/mock-data';
-import {
-  fetchMetrics,
-  fetchExpertQueue,
-  type ApiExpertItem,
-} from '@/lib/researcher-api';
-import { FhirViewer } from './fhir-viewer';
+import { fetchMetrics } from '@/lib/researcher-api';
+import { ExpertQueue } from './expert-queue';
 
 /**
  * R1 — Researcher view. KPI row, expert review queue and a live FHIR Bundle
  * viewer/download. On desktop this uses a left rail (the mobile bottom nav is
- * hidden at md+). KPIs and the queue come from the live API with a mock
- * fallback so the page always renders.
+ * hidden at md+). KPIs come from the live (ungated, aggregate) metrics API with
+ * a mock fallback; the RBAC-gated expert queue is loaded client-side (with the
+ * researcher's token) by <ExpertQueue /> so it can show a sign-in gate.
  */
 export default async function ResearcherPage() {
-  const [metrics, queue] = await Promise.all([fetchMetrics(), fetchExpertQueue()]);
+  const metrics = await fetchMetrics();
 
   const kpis = [
     {
@@ -44,9 +41,6 @@ export default async function ResearcherPage() {
       accent: 'var(--water)',
     },
   ];
-
-  const liveQueue: ApiExpertItem[] = queue ?? [];
-  const firstObsId = liveQueue[0]?.observation_id ?? null;
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-5xl flex-col md:flex-row">
@@ -120,38 +114,8 @@ export default async function ResearcherPage() {
           </div>
         </div>
 
-        {/* Expert queue */}
-        <div className="mt-8 flex items-center justify-between">
-          <h2 className="text-[13px] font-semibold uppercase tracking-wide text-ink-muted">
-            Expert queue ({liveQueue.length})
-          </h2>
-        </div>
-        {liveQueue.length > 0 ? (
-          <ul className="mt-2 space-y-2">
-            {liveQueue.map((item) => (
-              <li key={item.observation_id} className="rounded-card border border-unseen bg-surface p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-semibold text-ink">{item.site_name}</p>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--urgent)_12%,var(--surface))] px-2.5 py-0.5 text-xs font-semibold text-[var(--urgent)]">
-                    {item.pipe_flag ? <Droplets className="h-3.5 w-3.5" aria-hidden="true" /> : null}
-                    {item.reason}
-                  </span>
-                </div>
-                <p className="mt-1 text-sm text-ink-muted">
-                  Observation #{item.observation_id} · {item.verifier_count} verifier
-                  {item.verifier_count === 1 ? '' : 's'}
-                  {item.trust != null ? ` · trust ${(item.trust * 100).toFixed(0)}%` : ''}
-                </p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="mt-2 rounded-card border border-dashed border-unseen bg-surface p-4 text-sm text-ink-muted">
-            No observations awaiting expert review. Pipe/sewage flags and split votes appear here.
-          </p>
-        )}
-
-        <FhirViewer observationId={firstObsId} />
+        {/* Expert queue (RBAC-gated, loaded client-side with the researcher token) */}
+        <ExpertQueue />
 
         <SiteFooter />
       </main>

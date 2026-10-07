@@ -1,3 +1,5 @@
+import createNextIntlPlugin from 'next-intl/plugin';
+
 /** @type {import('next').NextConfig} */
 
 // Content-Security-Policy tuned for RiverKin: self + the API + Azure Maps
@@ -48,4 +50,7 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+// next-intl (App Router, cookie-based locale — see src/i18n/request.ts).
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+
+export default withNextIntl(nextConfig);

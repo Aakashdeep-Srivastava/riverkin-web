@@ -2,32 +2,39 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Map, Target, Sprout, Users, Plus, type LucideIcon } from 'lucide-react';
 
 interface NavItem {
   href: string;
-  label: string;
+  /** i18n key under the "nav" namespace. */
+  labelKey: 'explore' | 'missions' | 'community' | 'impact';
   Icon: LucideIcon;
   match: (pathname: string) => boolean;
 }
 
 /** Four tabs flanking a center "+" action (start a check). */
 const LEFT: NavItem[] = [
-  { href: '/', label: 'Explore', Icon: Map, match: (p) => p === '/' },
-  { href: '/missions', label: 'Missions', Icon: Target, match: (p) => p.startsWith('/missions') },
+  { href: '/', labelKey: 'explore', Icon: Map, match: (p) => p === '/' },
+  { href: '/missions', labelKey: 'missions', Icon: Target, match: (p) => p.startsWith('/missions') },
 ];
 const RIGHT: NavItem[] = [
   {
     href: '/community',
-    label: 'Community',
+    labelKey: 'community',
     Icon: Users,
     match: (p) => p.startsWith('/community') || p.startsWith('/crew'),
   },
-  { href: '/impact', label: 'Impact', Icon: Sprout, match: (p) => p.startsWith('/impact') || p.startsWith('/receipt') },
+  {
+    href: '/impact',
+    labelKey: 'impact',
+    Icon: Sprout,
+    match: (p) => p.startsWith('/impact') || p.startsWith('/receipt'),
+  },
 ];
 
-function Tab({ item, active }: { item: NavItem; active: boolean }) {
-  const { href, label, Icon } = item;
+function Tab({ item, active, label }: { item: NavItem; active: boolean; label: string }) {
+  const { href, Icon } = item;
   return (
     <Link
       href={href}
@@ -48,6 +55,7 @@ function Tab({ item, active }: { item: NavItem; active: boolean }) {
  */
 export function BottomNav() {
   const pathname = usePathname();
+  const t = useTranslations('nav');
 
   // Show the nav only on the tab roots (Home / Missions list / Impact / Crew /
   // Me). Pushed detail + flow screens have their own back button and CTA.
@@ -73,13 +81,13 @@ export function BottomNav() {
       <ul className="mx-auto flex max-w-md items-stretch">
         {LEFT.map((item) => (
           <li key={item.href} className="flex-1">
-            <Tab item={item} active={item.match(pathname)} />
+            <Tab item={item} active={item.match(pathname)} label={t(item.labelKey)} />
           </li>
         ))}
         <li className="flex items-center justify-center px-1">
           <Link
             href="/check"
-            aria-label="Start a check"
+            aria-label={t('startCheck')}
             className="-mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--action)] text-white shadow-[var(--rk-shadow-lift)] ring-4 ring-surface transition-transform active:scale-95"
           >
             <Plus className="h-7 w-7" aria-hidden="true" />
@@ -87,7 +95,7 @@ export function BottomNav() {
         </li>
         {RIGHT.map((item) => (
           <li key={item.href} className="flex-1">
-            <Tab item={item} active={item.match(pathname)} />
+            <Tab item={item} active={item.match(pathname)} label={t(item.labelKey)} />
           </li>
         ))}
       </ul>

@@ -1,7 +1,10 @@
+import { LanguageSwitcher } from '@/components/language-switcher';
+
 /**
  * Credits footer. The hard rules require crediting OneAquaHealth (sites),
- * Open-Meteo (weather) and the map-tile provider in the UI. Tiles now come from
- * Azure Maps (data © TomTom), so OpenStreetMap is no longer credited here.
+ * Open-Meteo (weather) and the map/tile providers in the UI. Now also credits
+ * GBIF (biodiversity), GloFAS/Open-Meteo (discharge) and OpenStreetMap (the real
+ * river geometry overlay, ODbL). Also hosts the language switcher.
  */
 export function SiteFooter() {
   return (
@@ -25,7 +28,16 @@ export function SiteFooter() {
         >
           Open-Meteo
         </a>
-        , map tiles from{' '}
+        , biodiversity from{' '}
+        <a
+          className="underline underline-offset-2 hover:text-ink"
+          href="https://www.gbif.org/"
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          GBIF
+        </a>
+        , river discharge from GloFAS/Copernicus via Open-Meteo, map tiles from{' '}
         <a
           className="underline underline-offset-2 hover:text-ink"
           href="https://azure.microsoft.com/products/azure-maps"
@@ -34,17 +46,20 @@ export function SiteFooter() {
         >
           Azure Maps
         </a>{' '}
-        (data &copy;{' '}
+        (data &copy; TomTom), and river geometry &copy;{' '}
         <a
           className="underline underline-offset-2 hover:text-ink"
-          href="https://www.tomtom.com/"
+          href="https://www.openstreetmap.org/copyright"
           target="_blank"
           rel="noreferrer noopener"
         >
-          TomTom
-        </a>
-        ).
+          OpenStreetMap
+        </a>{' '}
+        contributors.
       </p>
+      <div className="mx-auto mt-4 flex max-w-2xl justify-end">
+        <LanguageSwitcher />
+      </div>
     </footer>
   );
 }

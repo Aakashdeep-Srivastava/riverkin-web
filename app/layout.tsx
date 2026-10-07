@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, Newsreader } from 'next/font/google';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 import './globals.css';
 import { QueryProvider } from '@/lib/query-provider';
 import { BottomNav } from '@/components/bottom-nav';
@@ -62,21 +64,26 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Locale + messages from the NEXT_LOCALE cookie (src/i18n/request.ts).
+  const locale = await getLocale();
+  const messages = await getMessages();
   return (
-    <html lang="en" className={`${inter.variable} ${newsreader.variable}`}>
+    <html lang={locale} className={`${inter.variable} ${newsreader.variable}`}>
       <body className="font-sans antialiased">
-        <QueryProvider>
-          <GuideProvider>
-            {/* Screens own their own bottom clearance (pb-24) so the full-screen
-             * map home can use the whole viewport. */}
-            <div className="min-h-dvh">{children}</div>
-            <BottomNav />
-            <GuideBanner />
-            <ServiceWorkerRegister />
-            <InstallBanner />
-          </GuideProvider>
-        </QueryProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <QueryProvider>
+            <GuideProvider>
+              {/* Screens own their own bottom clearance (pb-24) so the full-screen
+               * map home can use the whole viewport. */}
+              <div className="min-h-dvh">{children}</div>
+              <BottomNav />
+              <GuideBanner />
+              <ServiceWorkerRegister />
+              <InstallBanner />
+            </GuideProvider>
+          </QueryProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

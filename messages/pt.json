@@ -1,0 +1,19 @@
+{
+  "nav": {
+    "explore": "Explorar",
+    "missions": "Missões",
+    "community": "Comunidade",
+    "impact": "Impacto",
+    "startCheck": "Iniciar verificação"
+  },
+  "footer": {
+    "credits": "Locais © OneAquaHealth · Meteorologia © Open-Meteo · Biodiversidade via GBIF · Caudal via GloFAS/Open-Meteo · Mapa © Azure Maps/TomTom · Rios © OpenStreetMap",
+    "language": "Idioma"
+  },
+  "common": {
+    "loading": "A carregar…",
+    "retry": "Tentar novamente",
+    "signIn": "Entrar",
+    "back": "Voltar"
+  }
+}
