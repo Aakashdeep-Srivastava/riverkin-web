@@ -116,6 +116,8 @@ export default async function SitePage({ params }: { params: { id: string } }) {
           <EcosystemPanel
             ecology={view.ecology}
             healthRisk={view.healthRisk}
+            biodiversity={view.biodiversity}
+            discharge={view.discharge}
             attribution={view.attribution}
           />
         ) : null}

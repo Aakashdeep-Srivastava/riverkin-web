@@ -173,6 +173,36 @@ export default function GlobeMap({ sites }: { sites?: Site[] }) {
       );
     };
 
+    // Real OSM river courses behind the sites (GET /api/v1/maps/rivers — a
+    // pre-baked GeoJSON FeatureCollection, © OpenStreetMap contributors). Drawn
+    // as a soft glow + bright core line under the DOM site markers. Silent no-op
+    // when the file is empty or the request fails, so the map never breaks.
+    const addRivers = async (map: MaplibreMap) => {
+      let fc: { features?: unknown[] } | null = null;
+      try {
+        fc = await apiFetch<{ features?: unknown[] }>('/api/v1/maps/rivers');
+      } catch {
+        return;
+      }
+      if (cancelled || !fc || !Array.isArray(fc.features) || fc.features.length === 0) return;
+      if (map.getSource('rk-rivers')) return;
+      map.addSource('rk-rivers', { type: 'geojson', data: fc as GeoJSON.FeatureCollection });
+      map.addLayer({
+        id: 'rk-rivers-glow',
+        type: 'line',
+        source: 'rk-rivers',
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: { 'line-color': '#12A4D9', 'line-width': 6, 'line-blur': 6, 'line-opacity': 0.3 },
+      });
+      map.addLayer({
+        id: 'rk-rivers-core',
+        type: 'line',
+        source: 'rk-rivers',
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: { 'line-color': '#7FD7F0', 'line-width': 1.6, 'line-opacity': 0.9 },
+      });
+    };
+
     const addSiteMarkers = async (map: MaplibreMap) => {
       // Prefer the sites the parent already loaded (shared React Query cache) so
       // we don't fire a second request for the same data. Only fall back to a
@@ -310,6 +340,7 @@ export default function GlobeMap({ sites }: { sites?: Site[] }) {
         if (cancelled) return;
         // Belt-and-braces: ensure globe even if style projection is ignored.
         map.setProjection({ type: 'globe' });
+        void addRivers(map);
         void addSiteMarkers(map);
         spinGlobe();
       });

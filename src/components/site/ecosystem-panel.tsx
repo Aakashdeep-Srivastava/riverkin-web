@@ -1,5 +1,5 @@
-import { Fish, Bug, Microscope, HeartPulse, FlaskConical } from 'lucide-react';
-import type { Ecology, HealthRisk } from '@/lib/sites-api';
+import { Fish, Bug, Microscope, HeartPulse, FlaskConical, Sprout, Waves } from 'lucide-react';
+import type { Biodiversity, Discharge, Ecology, HealthRisk } from '@/lib/sites-api';
 
 /**
  * Real OneAquaHealth baseline for a site: biological/chemical ecological status
@@ -21,16 +21,42 @@ function sampledOn(date: string | null): string | null {
     : d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
 }
 
+/** Minimal inline sparkline for the discharge series (no chart lib). */
+function Sparkline({ values }: { values: number[] }) {
+  if (values.length < 2) return null;
+  const w = 72;
+  const h = 20;
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = max - min || 1;
+  const pts = values
+    .map((v, i) => {
+      const x = (i / (values.length - 1)) * w;
+      const y = h - ((v - min) / span) * h;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(' ');
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden="true" className="overflow-visible">
+      <polyline points={pts} fill="none" stroke="var(--water)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export function EcosystemPanel({
   ecology,
   healthRisk,
+  biodiversity,
+  discharge,
   attribution,
 }: {
   ecology: Ecology | null;
   healthRisk: HealthRisk | null;
+  biodiversity?: Biodiversity | null;
+  discharge?: Discharge | null;
   attribution: string | null;
 }) {
-  if (!ecology && !healthRisk) return null;
+  if (!ecology && !healthRisk && !biodiversity && !discharge) return null;
 
   return (
     <section className="space-y-3">
@@ -105,6 +131,52 @@ export function EcosystemPanel({
             {healthRisk.fecal != null ? <span>Faecal {healthRisk.fecal}</span> : null}
             {healthRisk.arg != null ? <span>AMR {healthRisk.arg}</span> : null}
           </div>
+        </div>
+      ) : null}
+
+      {biodiversity ? (
+        <div className="rounded-card border border-unseen bg-surface p-4">
+          <div className="flex items-center justify-between">
+            <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink">
+              <Sprout className="h-4 w-4 text-[var(--success)]" aria-hidden="true" />
+              Biodiversity nearby
+            </p>
+            <span className="text-xs text-ink-muted">within {biodiversity.radius_km} km</span>
+          </div>
+          <div className="mt-3 flex items-baseline gap-4">
+            <span className="text-2xl font-bold tabular-nums text-ink">
+              {biodiversity.species_richness}
+              <span className="ml-1 text-xs font-normal text-ink-muted">species</span>
+            </span>
+            <span className="text-sm tabular-nums text-ink-muted">
+              {biodiversity.occurrences} records
+            </span>
+          </div>
+          <p className="mt-2 text-xs text-ink-muted">{biodiversity.indicator}</p>
+          <p className="mt-2 text-[11px] text-ink-muted">{biodiversity.attribution}</p>
+        </div>
+      ) : null}
+
+      {discharge ? (
+        <div className="rounded-card border border-unseen bg-surface p-4">
+          <div className="flex items-center justify-between">
+            <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink">
+              <Waves className="h-4 w-4 text-[var(--water)]" aria-hidden="true" />
+              River discharge
+            </p>
+            <Sparkline values={discharge.series.map((p) => p.value)} />
+          </div>
+          <div className="mt-3 flex items-baseline gap-4">
+            <span className="text-2xl font-bold tabular-nums text-ink">
+              {discharge.latest_m3s}
+              <span className="ml-1 text-xs font-normal text-ink-muted">m³/s</span>
+            </span>
+            <span className="text-sm tabular-nums text-ink-muted">
+              30-day avg {discharge.mean_30d_m3s} m³/s
+            </span>
+          </div>
+          <p className="mt-2 text-xs text-ink-muted">{discharge.grid_note}</p>
+          <p className="mt-2 text-[11px] text-ink-muted">{discharge.attribution}</p>
         </div>
       ) : null}
 

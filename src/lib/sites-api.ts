@@ -32,6 +32,27 @@ export interface HealthRisk {
   date: string | null;
 }
 
+/** Real GBIF freshwater bioindicator snapshot (app/signals.py::fetch_biodiversity). */
+export interface Biodiversity {
+  occurrences: number;
+  species_richness: number;
+  radius_km: number;
+  indicator: string;
+  sampled_at: string;
+  source: string;
+  attribution: string;
+}
+/** Real GloFAS river discharge snapshot (app/signals.py::fetch_discharge). */
+export interface Discharge {
+  latest_m3s: number;
+  latest_date: string;
+  mean_30d_m3s: number;
+  series: { date: string; value: number }[];
+  grid_note: string;
+  source: string;
+  attribution: string;
+}
+
 /** Shape of app/schemas.py::SiteOut. */
 export interface ApiSite {
   id: string;
@@ -49,6 +70,8 @@ export interface ApiSite {
   color: string;
   ecology: Ecology | null;
   health_risk: HealthRisk | null;
+  biodiversity: Biodiversity | null;
+  discharge: Discharge | null;
   recency_simulated: boolean;
   data_attribution: string | null;
   simulated: boolean;
@@ -123,6 +146,8 @@ export interface SiteView {
   detail: SiteDetail;
   ecology: Ecology | null;
   healthRisk: HealthRisk | null;
+  biodiversity: Biodiversity | null;
+  discharge: Discharge | null;
   attribution: string | null;
   altitudeM: number | null;
 }
@@ -145,6 +170,8 @@ export async function fetchSiteView(id: string): Promise<SiteView | null> {
       detail,
       ecology: a.ecology ?? null,
       healthRisk: a.health_risk ?? null,
+      biodiversity: a.biodiversity ?? null,
+      discharge: a.discharge ?? null,
       attribution: a.data_attribution ?? null,
       altitudeM: a.altitude_m ?? null,
     };
