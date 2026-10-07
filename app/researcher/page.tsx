@@ -97,8 +97,8 @@ export default async function ResearcherPage() {
             </p>
             <p className="text-xs font-medium text-ink">Median verify time</p>
             <p className="text-[11px] text-ink-muted">
-              {metrics?.verify_votes_n ? `${metrics.verify_votes_n} votes` : 'needs votes'} · lift (vs
-              human-only) is roadmap
+              {metrics?.verify_votes_n ? `${metrics.verify_votes_n} votes` : 'needs votes'} · AI-assist
+              vs human-only A/B now collecting (experimental)
             </p>
           </div>
           <div className="rounded-card border border-unseen bg-surface p-4">

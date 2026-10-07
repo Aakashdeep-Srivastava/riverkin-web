@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "render:intro": "node scripts/render-intro.mjs",
+    "render:social": "node scripts/render-intro.mjs RiverKinIntro --social",
     "gen:api": "npx openapi-typescript \"$NEXT_PUBLIC_API_URL/openapi.json\" -o src/lib/api-types.ts",
     "gen:site-images": "node scripts/gen-site-images.mjs"
   },
