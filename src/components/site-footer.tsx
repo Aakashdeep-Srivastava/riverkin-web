@@ -9,7 +9,7 @@ import { LanguageSwitcher } from '@/components/language-switcher';
  */
 export function SiteFooter() {
   return (
-    <footer className="border-t border-unseen px-4 py-6 text-xs text-ink-muted">
+    <footer className="mt-8 border-t border-unseen px-4 py-6 text-xs text-ink-muted">
       <nav className="mx-auto mb-4 flex max-w-2xl flex-wrap gap-x-4 gap-y-2">
         <Link className="font-medium hover:text-ink" href="/learn">
           Learn
