@@ -137,7 +137,7 @@ export function HomeOverview({ sites, flags }: { sites: number; flags: number })
             </Link>
           </div>
           <Link
-            href={`/missions/${lead.siteId}`}
+            href={`/missions/${encodeURIComponent(lead.siteId)}`}
             className="rk-glass flex items-center gap-3 rounded-card p-2.5 shadow-[var(--rk-shadow-lift)]"
           >
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--action)]/12">

@@ -65,7 +65,7 @@ export default async function MissionsPage() {
             {missions.map((mission) => (
               <li key={mission.id}>
                 <Link
-                  href={`/missions/${mission.siteId}`}
+                  href={`/missions/${encodeURIComponent(mission.siteId)}`}
                   className="rk-card rk-card-link flex items-center gap-3 rounded-card border border-unseen bg-surface p-4"
                 >
                   <div className="min-w-0 flex-1">

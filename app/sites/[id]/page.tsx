@@ -77,7 +77,7 @@ export default async function SitePage({ params }: { params: { id: string } }) {
             label="Days since check"
             Icon={CalendarClock}
             accent={site.daysUnseen > 14 ? 'var(--urgent)' : undefined}
-            href={`/timeline/${site.id}`}
+            href={`/timeline/${encodeURIComponent(site.id)}`}
             trend={site.daysUnseen > 14 ? 'up' : site.daysUnseen <= 3 ? 'down' : 'flat'}
             trendLabel="Check history"
           />
@@ -87,7 +87,7 @@ export default async function SitePage({ params }: { params: { id: string } }) {
             label="Rain last 48 h"
             Icon={CloudRain}
             accent="var(--water)"
-            href={`/timeline/${site.id}`}
+            href={`/timeline/${encodeURIComponent(site.id)}`}
             trend={detail.rain48h >= 10 ? 'up' : 'flat'}
             trendLabel="Open-Meteo"
           />
@@ -96,7 +96,7 @@ export default async function SitePage({ params }: { params: { id: string } }) {
             label="Data gap"
             Icon={Gauge}
             accent={gap.accent}
-            href={`/timeline/${site.id}`}
+            href={`/timeline/${encodeURIComponent(site.id)}`}
             trend={detail.gapLevel === 'high' ? 'up' : detail.gapLevel === 'low' ? 'down' : 'flat'}
             trendLabel="Ecosystem data"
           />
@@ -124,7 +124,7 @@ export default async function SitePage({ params }: { params: { id: string } }) {
 
         {/* Timeline link */}
         <Link
-          href={`/timeline/${site.id}`}
+          href={`/timeline/${encodeURIComponent(site.id)}`}
           className="flex items-center justify-between rounded-card border border-unseen bg-surface px-4 py-3 text-sm font-semibold text-ink hover:border-water"
         >
           View site timeline
@@ -150,7 +150,7 @@ export default async function SitePage({ params }: { params: { id: string } }) {
       {/* Sticky CTA */}
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-unseen bg-surface px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3">
         <div className="mx-auto max-w-md">
-          <Link href={`/missions/${site.id}`} className={buttonClasses('primary', 'cta')}>
+          <Link href={`/missions/${encodeURIComponent(site.id)}`} className={buttonClasses('primary', 'cta')}>
             Go check it
             <ArrowRight className="h-5 w-5" aria-hidden="true" />
           </Link>

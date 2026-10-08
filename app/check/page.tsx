@@ -171,7 +171,7 @@ function CheckFlow() {
       feeling,
       createdAt: Date.now(),
     });
-    router.push(`/receipt/${siteId}`);
+    router.push(`/receipt/${encodeURIComponent(siteId)}`);
   }
 
   function next() {
@@ -184,7 +184,7 @@ function CheckFlow() {
 
   function back() {
     if (i === 0) {
-      router.push(`/missions/${siteId}`);
+      router.push(`/missions/${encodeURIComponent(siteId)}`);
       return;
     }
     setI((n) => Math.max(n - 1, 0));

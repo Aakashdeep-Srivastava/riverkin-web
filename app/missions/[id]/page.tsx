@@ -63,7 +63,7 @@ export default async function MissionBriefPage({ params }: { params: { id: strin
     <main className="mx-auto min-h-dvh max-w-2xl pb-28">
       <header className="flex items-center gap-3 px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)]">
         <Link
-          href={`/sites/${site.id}`}
+          href={`/sites/${encodeURIComponent(site.id)}`}
           aria-label="Back"
           className="flex h-10 w-10 items-center justify-center rounded-full border border-unseen text-ink"
         >
@@ -129,7 +129,7 @@ export default async function MissionBriefPage({ params }: { params: { id: strin
 
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-unseen bg-surface px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-3">
         <div className="mx-auto max-w-md">
-          <Link href={`/check?site=${site.id}`} className={buttonClasses('primary', 'cta')}>
+          <Link href={`/check?site=${encodeURIComponent(site.id)}`} className={buttonClasses('primary', 'cta')}>
             Start mission
             <ArrowRight className="h-5 w-5" aria-hidden="true" />
           </Link>

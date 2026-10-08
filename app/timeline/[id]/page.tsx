@@ -34,7 +34,7 @@ export default async function TimelinePage({ params }: { params: { id: string } 
     <main className="mx-auto min-h-dvh max-w-2xl px-4 pb-24">
       <header className="flex items-center gap-3 pt-[calc(env(safe-area-inset-top)+0.75rem)]">
         <Link
-          href={`/sites/${site.id}`}
+          href={`/sites/${encodeURIComponent(site.id)}`}
           aria-label="Back to site"
           className="flex h-10 w-10 items-center justify-center rounded-full border border-unseen text-ink"
         >

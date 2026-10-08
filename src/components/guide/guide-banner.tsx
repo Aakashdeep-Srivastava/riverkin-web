@@ -86,15 +86,15 @@ export function GuideBanner() {
     switch (step) {
       case 0:
         setStep(1);
-        router.push(`/sites/${site}`);
+        router.push(`/sites/${encodeURIComponent(site)}`);
         break;
       case 1:
         setStep(2);
-        router.push(`/missions/${site}`);
+        router.push(`/missions/${encodeURIComponent(site)}`);
         break;
       case 2:
         setStep(3);
-        router.push(`/check?site=${site}`);
+        router.push(`/check?site=${encodeURIComponent(site)}`);
         break;
       case 4:
         setStep(5);

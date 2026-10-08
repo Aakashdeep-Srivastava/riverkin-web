@@ -130,7 +130,7 @@ export default function ImpactPage() {
               {checks.slice(0, 12).map((c) => (
                 <li key={c.createdAt}>
                   <Link
-                    href={`/receipt/${c.siteId}`}
+                    href={`/receipt/${encodeURIComponent(c.siteId)}`}
                     className="rk-card rk-card-link flex items-center gap-3 rounded-card border border-unseen bg-surface p-4"
                   >
                     <div className="min-w-0 flex-1">

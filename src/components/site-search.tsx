@@ -41,7 +41,7 @@ export function SiteSearch({ transparent = false }: { transparent?: boolean }) {
   function go(id: string) {
     setOpen(false);
     setQ('');
-    router.push(`/sites/${id}`);
+    router.push(`/sites/${encodeURIComponent(id)}`);
   }
 
   return (

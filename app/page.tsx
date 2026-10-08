@@ -259,7 +259,7 @@ export default function HomePage() {
                   </span>
                   <AttentionStatus level={lead.attention} />
                 </div>
-                <Link href={`/sites/${lead.id}`} className="mt-2 block">
+                <Link href={`/sites/${encodeURIComponent(lead.id)}`} className="mt-2 block">
                   <h2 className="font-display text-[clamp(1.45rem,6vw,1.85rem)] font-semibold leading-[1.05] text-ink">
                     {lead.name}
                   </h2>
@@ -271,7 +271,7 @@ export default function HomePage() {
                   </p>
                 </Link>
                 <Link
-                  href={`/check?site=${lead.id}`}
+                  href={`/check?site=${encodeURIComponent(lead.id)}`}
                   className="mt-3.5 flex w-full items-center justify-center gap-2 rounded-button bg-[var(--cta)] px-5 py-3 text-[15px] font-semibold text-white shadow-[var(--rk-shadow)] transition-transform active:scale-[0.98]"
                 >
                   Check this river

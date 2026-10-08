@@ -132,7 +132,7 @@ export default function CrewPage() {
             {crew.adopted.map((s) => (
               <li key={s.site_code}>
                 <Link
-                  href={`/sites/${s.site_code}`}
+                  href={`/sites/${encodeURIComponent(s.site_code)}`}
                   className="flex items-center justify-between rounded-card border border-unseen bg-surface p-4 hover:border-water"
                 >
                   <div>
