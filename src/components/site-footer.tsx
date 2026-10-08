@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { LanguageSwitcher } from '@/components/language-switcher';
 
 /**
@@ -9,6 +10,23 @@ import { LanguageSwitcher } from '@/components/language-switcher';
 export function SiteFooter() {
   return (
     <footer className="border-t border-unseen px-4 py-6 text-xs text-ink-muted">
+      <nav className="mx-auto mb-4 flex max-w-2xl flex-wrap gap-x-4 gap-y-2">
+        <Link className="font-medium hover:text-ink" href="/learn">
+          Learn
+        </Link>
+        <Link className="font-medium hover:text-ink" href="/about">
+          About
+        </Link>
+        <Link className="font-medium hover:text-ink" href="/support">
+          Support
+        </Link>
+        <Link className="font-medium hover:text-ink" href="/privacy">
+          Privacy
+        </Link>
+        <Link className="font-medium hover:text-ink" href="/terms">
+          Terms
+        </Link>
+      </nav>
       <p className="mx-auto max-w-2xl leading-relaxed">
         Data &amp; credits: river sites, ecology &amp; One Health risk data from{' '}
         <a

@@ -48,6 +48,18 @@ const nextConfig = {
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },
+  // Consolidate www → apex with a 301 so search engines see one canonical host
+  // (both hostnames are bound to the container app and otherwise serve 200).
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.riverkin.online' }],
+        destination: 'https://riverkin.online/:path*',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 // next-intl (App Router, cookie-based locale — see src/i18n/request.ts).

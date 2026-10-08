@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 export const metadata = {
   title: 'Privacy Policy — RiverKin',
   description: 'How RiverKin collects, uses and protects personal data under the EU GDPR.',
+  alternates: { canonical: 'https://riverkin.online/privacy' },
 };
 
 /** GDPR-aligned Privacy Policy. Review with a DPO before a production pilot. */

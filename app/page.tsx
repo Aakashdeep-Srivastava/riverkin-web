@@ -18,6 +18,7 @@ import { FilterChips, type SiteFilter } from '@/components/filter-chips';
 import { SiteFooter } from '@/components/site-footer';
 import { LEVEL_RANK } from '@/lib/attention';
 import { mockSites } from '@/lib/mock-data';
+import { LEARN_ARTICLES } from '@/lib/learn-content';
 import type { Site } from '@/lib/api-types';
 
 function matchesFilter(site: Site, filter: SiteFilter): boolean {
@@ -116,6 +117,39 @@ export default function HomePage() {
   if (!checked) {
     return (
       <main className="relative min-h-dvh bg-bg pb-[calc(env(safe-area-inset-bottom)+6rem)]">
+        {/* Crawlable content for non-JS search/AI bots. The home screen is an
+         * interactive map that hydrates client-side (or redirects first-time
+         * visitors to /welcome), so without this the SSR HTML is an empty
+         * skeleton. Visually hidden (sr-only) — no change to the UI — but gives
+         * crawlers a real H1, description and internal links. */}
+        <section className="sr-only">
+          <h1>RiverKin — find where the river needs you</h1>
+          <p>
+            RiverKin is citizen science that keeps urban rivers healthy. It shows you the river
+            sites near you that most need a look, guides a safe five-minute bank-side field check,
+            has peers verify it, and turns the result into standardised FHIR health data that cities
+            and scientists use. Built on real OneAquaHealth ecology data across pilot cities in
+            Europe and a Melbourne pilot.
+          </p>
+          <nav aria-label="RiverKin">
+            <ul>
+              <li>
+                <Link href="/learn">How RiverKin works</Link>
+              </li>
+              {LEARN_ARTICLES.map((a) => (
+                <li key={a.slug}>
+                  <Link href={`/learn/${a.slug}`}>{a.h1}</Link>
+                </li>
+              ))}
+              <li>
+                <Link href="/about">About RiverKin</Link>
+              </li>
+              <li>
+                <Link href="/support">Support RiverKin</Link>
+              </li>
+            </ul>
+          </nav>
+        </section>
         <div className="relative h-[68dvh] w-full overflow-hidden">
           <div className="absolute inset-0 animate-pulse bg-[color-mix(in_srgb,var(--water)_12%,var(--surface))]" />
         </div>

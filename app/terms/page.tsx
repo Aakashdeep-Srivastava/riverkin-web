@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 export const metadata = {
   title: 'Terms of Service — RiverKin',
   description: 'The terms for using RiverKin, including safety, acceptable use and your content.',
+  alternates: { canonical: 'https://riverkin.online/terms' },
 };
 
 /** Terms of Service. Review with counsel before a production pilot. */

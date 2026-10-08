@@ -8,6 +8,12 @@ import { BottomNav } from '@/components/bottom-nav';
 import { GuideProvider } from '@/components/guide/guide-context';
 import { GuideBanner } from '@/components/guide/guide-banner';
 import { ServiceWorkerRegister, InstallBanner } from '@/components/pwa';
+import {
+  JsonLd,
+  organizationJsonLd,
+  websiteJsonLd,
+  webApplicationJsonLd,
+} from '@/components/structured-data';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -71,6 +77,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang={locale} className={`${inter.variable} ${newsreader.variable}`}>
       <body className="font-sans antialiased">
+        <JsonLd data={[organizationJsonLd, websiteJsonLd, webApplicationJsonLd]} />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <QueryProvider>
             <GuideProvider>

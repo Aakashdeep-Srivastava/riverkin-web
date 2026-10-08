@@ -1,7 +1,9 @@
 'use client';
 
-import { Eye, BookOpen, Camera, ShieldCheck, Users, Sprout, type LucideIcon } from 'lucide-react';
+import Link from 'next/link';
+import { Eye, BookOpen, Camera, ShieldCheck, Users, Sprout, ArrowRight, type LucideIcon } from 'lucide-react';
 import { AppBar } from '@/components/app-bar';
+import { LEARN_ARTICLES } from '@/lib/learn-content';
 
 interface Card {
   Icon: LucideIcon;
@@ -80,6 +82,37 @@ export default function LearnPage() {
           The AI reads your photos and writes questions — it never fills in an answer.{' '}
           <span className="font-semibold text-ink">AI asks, humans decide.</span>
         </p>
+
+        {/* Guides — the SEO + social education cluster. */}
+        <section className="mt-9">
+          <h2 className="font-display text-[20px] font-semibold text-ink">Guides</h2>
+          <p className="mt-1 text-[13px] text-ink-muted">
+            Read a river like a scientist — no lab required.
+          </p>
+          <ul className="mt-4 space-y-3">
+            {LEARN_ARTICLES.map((a) => (
+              <li key={a.slug}>
+                <Link
+                  href={`/learn/${a.slug}`}
+                  className="group flex items-start gap-3 rounded-card border border-unseen bg-surface p-4 shadow-sm hover:border-[var(--action)]"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[15px] font-bold text-ink group-hover:text-[var(--action)]">
+                      {a.h1}
+                    </p>
+                    <p className="mt-0.5 text-[13px] leading-relaxed text-ink-muted">
+                      {a.description}
+                    </p>
+                  </div>
+                  <ArrowRight
+                    className="mt-1 h-4 w-4 shrink-0 text-ink-muted group-hover:text-[var(--action)]"
+                    aria-hidden="true"
+                  />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
     </main>
   );

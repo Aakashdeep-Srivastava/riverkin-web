@@ -1,0 +1,6 @@
+# GitHub "Sponsor" button for the RiverKin repo.
+# The `github:` key only renders once you have enrolled in GitHub Sponsors at
+# https://github.com/sponsors — then your username here shows the Sponsor button.
+# The custom link works immediately and points at the on-site Support page.
+github: [Aakashdeep-Srivastava]
+custom: ["https://riverkin.online/support"]

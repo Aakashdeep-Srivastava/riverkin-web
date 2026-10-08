@@ -1,0 +1,16 @@
+# RiverKin
+
+> Citizen science that keeps urban rivers healthy. RiverKin shows people the river sites near them that most need a look, guides a safe five-minute bank-side field check (a few photos and simple questions), has peers verify each check, and exports the verified result as standardised FHIR health data that cities, scientists and biodiversity teams already use.
+
+RiverKin is built on real OneAquaHealth (EU Horizon Europe project) ecology and One-Health-risk data across pilot cities in Europe (Coimbra, Toulouse, Ghent, Oslo, Benevento) plus a Melbourne, Australia pilot. It is a project of Xphora AI Technology Pvt Ltd. Core principle: "AI asks, humans decide" — the AI reads photos and raises questions, it never fills in an answer. Safety first: observe from the bank only.
+
+## Guides
+- [How to tell if a river is polluted: 8 signs](https://riverkin.online/learn/how-to-tell-if-a-river-is-polluted): The visual signs of water pollution anyone can spot from the bank.
+- [What the bugs in the water tell you about river health](https://riverkin.online/learn/what-macroinvertebrates-tell-you-about-water): Macroinvertebrates as bioindicators — which river bugs mean clean water and which mean trouble.
+- [Citizen science for water: how 5 minutes helps](https://riverkin.online/learn/what-is-citizen-science-water-monitoring): What citizen-science water monitoring is, whether the data counts, and how to start.
+
+## Pages
+- [How RiverKin works](https://riverkin.online/learn): The five-step loop (Notice, Understand, Act, Verify, It counts) and the safety + AI stance.
+- [Support RiverKin](https://riverkin.online/support): Ways to support the open-source project — GitHub Sponsors, contributions, and organisational sponsorship.
+- [Privacy Policy](https://riverkin.online/privacy): GDPR data-minimisation; email only for adults; nothing personal for under-16 crews.
+- [Terms of Service](https://riverkin.online/terms): Safety rules, acceptable use, and who may use RiverKin.
